@@ -1,7 +1,7 @@
 library(RNetCDF)
 library(raster)
 
-em_earth_prcp <- stack('../../shared/data/obs/precip/global/em_earth/raw/em_earth.tp.mm.global.195001.201912.025.monthly.nc')
+em_earth_prcp <- stack('../../shared/data/obs/precip/em_earth.tp.mm.global.195001.201912.025.monthly.nc')
 
 for(i in 1:12){
   image(em_earth_prcp[[i]],
