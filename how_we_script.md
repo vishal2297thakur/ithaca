@@ -26,6 +26,8 @@ rescaling.R
 
 The R environment must be empty in the beginning of each session (see RStudio options). The data input should be in the beginnning of the script and the ouput (figures or new datasets) should be saved in the end. We never save in the raw data directory. 
 
+For the directory structure, we follow [this guideline](https://nicercode.github.io/blog/2013-04-05-projects/).
+
 ## **Notation**
 
 Use the snake notation in names _ separate the words with underscores. Generally we use only small letters for variables/functions and caps for constants. 
