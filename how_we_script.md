@@ -9,14 +9,19 @@ Scripts must be small and do one thing only. The script name should be informati
 *Example:*    
 
 01_download_gpm_daily_2005_2012_czechia.R
+
 02_rescale_monthly_025deg.R
+
 03_estimate_slopes.R
+
 04_figs_for_paper.R
 
 Compared to (presented alphabetically):
 
 analysis.R (has both slope estimation and figures)
+
 download_data.R
+
 rescaling.R 
 
 The R environment must be empty in the beginning of each session (see RStudio options). The data input should be in the beginnning of the script and the ouput (figures or new datasets) should be saved in the end. We never save in the raw data directory. 
