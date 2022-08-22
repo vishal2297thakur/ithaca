@@ -16,9 +16,9 @@ Scripts must be small and do one thing only. The script name should be informati
 
 04_figs_for_paper.R
 
-Compared to (presented alphabetically):
+Compared to:
 
-analysis.R (has both slope estimation and figures)
+analysis.R (which has both slope estimation and figures)
 
 download_data.R
 
