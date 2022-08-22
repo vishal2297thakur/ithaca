@@ -2,6 +2,25 @@
 
 Different coders comes with different background. Readability of code is much improved, if common ground is set. Coding according to common standards eases presentation of the code outside the project team. Also see the [tidyverse syntax](https://style.tidyverse.org/syntax.html) and [google style guidelines](http://web.stanford.edu/class/cs109l/unrestricted/resources/google-style.html).
 
+## **Structure**
+
+Scripts must be small and do one thing only. The script name should be informative of the script purpose. Generally, it is good to keep track of script order in their names. 
+
+*Example:*    
+
+01_download_gpm_daily_2005_2012_czechia.R
+02_rescale_monthly_025deg.R
+03_estimate_slopes.R
+04_figs_for_paper.R
+
+Compared to (presented alphabetically):
+
+analysis.R (has both slope estimation and figures)
+download_data.R
+rescaling.R 
+
+The R environment must be empty in the beginning of each session (see RStudio options). The data input should be in the beginnning of the script and the ouput (figures or new datasets) should be saved in the end. We never save in the raw data directory. 
+
 ## **Notation**
 
 Use the snake notation in names _ separate the words with underscores. Generally we use only small letters for variables/functions and caps for constants. 
