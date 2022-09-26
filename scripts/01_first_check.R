@@ -3,7 +3,7 @@
 library(RNetCDF)
 library(raster)
 
-em_earth_prcp <- stack('../../shared/data/obs/precip/em_earth.tp.mm.global.195001.201912.025.monthly.nc')
+em_earth_prcp <- stack('../../shared/data/obs/precip/raw/em-earth_tp_mm_global-land_195001_201912_025_monthly.nc')
 
 map_scale_size <- 12
 n_random_months <- 20
@@ -15,7 +15,7 @@ for(a_month in random_months){
         col = hcl.colors(map_scale_size, "Blues3", rev = TRUE))
 }
 
-era5_cloud <- stack('../../shared/data/sim/cloudcover/global/raw/era5.tcc.frac.global.195901.202112.025.monthly.nc.nc')
+era5_cloud <- stack('../../shared/data/sim/cloudcover/raw/era5_tcc_frac_global_195901_202112_025_monthly.nc')
 for(a_month in random_months){
   image(era5_cloud[[a_month]], 
         col = hcl.colors(map_scale_size, "Blues3"))
