@@ -1,7 +1,6 @@
 source("source/masks_source.R")
 source("source/main.R")
 
-
 # Load test image
 folder_sim <- list.files(path = shared_sim_data_dir, full.names = T)
 
