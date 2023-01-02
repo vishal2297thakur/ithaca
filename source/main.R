@@ -17,9 +17,9 @@ library(sf)
 library(doParallel)
 
 ##Paths
-path_data <- '../../shared/data/'
-path_data_review <- '../../shared/data_review/'
-path_save <- '../../shared/data_projects/ithaca/'
+path_data <- '~/shared/data/'
+path_data_review <- '~/shared/data_review/'
+path_save <- '~/shared/data_projects/ithaca/'
 
 ##Constants
 PERIOD_START <- as.Date("1960-01-01")
