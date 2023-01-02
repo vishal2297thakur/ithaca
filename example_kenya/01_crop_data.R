@@ -4,8 +4,10 @@ source('source/example_kenya.R')
 
 fname_prec_era5 <- list.files(path = path_prec, full.names = T, pattern = "era5_tp*") 
 fname_prec_terra <- list.files(path = path_prec, full.names = T, pattern = "terraclimate_tp*") 
-fname_prec_mswep <- list.files(path = path_prec, full.names = T, pattern = "mswep_tp*") 
-fname_prec_gpcp <- list.files(path = path_prec, full.names = T, pattern = "gpcp_tp*") 
+
+fname_evap_era5 <- list.files(path = path_evap, full.names = T, pattern = "era5_e_*") 
+fname_evap_terra <- list.files(path = path_evap, full.names = T, pattern = "terraclimate_e_*") 
+
 
 ## Precipitation
 
