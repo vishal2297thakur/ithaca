@@ -16,10 +16,10 @@ prec_era5 <- brick(fname_prec_era5)
 prec_terra <- brick(fname_prec_terra)
 
 # Crop data (Kenya) and filter to time
-time_filter_era5 <- which(getZ(prec_era5) >= period_start & 
-                       (getZ(prec_era5) <= period_end))
-time_filter_terra <- which(getZ(prec_terra) >= period_start & 
-                             (getZ(prec_terra) <= period_end))
+time_filter_era5 <- which(getZ(prec_era5) >= PERIOD_START & 
+                       (getZ(prec_era5) <= PERIOD_END))
+time_filter_terra <- which(getZ(prec_terra) >= PERIOD_START & 
+                             (getZ(prec_terra) <= PERIOD_END))
 
 prec_era5_kenya <- crop(prec_era5, crop_box)
 prec_era5_kenya <- subset(prec_era5_kenya, time_filter_era5)
