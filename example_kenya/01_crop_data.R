@@ -1,14 +1,12 @@
-source('source/example_kenya_source.R')
+source('source/example_kenya.R')
 
-### Read data
+### Reading the data and extracting the data for the specified region crop_box for a period of 60 years (12x60 months)
 
 fname_prec_era5 <- list.files(path = path_prec, full.names = T, pattern = "era5_tp*") 
 fname_prec_terra <- list.files(path = path_prec, full.names = T, pattern = "terraclimate_tp*") 
+fname_prec_mswep <- list.files(path = path_prec, full.names = T, pattern = "mswep_tp*") 
+fname_prec_gpcp <- list.files(path = path_prec, full.names = T, pattern = "gpcp_tp*") 
 
-fname_evap_era5 <- list.files(path = path_evap, full.names = T, pattern = "era5_e_*") 
-fname_evap_terra <- list.files(path = path_evap, full.names = T, pattern = "terraclimate_e_*") 
-
-## Reading the data and extracting the data for the specified region crop_box for a period of 60 years (12x60 months)
 ## Precipitation
 
 # Read data
@@ -32,7 +30,9 @@ rm(prec_era5)
 rm(prec_terra)
 gc()
 
+
 ## Evapotranspiration
+
 # Read data
 evap_era5 <- brick(fname_evap_era5)
 evap_terra <- brick(fname_evap_terra)
