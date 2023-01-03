@@ -1,89 +1,77 @@
-### Estimation of monthly precipitation mean, standard deviation (sd), and coefficient of variance
+### Estimation of monthly evapipitation mean, standard deviation (sd), and coefficient of variance
 ### for the dataset ensemble
 
 source('source/example_kenya.R')
 source('source/geo_functions.R')
 
 # Read data 
-prec_era5_kenya <- readRDS(paste0(path_save_kenya, "prec_era5.rds"))
-prec_terra_kenya <- readRDS(paste0(path_save_kenya, "prec_terra.rds"))
+evap_era5_kenya <- readRDS(paste0(path_save_kenya, "evap_era5.rds"))
+evap_terra_kenya <- readRDS(paste0(path_save_kenya, "evap_terra.rds"))
 
 # Variables
 period_months_dates <- seq(PERIOD_START, by = "month", length.out = period_months)
 
 ## Monthly ensemble mean for two data sources 
 # Version 1: Parallel computing
-prec_mean_month <- foreach(month_count = 1:period_months) %dopar% {
-  calc(stack(prec_era5_kenya[[month_count]], 
-             prec_terra_kenya[[month_count]]), 
+evap_mean_month <- foreach(month_count = 1:period_months) %dopar% {
+   calc(stack(evap_era5_kenya[[month_count]], 
+             evap_terra_kenya[[month_count]]), 
        fun = mean, 
        na.rm = F)
 }
 
-prec_mean_month <- brick(prec_mean_month)
-prec_mean_month <- setZ(prec_mean_month, period_months_dates)
-names(prec_mean_month) <- as.Date(period_months_dates)
+evap_mean_month <- brick(evap_mean_month)
+evap_mean_month <- setZ(evap_mean_month, period_months_dates)
+names(evap_mean_month) <- as.Date(period_months_dates)
 
-prec_sd_month <- foreach(month_count = 1:period_months) %dopar% {
-  calc(stack(prec_era5_kenya[[month_count]], 
-             prec_terra_kenya[[month_count]]), 
+evap_sd_month <- foreach(month_count = 1:period_months) %dopar% {
+  calc(stack(evap_era5_kenya[[month_count]], 
+             evap_terra_kenya[[month_count]]), 
        fun = sd, 
        na.rm = F)
 }
 
-prec_sd_month <- brick(prec_sd_month)
-prec_sd_month <- setZ(prec_sd_month, period_months_dates)
-names(prec_sd_month) <- as.Date(period_months_dates)
+evap_sd_month <- brick(evap_sd_month)
+evap_sd_month <- setZ(evap_sd_month, period_months_dates)
+names(evap_sd_month) <- as.Date(period_months_dates)
 
-prec_cv_month <- foreach(month_count = 1:period_months) %dopar% {
-  prec_sd_month[[month_count]]/prec_mean_month[[month_count]]
+evap_cv_month <- foreach(month_count = 1:period_months) %dopar% {
+  evap_sd_month[[month_count]]/evap_mean_month[[month_count]]
 }
 
-prec_cv_month <- brick(prec_cv_month)
-prec_cv_month <- setZ(prec_cv_month, period_months_dates)
-names(prec_cv_month) <- as.Date(period_months_dates)
+evap_cv_month <- brick(evap_cv_month)
+evap_cv_month <- setZ(evap_cv_month, period_months_dates)
+names(evap_cv_month) <- as.Date(period_months_dates)
 
 # Quick validation
-plot(mean(prec_era5_kenya))
-plot(mean(prec_terra_kenya))
-plot(mean(prec_mean_month))
-plot(mean(prec_sd_month))
-plot(mean(prec_cv_month))
+plot(mean(evap_era5_kenya))
+plot(mean(evap_terra_kenya))
+plot(mean(evap_mean_month))
+plot(mean(evap_sd_month))
+plot(mean(evap_cv_month))
 
 # Transform to data.table 
-prec_mean_month_dt <- brick_to_dt(prec_mean_month) 
-prec_sd_month_dt <- brick_to_dt(prec_sd_month)
-prec_cv_month_dt <- brick_to_dt(prec_cv_month)
+evap_mean_month_dt <- brick_to_dt(evap_mean_month) 
+evap_sd_month_dt <- brick_to_dt(evap_sd_month)
+evap_cv_month_dt <- brick_to_dt(evap_cv_month)
 
-prec_stats <- merge(prec_mean_month_dt, prec_sd_month_dt, by = c('x', 'y', 'time'))
-prec_stats <- merge(prec_stats, prec_cv_month_dt, by = c('x', 'y', 'time'))
-colnames(prec_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
+evap_stats <- merge(evap_mean_month_dt, evap_sd_month_dt, by = c('x', 'y', 'time'))
+evap_stats <- merge(evap_stats, evap_cv_month_dt, by = c('x', 'y', 'time'))
+colnames(evap_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
 
 # Save data for further use
-saveRDS(prec_stats, paste0(path_save_kenya, "prec_stats.rds"))
-
-## Version 2: Alternative example with stackApply 
-## Not sure which of two versions is faster with big rasters
-
-prec_mean_month_alt <- stackApply(x = stack(prec_era5_kenya, prec_terra_kenya), 
-                                  indices = rep(1:period_months, n_datasets), 
-                                  fun = mean, 
-                                  na.rm = F)
-prec_mean_month_alt <- setZ(prec_mean_month_alt, period_months_dates)
-names(prec_mean_month_alt) <- as.Date(period_months_dates)
-
-prec_mean_month_alt_dt <- brick_to_dt(prec_mean_month_alt)
+saveRDS(evap_stats, paste0(path_save_kenya, "evap_stats.rds"))
 
 ## Plotting
 
-to_plot <- prec_stats[, .(value = mean(mean)), .(lon, lat)]
+to_plot <- evap_stats[, .(value = mean(mean)), .(lon, lat)]
 
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
-  labs(x = "", y = "", fill = prec_name_short) +
+  labs(x = "", y = "", fill = evap_name_short) +
   scale_fill_gradient2(low ="red", mid = "white", high = "blue", midpoint = 0) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_bw() +
@@ -95,14 +83,14 @@ p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b
   scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
 p01
 
-to_plot <- prec_stats[, .(value = mean(sd)), .(lon, lat)]
+to_plot <- evap_stats[, .(value = mean(sd)), .(lon, lat)]
 
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
-  labs(x = "", y = "", fill = prec_name_short) +
+  labs(x = "", y = "", fill = evap_name_short) +
   scale_fill_gradient2(low ="red", mid = "white", high = "blue", midpoint = 0) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_bw() +
@@ -114,7 +102,7 @@ p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b
   scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
 p01
 
-to_plot <- prec_stats[, .(value = mean(cv)), .(lon, lat)]
+to_plot <- evap_stats[, .(value = mean(cv)), .(lon, lat)]
 
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +

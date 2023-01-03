@@ -17,7 +17,7 @@ evap_era5 <- brick(fname_evap_era5)
 evap_terra <- brick(fname_evap_terra)
 
 # Subset data over study area and period
-prec_era5_kenya <- crop_space_time(prec_era5, PERIOD_START, PERIOD_END, study_area)
+prec_era5_kenya <- crop_space_time(prec_era5, PERIOD_START, PERIOD_END, study_area) #function stored in geo_functions.R
 prec_terra_kenya <- crop_space_time(prec_terra, PERIOD_START, PERIOD_END, study_area)
 
 evap_era5_kenya <- crop_space_time(evap_era5, PERIOD_START, PERIOD_END, study_area)
