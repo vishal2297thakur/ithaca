@@ -12,7 +12,7 @@ n_datasets <- 2
 n_variables <- 2
 
 # Specify the lat/lon for the region of analysis | In this example we are using the constants from the source file main.R
-crop_box <- extent(PILOT_LON_MIN, 
+study_area <- extent(PILOT_LON_MIN, 
                    PILOT_LON_MAX, 
                    PILOT_LAT_MIN, 
                    PILOT_LAT_MAX)

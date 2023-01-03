@@ -1,6 +1,7 @@
-source('source/example_kenya.R')
+### Reading the data and extracting the data for the specified region for a period of 60 years
 
-### Reading the data and extracting the data for the specified region crop_box for a period of 60 years (12x60 months)
+source('source/example_kenya.R')
+source('source/geo_functions.R')
 
 fname_prec_era5 <- list.files(path = path_prec, full.names = T, pattern = "era5_tp*") 
 fname_prec_terra <- list.files(path = path_prec, full.names = T, pattern = "terraclimate_tp*") 
@@ -8,47 +9,23 @@ fname_prec_terra <- list.files(path = path_prec, full.names = T, pattern = "terr
 fname_evap_era5 <- list.files(path = path_evap, full.names = T, pattern = "era5_e_*") 
 fname_evap_terra <- list.files(path = path_evap, full.names = T, pattern = "terraclimate_e_*") 
 
-
-## Precipitation
-
 # Read data
 prec_era5 <- brick(fname_prec_era5)
 prec_terra <- brick(fname_prec_terra)
 
-# Crop data (Kenya) and filter to time
-time_filter_era5 <- which(getZ(prec_era5) >= PERIOD_START & 
-                       (getZ(prec_era5) <= PERIOD_END))
-time_filter_terra <- which(getZ(prec_terra) >= PERIOD_START & 
-                             (getZ(prec_terra) <= PERIOD_END))
-
-prec_era5_kenya <- crop(prec_era5, crop_box)
-prec_era5_kenya <- subset(prec_era5_kenya, time_filter_era5)
-
-prec_terra_kenya <- crop(prec_terra, crop_box)
-prec_terra_kenya <- subset(prec_terra_kenya, time_filter_terra)
-
-# Remove global data
-rm(prec_era5)
-rm(prec_terra)
-gc()
-
-
-## Evapotranspiration
-
-# Read data
 evap_era5 <- brick(fname_evap_era5)
 evap_terra <- brick(fname_evap_terra)
 
-# Crop data (Kenya) and filter to time
-evap_era5_kenya <- crop(evap_era5, crop_box)
-evap_era5_kenya <- subset(evap_era5_kenya, time_filter_era5)
+# Subset data over study area and period
+prec_era5_kenya <- crop_space_time(prec_era5, PERIOD_START, PERIOD_END, study_area)
+prec_terra_kenya <- crop_space_time(prec_terra, PERIOD_START, PERIOD_END, study_area)
 
-evap_terra_kenya <- crop(evap_terra, crop_box)
-evap_terra_kenya <- subset(evap_terra_kenya, time_filter_terra)
+evap_era5_kenya <- crop_space_time(evap_era5, PERIOD_START, PERIOD_END, study_area)
+evap_terra_kenya <- crop_space_time(evap_terra, PERIOD_START, PERIOD_END, study_area)
 
 # Remove global data
-rm(evap_era5)
-rm(evap_terra)
+rm(prec_era5); rm(prec_terra)
+rm(evap_era5); rm(evap_terra)
 gc()
 
 # Quick validation

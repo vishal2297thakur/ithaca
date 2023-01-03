@@ -10,7 +10,6 @@ library(ggplot2)
 library(raster)
 library(ncdf4)
 library(sp)
-library(rgdal) 
 library(sf)
 
 # parallel

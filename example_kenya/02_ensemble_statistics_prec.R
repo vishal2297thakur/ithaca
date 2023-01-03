@@ -1,10 +1,8 @@
-source('source/masks_source.R')
-source('source/geo_functions.R')
-source('source/example_kenya.R')
-source('source/plot_functions')
-
 ### Estimation of monthly precipitation mean, standard deviation (sd), and coefficient of variance
 ### for the dataset ensemble
+
+source('source/example_kenya.R')
+source('source/geo_functions.R')
 
 # Read data 
 prec_era5_kenya <- readRDS(paste0(path_save_kenya, "prec_era5.rds"))
@@ -72,8 +70,60 @@ prec_mean_month_alt_dt <- brick_to_dt(prec_mean_month_alt)
 
 ## Plotting
 
-ggmap(prec_mean_month_dt[time == period_months_dates[[120]]])
+to_plot <- prec_mean_month_dt[, .(value = mean(value)), .(x, y)]
 
-ggmap(prec_sd_month_dt[time == period_months_dates[[120]]])
+p00 <- ggplot(to_plot) +
+  geom_raster(aes(x = x, y = y, fill = value)) +
+  borders(colour = "black") +
+  coord_cartesian(xlim = c(min(to_plot$x), max(to_plot$x)), 
+                  ylim = c(min(to_plot$y), max(to_plot$y))) +  
+  labs(x = "Lon", y = "Lat", fill = prec_name_short) +
+  scale_fill_gradient2(low ="red", mid = "white", high = "blue", midpoint = 0) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.grid = element_line(color = "grey"))
+y_labs <- ggplot_build(p00)$layout$panel_params[[1]]$y$get_labels()
+x_labs <- ggplot_build(p00)$layout$panel_params[[1]]$x$get_labels()
+p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b0")) +
+  scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
+p01
 
-ggmap(prec_cv_month_dt[time == period_months_dates[[120]]])
+to_plot <- prec_sd_month_dt[, .(value = mean(value)), .(x, y)]
+
+p00 <- ggplot(to_plot) +
+  geom_raster(aes(x = x, y = y, fill = value)) +
+  borders(colour = "black") +
+  coord_cartesian(xlim = c(min(to_plot$x), max(to_plot$x)), 
+                  ylim = c(min(to_plot$y), max(to_plot$y))) +  
+  labs(x = "Lon", y = "Lat", fill = prec_name_short) +
+  scale_fill_gradient2(low ="red", mid = "white", high = "blue", midpoint = 0) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.grid = element_line(color = "grey"))
+y_labs <- ggplot_build(p00)$layout$panel_params[[1]]$y$get_labels()
+x_labs <- ggplot_build(p00)$layout$panel_params[[1]]$x$get_labels()
+p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b0")) +
+  scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
+p01
+
+to_plot <- prec_cv_month_dt[, .(value = mean(value)), .(x, y)]
+
+p00 <- ggplot(to_plot) +
+  geom_raster(aes(x = x, y = y, fill = value)) +
+  borders(colour = "black") +
+  coord_cartesian(xlim = c(min(to_plot$x), max(to_plot$x)), 
+                  ylim = c(min(to_plot$y), max(to_plot$y))) +  
+  labs(x = "Lon", y = "Lat", fill = "cv") +
+  scale_fill_gradient2(low ="blue", mid = "white", high = "red", midpoint = 0.5) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.grid = element_line(color = "grey"))
+y_labs <- ggplot_build(p00)$layout$panel_params[[1]]$y$get_labels()
+x_labs <- ggplot_build(p00)$layout$panel_params[[1]]$x$get_labels()
+p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b0")) +
+  scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
+p01
+
