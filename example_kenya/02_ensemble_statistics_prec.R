@@ -1,6 +1,7 @@
 source('source/masks_source.R')
 source('source/geo_functions.R')
 source('source/example_kenya.R')
+source('source/plot_functions')
 
 ### Estimation of monthly precipitation mean, standard deviation (sd), and coefficient of variance
 ### for the dataset ensemble
@@ -71,22 +72,8 @@ prec_mean_month_alt_dt <- brick_to_dt(prec_mean_month_alt)
 
 ## Plotting
 
-ggplot(prec_mean_month_dt[time == period_months_dates[[120]]]) +
-  geom_raster(aes(x = x, y = y, fill = value)) + 
-  coord_quickmap() +  
-  labs(x = "Lon", y = "Lat", fill = prec_name_short) +
-  scale_fill_gradient2(low ="red", mid = "white", high = "blue", midpoint = 0)+
-  theme_bw()
+ggmap(prec_mean_month_dt[time == period_months_dates[[120]]])
 
-ggplot(prec_sd_month_dt[time == period_months_dates[[120]]]) +
-  geom_raster(aes(x = x, y = y, fill = value)) + 
-  coord_quickmap() +  
-  labs(x = "Lon", y = "Lat", fill = prec_name_short) +
-  scale_fill_gradient2(low ="red", mid = "white", high = "blue", midpoint = 0)+
-  theme_bw()
+ggmap(prec_sd_month_dt[time == period_months_dates[[120]]])
 
-ggplot(prec_cv_month_dt[time == period_months_dates[[120]]]) +
-  coord_quickmap() +  labs(x = "Lon", y = "Lat", fill = "CV")+
-  geom_raster(aes(x = x, y = y, fill = value)) + 
-  scale_fill_gradient2(low ="red", mid = "white", high = "dark red", midpoint = 0)+
-  theme_bw()
+ggmap(prec_cv_month_dt[time == period_months_dates[[120]]])
