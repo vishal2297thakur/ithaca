@@ -1,23 +1,50 @@
 source('source/main.R')
-source('source/masks_source.R')
-source('source/example_kenya_source.R')
-
-source('example/example_1_kenya_2_a_ensemble_mean_var1.R')
+source('source/masks.R')
+source('source/graphics.R')
+source('source/example_kenya.R')
 
 ### Assessing % change in ensemble mean between two 30 years time periods (t1=1960 to 1989 & t2=1990 to 2019)
 
-time1_beg <- as.Date("1960-01-01")
-time1_end <- as.Date("1989-12-01")
-time2_beg <- as.Date("1990-01-01")
-time2_end <- as.Date("2019-12-01")
+# Read data 
+prec_stats <- readRDS(paste0(path_save_kenya, "prec_stats.rds"))
+evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
+all_stats_low_bias <- readRDS(paste0(path_save_kenya, "all_stats_low_bias.rds"))
 
-var1_mean_df_period1 <- var1_mean_df[time >= time1_beg & time <= time1_end, mean(value), .(x,y)]
-var1_mean_df_period2 <- var1_mean_df[time >= time2_beg & time <= time2_end, mean(value), .(x,y)]
+# Set variables
+prec_mean__period_1 <- prec_stats[time >= PERIOD_1_START & time <= PERIOD_1_END, mean(mean), .(lon, lat)]
+prec_mean__period_2 <- prec_stats[time >= PERIOD_2_START & time <= PERIOD_2_END, mean(mean), .(lon, lat)]
+prec_low_bias <- all_stats_low_bias[variable == 'prec', .(lon, lat)]
 
-var1_mean_df_change <- merge(var1_mean_df_period1, var1_mean_df_period2, by = c("x","y"))
-setnames(var1_mean_df_change, c('V1.x', 'V1.y'), c('mean_tp_period1', 'mean_tp_period2'))
-var1_mean_df_change[, diff_tp := mean_tp_period2 - mean_tp_period1]
-var1_mean_df_change[, percent_change_tp := (mean_tp_period2 - mean_tp_period1)/mean_tp_period1*100]
+# Merge data
+prec_mean_change <- merge(prec_mean__period_1, prec_mean__period_2, by = c("lat", "lon"))
+setnames(prec_mean_change, c('V1.x', 'V1.y'), c('mean_period_1', 'mean_period_2'))
+
+# Main estimations
+prec_mean_change[, abs_diff := round(mean_period_2 - mean_period_1, 1)]
+prec_mean_change[, perc_change := round((mean_period_2 - mean_period_1)/mean_period_1 * 100, 2)]
+
+# Plot results
+to_plot <- prec_mean_change[, .(lat, lon, value = perc_change)]
+p00 <- ggplot() +
+  geom_raster(data = to_plot, aes(x = lon, y = lat, fill = value)) +
+  geom_point(data = all_stats_low_bias, aes(x = lon, y = lat)) +
+  borders(colour = "black") +
+  coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
+                  ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
+  labs(x = "", y = "", fill = "Change (%)") +
+  scale_fill_gradient2(low = period_cols[3], 
+                       mid = "white", 
+                       high = "dark blue", 
+                       midpoint = 0) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.grid = element_line(color = "grey"))
+y_labs <- ggplot_build(p00)$layout$panel_params[[1]]$y$get_labels()
+x_labs <- ggplot_build(p00)$layout$panel_params[[1]]$x$get_labels()
+p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b0")) +
+  scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
+p01
 
 
 ### Assessing % change in ensemble mean between two 30 years time periods (t1=1960 to 1989 & t2=1990 to 2019) for each KG class

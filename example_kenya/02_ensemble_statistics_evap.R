@@ -61,18 +61,20 @@ colnames(evap_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
 
 # Save data for further use
 saveRDS(evap_stats, paste0(path_save_kenya, "evap_stats.rds"))
+evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
 
 ## Plotting
-
 to_plot <- evap_stats[, .(value = mean(mean)), .(lon, lat)]
-
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = evap_name_short) +
-  scale_fill_gradient2(low ="red", mid = "white", high = "blue", midpoint = 0) +
+  scale_fill_gradient2(low = period_cols[3], 
+                       mid = "white", 
+                       high = "tomato", 
+                       midpoint = 0) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_bw() +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
@@ -84,14 +86,16 @@ p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b
 p01
 
 to_plot <- evap_stats[, .(value = mean(sd)), .(lon, lat)]
-
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = evap_name_short) +
-  scale_fill_gradient2(low ="red", mid = "white", high = "blue", midpoint = 0) +
+  scale_fill_gradient2(low = period_cols[3], 
+                       mid = "white", 
+                       high = "tomato", 
+                       midpoint = 0) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_bw() +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
@@ -103,14 +107,16 @@ p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b
 p01
 
 to_plot <- evap_stats[, .(value = mean(cv)), .(lon, lat)]
-
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = "CV") +
-  scale_fill_gradient2(low ="blue", mid = "white", high = "red", midpoint = 0.5) +
+  scale_fill_gradient2(low = period_cols[1], 
+                       mid = "white", 
+                       high = period_cols[3], 
+                       midpoint = 0.6) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_bw() +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
