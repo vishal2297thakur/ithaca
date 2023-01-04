@@ -23,8 +23,6 @@ saveRDS(all_stats, paste0(path_save_kenya, "all_stats.rds"))
 saveRDS(all_stats_mean, paste0(path_save_kenya, "all_stats_mean.rds"))
 saveRDS(all_stats_low_bias, paste0(path_save_kenya, "all_stats_low_bias.rds"))
 
-all_stats_low_bias <- readRDS(paste0(path_save_kenya, "all_stats_low_bias.rds"))
-
 ## Plot results
 to_plot <- all_stats_low_bias[variable == 'prec']
 p00 <- ggplot(to_plot) +

@@ -76,8 +76,6 @@ colnames(prec_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
 saveRDS(prec_stats, paste0(path_save_kenya, "prec_stats.rds"))
 
 ## Plot results
-#prec_stats <- readRDS(paste0(path_save_kenya, "prec_stats.rds"))
-
 to_plot <- prec_stats[, .(value = mean(mean)), .(lon, lat)]
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +

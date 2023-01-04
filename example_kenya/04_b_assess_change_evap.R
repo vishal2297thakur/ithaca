@@ -29,6 +29,7 @@ colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class')
 ggplot() +
   geom_raster(data = shape_mask_df, aes(lon, lat, fill = KG_class)) +
   geom_point(data = evap_low_bias,  aes(lon, lat)) +
+  scale_fill_manual(values = colset_mid_qual) +
   theme_light()
 
 ## Main estimations

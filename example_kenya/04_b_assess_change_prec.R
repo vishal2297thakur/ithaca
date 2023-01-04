@@ -29,6 +29,7 @@ colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class')
 ggplot() +
   geom_raster(data = shape_mask_df, aes(lon, lat, fill = KG_class)) +
   geom_point(data = prec_low_bias,  aes(lon, lat)) +
+  scale_fill_manual(values = colset_mid_qual) +
   theme_light()
 
 ## Main estimations
@@ -61,7 +62,7 @@ to_plot[, grid_cells := factor(grid_cells)]
 ggplot(to_plot) +
   geom_bar(aes(x = KG_class, y = value, fill = grid_cells, group = grid_cells), 
            stat = 'identity', position = position_dodge()) +
-  scale_fill_manual(values=c(period_cols[1], period_cols[3])) +
+  scale_fill_manual(values=c(main_cols[1], main_cols[3])) +
   labs(x = "Climate types (KG classes)", y = "Change [%]", fill = "Bias") +
   theme_light()
 

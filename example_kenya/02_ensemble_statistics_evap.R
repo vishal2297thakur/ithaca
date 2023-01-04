@@ -60,7 +60,6 @@ colnames(evap_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
 
 ## Save data for further use
 saveRDS(evap_stats, paste0(path_save_kenya, "evap_stats.rds"))
-evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
 
 ## Plot results
 to_plot <- evap_stats[, .(value = mean(mean)), .(lon, lat)]
