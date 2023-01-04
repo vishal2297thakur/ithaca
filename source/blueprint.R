@@ -20,8 +20,8 @@ study_area <- extent(PILOT_LON_MIN,
                      PILOT_LAT_MAX)
 
 # Specify start/end for the period of analysis 
-period_start <- "2001-01-01" 
-period_end <- "2019-12-31" 
+period_start <- as.Date("2001-01-01") 
+period_end <- as.Date("2019-12-31") 
 period_months <- interval(period_start, period_end) %/% months(1) + 1
 
 period_start_change <- PERIOD_START

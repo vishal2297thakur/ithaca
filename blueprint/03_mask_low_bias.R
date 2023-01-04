@@ -6,7 +6,7 @@ source('source/geo_functions.R')
 source('source/graphics.R')
 
 ## Read data 
-prec_stats <- readRDS(paste0(path_save_blueprint, "prec_stats.rds"))
+prec_stats <- readRDS(paste0(path_save_blueprint, "ensemble_prec_stats.rds"))
 
 ## Main estimations
 prec_stats_mean <- prec_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv'), by = c('lon', 'lat')]
