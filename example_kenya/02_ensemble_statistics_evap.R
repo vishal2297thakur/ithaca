@@ -3,6 +3,7 @@
 
 source('source/example_kenya.R')
 source('source/geo_functions.R')
+source('source/graphics.R')
 
 ## Read data 
 evap_era5_kenya <- readRDS(paste0(path_save_kenya, "evap_era5.rds"))
@@ -59,7 +60,7 @@ evap_stats <- merge(evap_stats, evap_cv_month_dt, by = c('x', 'y', 'time'))
 colnames(evap_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
 
 ## Save data for further use
-saveRDS(evap_stats, paste0(path_save_kenya, "evap_stats.rds"))
+saveRDS(evap_stats, paste0(path_save_kenya, "ensemble_evap_stats.rds"))
 
 ## Plot results
 to_plot <- evap_stats[, .(value = mean(mean)), .(lon, lat)]
