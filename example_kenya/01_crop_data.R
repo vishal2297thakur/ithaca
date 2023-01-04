@@ -1,4 +1,4 @@
-### Reading the data and extracting the data for the specified region for a period of 60 years
+### Reading and subsetting the data for the specified region and period
 
 source('source/example_kenya.R')
 source('source/geo_functions.R')

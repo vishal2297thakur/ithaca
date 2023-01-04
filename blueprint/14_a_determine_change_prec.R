@@ -1,13 +1,13 @@
 source('source/main.R')
 source('source/graphics.R')
-source('source/example_kenya.R')
+source('source/blueprint.R')
 
 ### Assessing % change in ensemble mean between two 30 years time periods (t1=1960 to 1989 & t2=1990 to 2019)
 
 ## Read data 
-prec_stats <- readRDS(paste0(path_save_kenya, "prec_stats.rds"))
-evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
-all_stats_low_bias <- readRDS(paste0(path_save_kenya, "all_stats_low_bias.rds"))
+prec_stats <- readRDS(paste0(path_save_blueprint, "prec_stats.rds"))
+evap_stats <- readRDS(paste0(path_save_blueprint, "evap_stats.rds"))
+all_stats_low_bias <- readRDS(paste0(path_save_blueprint, "all_stats_low_bias.rds"))
 
 ## Set variables
 prec_mean_period_1 <- prec_stats[time >= PERIOD_1_START & time <= PERIOD_1_END, mean(mean), .(lon, lat)]
@@ -23,10 +23,9 @@ prec_mean_change[, mean_diff := round(mean_period_2 - mean_period_1, 1)]
 prec_mean_change[, mean_perc_change := round((mean_period_2 - mean_period_1)/mean_period_1 * 100, 2)]
 
 ## Save for further use
-saveRDS(prec_mean_change, paste0(path_save_kenya, "prec_mean_change.rds"))
+saveRDS(prec_mean_change, paste0(path_save_blueprint, "prec_mean_change.rds"))
 
 ## Plot results
-#prec_mean_change <- readRDS(paste0(path_save_kenya, "prec_mean_change.rds"))
 
 to_plot <- prec_mean_change[, .(lat, lon, value = mean_perc_change)]
 p00 <- ggplot() +

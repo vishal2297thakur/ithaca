@@ -1,41 +1,45 @@
-### Reading the data and extracting the data for the specified region for a period of 60 years
+### Reading and subsetting data for the specified region and period
 
 source('source/blueprint.R')
 source('source/geo_functions.R')
 
-fname_prec_era5 <- list.files(path = path_prec, full.names = T, pattern = "era5_tp*") 
-fname_prec_terra <- list.files(path = path_prec, full.names = T, pattern = "terraclimate_tp*") 
+fname_prec_era5 <- list.files(path = path_prec_sim, full.names = T, pattern = "era5_tp*") 
+fname_prec_gpcc <- list.files(path = path_prec_obs, full.names = T, pattern = "gpcc_tp*") 
+fname_prec_em <- list.files(path = path_prec_obs, full.names = T, pattern = "em-earth_tp*")
+fname_prec_gpcp <- list.files(path = path_prec_obs, full.names = T, pattern = "gpcp_tp*")
+fname_prec_mswep <- list.files(path = path_prec_obs, full.names = T, pattern = "mswep_tp*")
+fname_prec_gpm <- list.files(path = path_prec_obs, full.names = T, pattern = "gpm-imerg_tp*")
 
-fname_evap_era5 <- list.files(path = path_evap, full.names = T, pattern = "era5_e_*") 
-fname_evap_terra <- list.files(path = path_evap, full.names = T, pattern = "terraclimate_e_*") 
 
-## Read data
+## Read and subset data
 prec_era5 <- brick(fname_prec_era5)
-prec_terra <- brick(fname_prec_terra)
+prec_era5_kenya <- crop_space_time(prec_era5, period_start, period_end, study_area) 
+rm(prec_era5); gc()
 
-evap_era5 <- brick(fname_evap_era5)
-evap_terra <- brick(fname_evap_terra)
+prec_gpcc <- brick(fname_prec_gpcc)
+prec_gpcc_kenya <- crop_space_time(prec_gpcc, period_start, period_end, study_area) 
+rm(prec_gpcp); gc()
 
-## Subset data over study area and period
-prec_era5_kenya <- crop_space_time(prec_era5, PERIOD_START, PERIOD_END, study_area) #function stored in geo_functions.R
-prec_terra_kenya <- crop_space_time(prec_terra, PERIOD_START, PERIOD_END, study_area)
+prec_em <- brick(fname_prec_em)
+prec_em_kenya <- crop_space_time(prec_em, period_start, period_end, study_area) 
+rm(prec_em); gc()
 
-evap_era5_kenya <- crop_space_time(evap_era5, PERIOD_START, PERIOD_END, study_area)
-evap_terra_kenya <- crop_space_time(evap_terra, PERIOD_START, PERIOD_END, study_area)
+prec_gpcp <- brick(fname_prec_gpcp)
+prec_gpcp_kenya <- crop_space_time(prec_gpcp, period_start, period_end, study_area) 
+rm(prec_gpcp); gc()
 
-## Remove global data
-rm(prec_era5); rm(prec_terra)
-rm(evap_era5); rm(evap_terra)
-gc()
+prec_mswep <- brick(fname_prec_mswep)
+prec_mswep_kenya <- crop_space_time(prec_mswep, period_start, period_end, study_area) 
+rm(prec_mswep); gc()
 
-## Quick validation
-plot(prec_era5_kenya[[1:12]])
-plot(prec_terra_kenya[[1:12]])
-plot(evap_era5_kenya[[1:12]])
-plot(evap_terra_kenya[[1:12]])
+prec_gpm <- brick(fname_prec_gpm)
+prec_gpm_kenya <- crop_space_time(prec_gpm, period_start, period_end, study_area) 
+rm(prec_gpm); gc()
 
 ## Save data for further use
-saveRDS(prec_era5_kenya, paste0(path_save_kenya, "prec_era5.rds"))
-saveRDS(prec_terra_kenya, paste0(path_save_kenya, "prec_terra.rds"))
-saveRDS(evap_era5_kenya, paste0(path_save_kenya, "evap_era5.rds"))
-saveRDS(evap_terra_kenya, paste0(path_save_kenya, "evap_terra.rds"))
+saveRDS(prec_era5_kenya, paste0(path_save_blueprint, "prec_era5.rds"))
+saveRDS(prec_gpcc_kenya, paste0(path_save_blueprint, "prec_gpcc.rds"))
+saveRDS(prec_em_kenya, paste0(path_save_blueprint, "prec_em.rds"))
+saveRDS(prec_gpcp_kenya, paste0(path_save_blueprint, "prec_gpcp.rds"))
+saveRDS(prec_mswep_kenya, paste0(path_save_blueprint, "prec_mswep.rds"))
+saveRDS(prec_gpm_kenya, paste0(path_save_blueprint, "prec_gpm.rds"))

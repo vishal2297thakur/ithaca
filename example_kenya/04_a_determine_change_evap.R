@@ -10,12 +10,12 @@ evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
 all_stats_low_bias <- readRDS(paste0(path_save_kenya, "all_stats_low_bias.rds"))
 
 ## Set variables
-evap_mean__period_1 <- evap_stats[time >= PERIOD_1_START & time <= PERIOD_1_END, mean(mean), .(lon, lat)]
-evap_mean__period_2 <- evap_stats[time >= PERIOD_2_START & time <= PERIOD_2_END, mean(mean), .(lon, lat)]
+evap_mean_period_1 <- evap_stats[time >= PERIOD_1_START & time <= PERIOD_1_END, mean(mean), .(lon, lat)]
+evap_mean_period_2 <- evap_stats[time >= PERIOD_2_START & time <= PERIOD_2_END, mean(mean), .(lon, lat)]
 evap_low_bias <- all_stats_low_bias[variable == 'evap', .(lon, lat)]
 
 ## Merge data
-evap_mean_change <- merge(evap_mean__period_1, evap_mean__period_2, by = c("lat", "lon"))
+evap_mean_change <- merge(evap_mean_period_1, evap_mean_period_2, by = c("lon", "lat"))
 setnames(evap_mean_change, c('V1.x', 'V1.y'), c('mean_period_1', 'mean_period_2'))
 
 ## Main estimations

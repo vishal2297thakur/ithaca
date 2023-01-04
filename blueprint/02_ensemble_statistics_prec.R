@@ -1,13 +1,14 @@
 ### Estimation of monthly precipitation mean, standard deviation (sd), and coefficient of variance
 ### for the dataset ensemble
 
-source('source/example_kenya.R')
+source('source/blueprint.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
 ## Read data 
-prec_era5_kenya <- readRDS(paste0(path_save_kenya, "prec_era5.rds"))
-prec_terra_kenya <- readRDS(paste0(path_save_kenya, "prec_terra.rds"))
+prec_era5_kenya <- readRDS(paste0(path_save_blueprint, "prec_era5.rds"))
+prec_gpccp_kenya <- readRDS(paste0(path_save_blueprint, "prec_gpcc.rds"))
+prec_em_kenya <- readRDS(paste0(path_save_blueprint, "prec_em.rds"))
 
 ## Set variables
 period_months_dates <- seq(PERIOD_START, by = "month", length.out = period_months)
@@ -15,8 +16,9 @@ period_months_dates <- seq(PERIOD_START, by = "month", length.out = period_month
 ## Main estimations
 # Version 1: Parallel computing
 prec_mean_month <- foreach(month_count = 1:period_months) %dopar% {
-  calc(stack(prec_era5_kenya[[month_count]], 
-             prec_terra_kenya[[month_count]]),
+  calc(stack(prec_era5_kenya[[month_count]],
+             prec_gpcc_kenya[[month_count]],
+             prec_em_kenya[[month_count]]), 
        fun = mean, 
        na.rm = T)
 }
@@ -27,7 +29,8 @@ names(prec_mean_month) <- as.Date(period_months_dates)
 
 prec_sd_month <- foreach(month_count = 1:period_months) %dopar% {
   calc(stack(prec_era5_kenya[[month_count]], 
-             prec_terra_kenya[[month_count]]), 
+             prec_gpcc_kenya[[month_count]],
+             prec_em_kenya[[month_count]]), 
        fun = sd, 
        na.rm = T)
 }
@@ -44,20 +47,10 @@ prec_cv_month <- brick(prec_cv_month)
 prec_cv_month <- setZ(prec_cv_month, period_months_dates)
 names(prec_cv_month) <- as.Date(period_months_dates)
 
-# Version 2: Alternative example with stackApply 
-# [Not sure which of two versions is faster with big rasters]
-
-prec_mean_month_alt <- stackApply(x = stack(prec_era5_kenya, prec_terra_kenya), 
-                                 indices = rep(1:period_months, n_datasets), 
-                                 fun = mean, 
-                                 na.rm = F)
-prec_mean_month_alt <- setZ(prec_mean_month_alt, period_months_dates)
-names(prec_mean_month_alt) <- as.Date(period_months_dates)
-prec_mean_month_alt_dt <- brick_to_dt(prec_mean_month_alt)
-
 ## Quick validation
 plot(mean(prec_era5_kenya))
-plot(mean(prec_terra_kenya))
+plot(mean(prec_gpcc_kenya))
+plot(mean(prec_em_kenya))
 plot(mean(prec_mean_month))
 plot(mean(prec_sd_month))
 plot(mean(prec_cv_month))
@@ -72,7 +65,7 @@ prec_stats <- merge(prec_stats, prec_cv_month_dt, by = c('x', 'y', 'time'))
 colnames(prec_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
 
 ## Save data for further use
-saveRDS(prec_stats, paste0(path_save_kenya, "prec_stats.rds"))
+saveRDS(prec_stats, paste0(path_save_blueprint, "prec_stats.rds"))
 
 ## Plot results
 to_plot <- prec_stats[, .(value = mean(mean)), .(lon, lat)]
