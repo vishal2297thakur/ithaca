@@ -5,9 +5,8 @@ source('source/example_kenya.R')
 ### Assessing % change in ensemble mean between two 30 years time periods (t1=1960 to 1989 & t2=1990 to 2019)
 
 ## Read data 
-prec_stats <- readRDS(paste0(path_save_kenya, "prec_stats.rds"))
-evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
-all_stats_low_bias <- readRDS(paste0(path_save_kenya, "all_stats_low_bias.rds"))
+prec_stats <- readRDS(paste0(path_save_kenya, "ensemble_prec_stats.rds"))
+all_stats_low_bias <- readRDS(paste0(path_save_kenya, "ensemble_stats_low_bias.rds"))
 
 ## Set variables
 prec_mean_period_1 <- prec_stats[time >= PERIOD_1_START & time <= PERIOD_1_END, mean(mean), .(lon, lat)]

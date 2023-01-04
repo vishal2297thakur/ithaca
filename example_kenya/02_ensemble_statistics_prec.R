@@ -72,7 +72,7 @@ prec_stats <- merge(prec_stats, prec_cv_month_dt, by = c('x', 'y', 'time'))
 colnames(prec_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
 
 ## Save data for further use
-saveRDS(prec_stats, paste0(path_save_kenya, "prec_stats.rds"))
+saveRDS(prec_stats, paste0(path_save_kenya, "ensemble_prec_stats.rds"))
 
 ## Plot results
 to_plot <- prec_stats[, .(value = mean(mean)), .(lon, lat)]

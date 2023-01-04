@@ -6,8 +6,8 @@ source('source/geo_functions.R')
 source('source/graphics.R')
 
 ## Read data 
-prec_stats <- readRDS(paste0(path_save_kenya, "prec_stats.rds"))
-evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
+prec_stats <- readRDS(paste0(path_save_kenya, "ensemble_prec_stats.rds"))
+evap_stats <- readRDS(paste0(path_save_kenya, "ensemble_evap_stats.rds"))
 
 ## Merge data 
 prec_stats[, variable := 'prec']
@@ -19,9 +19,9 @@ all_stats_mean <- all_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv')
 all_stats_low_bias <- all_stats_mean[cv < 0.5,  .(lon, lat, variable)]
 
 ## Save data for further use
-saveRDS(all_stats, paste0(path_save_kenya, "all_stats.rds"))
-saveRDS(all_stats_mean, paste0(path_save_kenya, "all_stats_mean.rds"))
-saveRDS(all_stats_low_bias, paste0(path_save_kenya, "all_stats_low_bias.rds"))
+saveRDS(all_stats, paste0(path_save_kenya, "ensemble_stats.rds"))
+saveRDS(all_stats_mean, paste0(path_save_kenya, "ensemble_stats_mean.rds"))
+saveRDS(all_stats_low_bias, paste0(path_save_kenya, "ensemble_stats_low_bias.rds"))
 
 ## Plot results
 to_plot <- all_stats_low_bias[variable == 'prec']
