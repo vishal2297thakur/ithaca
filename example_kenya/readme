@@ -1,1 +1,9 @@
-This is an example of collaborative coding in ITHACA.
+This is an example of collaborative coding in ITHACA, featuring how to:
+
+ * Have an efficient workflow following clean code practices
+ * Name variables and functions
+ * Store constants and repetitive variables in source files
+ * Read and write data to the server
+ * Work with raster objects
+ * Apply masks for classification
+ * Create plots and maps in proper formating

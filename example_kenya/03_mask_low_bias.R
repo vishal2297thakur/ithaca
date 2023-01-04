@@ -1,28 +1,31 @@
+### Determine the regions that have lower observation bias according to the 
+### coefficient of variability of the datasets
+
 source('source/example_kenya.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
-# Read data 
+## Read data 
 prec_stats <- readRDS(paste0(path_save_kenya, "prec_stats.rds"))
 evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
 
-# Merge data 
+## Merge data 
 prec_stats[, variable := 'prec']
 evap_stats[, variable := 'evap']
 all_stats <- rbind(prec_stats, evap_stats)
 
-# Main estimations
+## Main estimations
 all_stats_mean <- all_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv'), by = c('lon', 'lat', 'variable')]
 all_stats_low_bias <- all_stats_mean[cv < 0.5,  .(lon, lat, variable)]
 
-# Save data for further use
+## Save data for further use
 saveRDS(all_stats, paste0(path_save_kenya, "all_stats.rds"))
 saveRDS(all_stats_mean, paste0(path_save_kenya, "all_stats_mean.rds"))
 saveRDS(all_stats_low_bias, paste0(path_save_kenya, "all_stats_low_bias.rds"))
 
 all_stats_low_bias <- readRDS(paste0(path_save_kenya, "all_stats_low_bias.rds"))
 
-# Plot results
+## Plot results
 to_plot <- all_stats_low_bias[variable == 'prec']
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = "")) +

@@ -5,14 +5,14 @@ source('source/example_kenya.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
-# Read data 
+## Read data 
 prec_era5_kenya <- readRDS(paste0(path_save_kenya, "prec_era5.rds"))
 prec_terra_kenya <- readRDS(paste0(path_save_kenya, "prec_terra.rds"))
 
-# Set variables
+## Set variables
 period_months_dates <- seq(PERIOD_START, by = "month", length.out = period_months)
 
-## Monthly ensemble mean for two data sources 
+## Main estimations
 # Version 1: Parallel computing
 prec_mean_month <- foreach(month_count = 1:period_months) %dopar% {
   calc(stack(prec_era5_kenya[[month_count]], 
@@ -44,27 +44,8 @@ prec_cv_month <- brick(prec_cv_month)
 prec_cv_month <- setZ(prec_cv_month, period_months_dates)
 names(prec_cv_month) <- as.Date(period_months_dates)
 
-# Quick validation
-plot(mean(prec_era5_kenya))
-plot(mean(prec_terra_kenya))
-plot(mean(prec_mean_month))
-plot(mean(prec_sd_month))
-plot(mean(prec_cv_month))
-
-# Transform to data.table 
-prec_mean_month_dt <- brick_to_dt(prec_mean_month) 
-prec_sd_month_dt <- brick_to_dt(prec_sd_month)
-prec_cv_month_dt <- brick_to_dt(prec_cv_month)
-
-prec_stats <- merge(prec_mean_month_dt, prec_sd_month_dt, by = c('x', 'y', 'time'))
-prec_stats <- merge(prec_stats, prec_cv_month_dt, by = c('x', 'y', 'time'))
-colnames(prec_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
-
-# Save data for further use
-saveRDS(prec_stats, paste0(path_save_kenya, "prec_stats.rds"))
-
-## Version 2: Alternative example with stackApply 
-## Not sure which of two versions is faster with big rasters
+# Version 2: Alternative example with stackApply 
+# [Not sure which of two versions is faster with big rasters]
 
 prec_mean_month_alt <- stackApply(x = stack(prec_era5_kenya, prec_terra_kenya), 
                                   indices = rep(1:period_months, n_datasets), 
@@ -74,6 +55,25 @@ prec_mean_month_alt <- setZ(prec_mean_month_alt, period_months_dates)
 names(prec_mean_month_alt) <- as.Date(period_months_dates)
 
 prec_mean_month_alt_dt <- brick_to_dt(prec_mean_month_alt)
+
+## Quick validation
+plot(mean(prec_era5_kenya))
+plot(mean(prec_terra_kenya))
+plot(mean(prec_mean_month))
+plot(mean(prec_sd_month))
+plot(mean(prec_cv_month))
+
+## Transform to data.table 
+prec_mean_month_dt <- brick_to_dt(prec_mean_month) 
+prec_sd_month_dt <- brick_to_dt(prec_sd_month)
+prec_cv_month_dt <- brick_to_dt(prec_cv_month)
+
+prec_stats <- merge(prec_mean_month_dt, prec_sd_month_dt, by = c('x', 'y', 'time'))
+prec_stats <- merge(prec_stats, prec_cv_month_dt, by = c('x', 'y', 'time'))
+colnames(prec_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
+
+## Save data for further use
+saveRDS(prec_stats, paste0(path_save_kenya, "prec_stats.rds"))
 
 ## Plot results
 #prec_stats <- readRDS(paste0(path_save_kenya, "prec_stats.rds"))
@@ -85,7 +85,7 @@ p00 <- ggplot(to_plot) +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = prec_name_short) +
-  scale_fill_gradient2(low = period_cols[3], 
+  scale_fill_gradient2(low = main_cols[3], 
                        mid = "white", 
                        high = "dark blue", 
                        midpoint = 0) +
@@ -106,7 +106,7 @@ p00 <- ggplot(to_plot) +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = prec_name_short) +
-  scale_fill_gradient2(low = period_cols[3], 
+  scale_fill_gradient2(low = main_cols[3], 
                        mid = "white", 
                        high = "dark blue", 
                        midpoint = 0) +
@@ -127,9 +127,9 @@ p00 <- ggplot(to_plot) +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = "CV") +
-  scale_fill_gradient2(low = period_cols[1], 
+  scale_fill_gradient2(low = main_cols[1], 
                        mid = "white", 
-                       high = period_cols[3], 
+                       high = main_cols[3], 
                        midpoint = 0.6) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_bw() +

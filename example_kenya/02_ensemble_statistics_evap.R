@@ -4,15 +4,14 @@
 source('source/example_kenya.R')
 source('source/geo_functions.R')
 
-# Read data 
+## Read data 
 evap_era5_kenya <- readRDS(paste0(path_save_kenya, "evap_era5.rds"))
 evap_terra_kenya <- readRDS(paste0(path_save_kenya, "evap_terra.rds"))
 
-# Variables
+## Variables
 period_months_dates <- seq(PERIOD_START, by = "month", length.out = period_months)
 
-## Monthly ensemble mean for two data sources 
-# Version 1: Parallel computing
+## Main estimations
 evap_mean_month <- foreach(month_count = 1:period_months) %dopar% {
    calc(stack(evap_era5_kenya[[month_count]], 
              evap_terra_kenya[[month_count]]), 
@@ -43,14 +42,14 @@ evap_cv_month <- brick(evap_cv_month)
 evap_cv_month <- setZ(evap_cv_month, period_months_dates)
 names(evap_cv_month) <- as.Date(period_months_dates)
 
-# Quick validation
+## Quick validation
 plot(mean(evap_era5_kenya))
 plot(mean(evap_terra_kenya))
 plot(mean(evap_mean_month))
 plot(mean(evap_sd_month))
 plot(mean(evap_cv_month))
 
-# Transform to data.table 
+## Transform to data.table 
 evap_mean_month_dt <- brick_to_dt(evap_mean_month) 
 evap_sd_month_dt <- brick_to_dt(evap_sd_month)
 evap_cv_month_dt <- brick_to_dt(evap_cv_month)
@@ -59,11 +58,11 @@ evap_stats <- merge(evap_mean_month_dt, evap_sd_month_dt, by = c('x', 'y', 'time
 evap_stats <- merge(evap_stats, evap_cv_month_dt, by = c('x', 'y', 'time'))
 colnames(evap_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
 
-# Save data for further use
+## Save data for further use
 saveRDS(evap_stats, paste0(path_save_kenya, "evap_stats.rds"))
 evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
 
-## Plotting
+## Plot results
 to_plot <- evap_stats[, .(value = mean(mean)), .(lon, lat)]
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +
@@ -71,7 +70,7 @@ p00 <- ggplot(to_plot) +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = evap_name_short) +
-  scale_fill_gradient2(low = period_cols[3], 
+  scale_fill_gradient2(low = main_cols[3], 
                        mid = "white", 
                        high = "tomato", 
                        midpoint = 0) +
@@ -92,7 +91,7 @@ p00 <- ggplot(to_plot) +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = evap_name_short) +
-  scale_fill_gradient2(low = period_cols[3], 
+  scale_fill_gradient2(low = main_cols[3], 
                        mid = "white", 
                        high = "tomato", 
                        midpoint = 0) +
@@ -113,9 +112,9 @@ p00 <- ggplot(to_plot) +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = "CV") +
-  scale_fill_gradient2(low = period_cols[1], 
+  scale_fill_gradient2(low = main_cols[1], 
                        mid = "white", 
-                       high = period_cols[3], 
+                       high = main_cols[3], 
                        midpoint = 0.6) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_bw() +

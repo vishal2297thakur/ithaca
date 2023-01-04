@@ -5,40 +5,38 @@ source('source/example_kenya.R')
 ### Assessing % change in ensemble mean between two 30 years time periods (t1=1960 to 1989 & t2=1990 to 2019)
 
 ## Read data 
-prec_stats <- readRDS(paste0(path_save_kenya, "prec_stats.rds"))
+evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
 evap_stats <- readRDS(paste0(path_save_kenya, "evap_stats.rds"))
 all_stats_low_bias <- readRDS(paste0(path_save_kenya, "all_stats_low_bias.rds"))
 
 ## Set variables
-prec_mean__period_1 <- prec_stats[time >= PERIOD_1_START & time <= PERIOD_1_END, mean(mean), .(lon, lat)]
-prec_mean__period_2 <- prec_stats[time >= PERIOD_2_START & time <= PERIOD_2_END, mean(mean), .(lon, lat)]
-prec_low_bias <- all_stats_low_bias[variable == 'prec', .(lon, lat)]
+evap_mean__period_1 <- evap_stats[time >= PERIOD_1_START & time <= PERIOD_1_END, mean(mean), .(lon, lat)]
+evap_mean__period_2 <- evap_stats[time >= PERIOD_2_START & time <= PERIOD_2_END, mean(mean), .(lon, lat)]
+evap_low_bias <- all_stats_low_bias[variable == 'evap', .(lon, lat)]
 
 ## Merge data
-prec_mean_change <- merge(prec_mean__period_1, prec_mean__period_2, by = c("lat", "lon"))
-setnames(prec_mean_change, c('V1.x', 'V1.y'), c('mean_period_1', 'mean_period_2'))
+evap_mean_change <- merge(evap_mean__period_1, evap_mean__period_2, by = c("lat", "lon"))
+setnames(evap_mean_change, c('V1.x', 'V1.y'), c('mean_period_1', 'mean_period_2'))
 
 ## Main estimations
-prec_mean_change[, mean_diff := round(mean_period_2 - mean_period_1, 1)]
-prec_mean_change[, mean_perc_change := round((mean_period_2 - mean_period_1)/mean_period_1 * 100, 2)]
+evap_mean_change[, mean_diff := round(mean_period_2 - mean_period_1, 1)]
+evap_mean_change[, mean_perc_change := round((mean_period_2 - mean_period_1)/mean_period_1 * 100, 2)]
 
 ## Save for further use
-saveRDS(prec_mean_change, paste0(path_save_kenya, "prec_mean_change.rds"))
+saveRDS(evap_mean_change, paste0(path_save_kenya, "evap_mean_change.rds"))
 
 ## Plot results
-#prec_mean_change <- readRDS(paste0(path_save_kenya, "prec_mean_change.rds"))
-
-to_plot <- prec_mean_change[, .(lat, lon, value = mean_perc_change)]
+to_plot <- evap_mean_change[, .(lat, lon, value = mean_perc_change)]
 p00 <- ggplot() +
   geom_raster(data = to_plot, aes(x = lon, y = lat, fill = value)) +
-  geom_point(data = prec_low_bias, aes(x = lon, y = lat)) +
+  geom_point(data = evap_low_bias, aes(x = lon, y = lat)) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = "Change [%]") +
-  scale_fill_gradient2(low = main_cols[3], 
+  scale_fill_gradient2(low = main_cols[1], 
                        mid = "white", 
-                       high = "dark blue", 
+                       high = main_cols[3], 
                        midpoint = 0) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_bw() +

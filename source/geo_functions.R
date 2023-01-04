@@ -8,7 +8,9 @@ brick_to_dt <- function(x){
   return(x_dt)
 }
 
+
 # Subset a brick object over space and time
+
 crop_space_time <- function(dataset, start, end, crop_box){
   time_filter <- which(getZ(dataset) >= start & 
                          (getZ(dataset) <= end))
