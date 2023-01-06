@@ -22,7 +22,7 @@ all_stats <- rbind(prec_stats, evap_stats)
 all_stats_mean <- all_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv'), by = c('lon', 'lat', 'variable')]
 all_stats_low_bias <- all_stats_mean[cv < bias_thres_cv,  .(lon, lat, variable)]
 all_stats_low_bias[, all_low_bias := .N == n_variables, by =  c('lon', 'lat')]
-all_stats_mean <- merge(all_stats_mean, all_stats_low_bias, by = c('lon', 'lat', 'variable'))
+all_stats_low_bias <- merge(all_stats_mean, all_stats_low_bias, by = c('lon', 'lat', 'variable'))
 
 grid_cell_n <- nrow(all_stats_mean[variable == 'prec'])
      
