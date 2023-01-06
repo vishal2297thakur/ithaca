@@ -7,10 +7,11 @@ source('source/graphics.R')
 
 ## Read data 
 prec_stats <- readRDS(paste0(path_save_blueprint, "ensemble_prec_stats.rds"))
+ghcn_stations <- fread('~/shared/data_review/ghcn_stations_now.csv')[, .(lat, lon)]
 
 ## Set variables
 quantiles <- seq(0.1, 1, 0.1)
-bias_thres_cv <- 0.8
+bias_thres_cv <- 0.5
 
 ## Main estimations
 prec_stats_mean <- prec_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv'), by = c('lon', 'lat')]
@@ -21,14 +22,18 @@ cv_values_n <- data.table(quantile = quantiles,
                           cv = cv_quantiles, 
                           size = floor(quantile(1:nrow(prec_stats_mean), quantiles)))
 
+ghcn_stations_kenya <- ghcn_stations[lat <= PILOT_LAT_MAX & lat >= PILOT_LAT_MIN & 
+                                       lon <= PILOT_LON_MAX & lon >= PILOT_LON_MIN]
+
 ## Save data for further use
 saveRDS(prec_stats_mean, paste0(path_save_blueprint, "prec_stats_mean.rds"))
 saveRDS(prec_stats_low_bias, paste0(path_save_blueprint, "prec_stats_low_bias.rds"))
 
 ## Plot results
 to_plot <- prec_stats_low_bias
-p00 <- ggplot(to_plot) +
-  geom_raster(aes(x = lon, y = lat, fill = "")) +
+p00 <- ggplot() +
+  geom_raster(data = to_plot, aes(x = lon, y = lat, fill = "")) +
+  geom_point(data = ghcn_stations_kenya, aes(x = lon, y = lat), col = 'dark red', size = 3) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  

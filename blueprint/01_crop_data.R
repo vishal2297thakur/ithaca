@@ -10,7 +10,6 @@ fname_prec_gpcp <- list.files(path = path_prec_obs, full.names = T, pattern = "g
 fname_prec_mswep <- list.files(path = path_prec_obs, full.names = T, pattern = "mswep_tp*")
 fname_prec_gpm <- list.files(path = path_prec_obs, full.names = T, pattern = "gpm-imerg_tp*")
 
-
 ## Read and subset data
 prec_era5 <- brick(fname_prec_era5)
 prec_era5_kenya <- crop_space_time(prec_era5, period_start, period_end, study_area) 

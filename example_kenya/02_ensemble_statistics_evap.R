@@ -1,4 +1,4 @@
-### Estimation of monthly evapipitation mean, standard deviation (sd), and coefficient of variance
+### Estimation of monthly evapotranspiration mean, standard deviation (sd), and coefficient of variance
 ### for the dataset ensemble
 
 source('source/example_kenya.R')
