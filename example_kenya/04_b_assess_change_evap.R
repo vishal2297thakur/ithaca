@@ -11,7 +11,7 @@ evap_era5_kenya <- readRDS(paste0(path_save_kenya, "evap_era5.rds"))
 evap_mean_change <- readRDS(paste0(path_save_kenya, "evap_mean_change.rds"))
 all_stats_low_bias <- readRDS(paste0(path_save_kenya, "ensemble_stats_low_bias.rds"))
 
-fname_shape <- list.files(path = masks_dir_KG_beck, full.names = T, pattern = "climate_beck_level1.shp")
+fname_shape <- list.files(path = masks_dir_KG_beck, full.names = TRUE, pattern = "climate_beck_level1.shp")
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
 

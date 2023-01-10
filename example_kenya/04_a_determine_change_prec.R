@@ -25,7 +25,6 @@ prec_mean_change[, mean_perc_change := round((mean_period_2 - mean_period_1)/mea
 saveRDS(prec_mean_change, paste0(path_save_kenya, "prec_mean_change.rds"))
 
 ## Plot results
-#prec_mean_change <- readRDS(paste0(path_save_kenya, "prec_mean_change.rds"))
 
 to_plot <- prec_mean_change[, .(lat, lon, value = mean_perc_change)]
 p00 <- ggplot() +

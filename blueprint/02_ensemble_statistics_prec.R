@@ -2,6 +2,7 @@
 ### for the dataset ensemble
 
 source('source/blueprint.R')
+source('source/masks.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
@@ -15,6 +16,20 @@ prec_gpm_kenya <- readRDS(paste0(path_save_blueprint, "prec_gpm.rds"))
 
 ## Set variables
 period_months_dates <- seq(period_start, by = "month", length.out = period_months)
+
+## Crop over land <--- Check if works and prepare a function
+fname_shape <- list.files(path = masks_dir_landsea, full.names = TRUE, pattern = "land_ocean")
+shape_mask <- st_read(paste0(fname_shape[1]))
+shape_mask <- st_make_valid(shape_mask)
+
+shape_mask_crop <- st_crop(shape_mask, study_area)
+shape_mask_raster <- rasterize(shape_mask_crop, prec_era5_kenya[[1]])
+shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
+colnames(shape_mask_df) <- c('lon', 'lat', 'land_ocean')
+prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), all.x = T)
+prec_stats_mean <- prec_stats_mean[land_ocean = "land"]
+prec_stats_mean <- prec_stats_mean[, land_ocean := NULL]
 
 ## Main estimations
 # Version 1: Parallel computing
