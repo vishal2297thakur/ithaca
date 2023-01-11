@@ -28,7 +28,7 @@ shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'land_ocean')
 prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), all.x = T)
-prec_stats_mean <- prec_stats_mean[land_ocean = "land"]
+prec_stats_mean <- prec_stats_mean[land_ocean == "land"]
 prec_stats_mean <- prec_stats_mean[, land_ocean := NULL]
 
 ## Main estimations
@@ -90,6 +90,9 @@ prec_cv_month_dt <- brick_to_dt(prec_cv_month)
 prec_stats <- merge(prec_mean_month_dt, prec_sd_month_dt, by = c('x', 'y', 'time'))
 prec_stats <- merge(prec_stats, prec_cv_month_dt, by = c('x', 'y', 'time'))
 colnames(prec_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
+prec_stats[, month := month(time)]
+prec_stats[, year := year(time)]
+prec_stats <- prec_stats[, .(lon, lat, time, month, year, mean, sd, cv)]
 
 ## Save data for further use
 saveRDS(prec_stats, paste0(path_save_blueprint, "ensemble_prec_stats.rds"))

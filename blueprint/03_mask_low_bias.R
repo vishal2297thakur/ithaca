@@ -15,6 +15,7 @@ bias_thres_cv <- 0.5
 
 ## Main estimations
 prec_stats_mean <- prec_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv'), by = c('lon', 'lat')]
+prec_stats_mean_month <- prec_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv'), by = c('lon', 'lat', 'month')]
 prec_stats_low_bias <- prec_stats_mean[cv <= bias_thres_cv,  .(lon, lat)]
 
 cv_quantiles <- prec_stats_mean[, quantile(cv, quantiles)]
@@ -27,6 +28,7 @@ ghcn_stations_kenya <- ghcn_stations[lat <= PILOT_LAT_MAX & lat >= PILOT_LAT_MIN
 
 ## Save data for further use
 saveRDS(prec_stats_mean, paste0(path_save_blueprint, "prec_stats_mean.rds"))
+saveRDS(prec_stats_mean_month, paste0(path_save_blueprint, "prec_stats_mean_month.rds"))
 saveRDS(prec_stats_low_bias, paste0(path_save_blueprint, "prec_stats_low_bias.rds"))
 
 ## Plot results
