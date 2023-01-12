@@ -6,8 +6,8 @@ source('source/geo_functions.R')
 source('source/graphics.R')
 
 ## Read data 
-prec_era5_kenya <- readRDS(paste0(path_save_kenya, "prec_era5.rds"))
-prec_terra_kenya <- readRDS(paste0(path_save_kenya, "prec_terra.rds"))
+prec_era5_kenya <- raster(paste0(path_save_kenya, "prec_era5.nc"))
+prec_terra_kenya <- raster(paste0(path_save_kenya, "prec_terra.nc"))
 
 ## Set variables
 period_months_dates <- seq(PERIOD_START, by = "month", length.out = period_months)

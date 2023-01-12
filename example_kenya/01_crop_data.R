@@ -35,7 +35,7 @@ plot(evap_era5_kenya[[1:12]])
 plot(evap_terra_kenya[[1:12]])
 
 ## Save data for further use
-saveRDS(prec_era5_kenya, paste0(path_save_kenya, "prec_era5.rds"))
-saveRDS(prec_terra_kenya, paste0(path_save_kenya, "prec_terra.rds"))
-saveRDS(evap_era5_kenya, paste0(path_save_kenya, "evap_era5.rds"))
-saveRDS(evap_terra_kenya, paste0(path_save_kenya, "evap_terra.rds"))
+writeRaster(prec_era5_kenya, paste0(path_save_kenya, "prec_era5.nc"))
+writeRaster(prec_terra_kenya, paste0(path_save_kenya, "prec_terra.nc"))
+writeRaster(evap_era5_kenya, paste0(path_save_kenya, "evap_era5.nc"))
+writeRaster(evap_terra_kenya, paste0(path_save_kenya, "evap_terra.nc"))

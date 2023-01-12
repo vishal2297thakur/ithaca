@@ -7,12 +7,12 @@ source('source/geo_functions.R')
 source('source/graphics.R')
 
 ## Read data 
-prec_era5_kenya <- readRDS(paste0(path_save_blueprint, "prec_era5.rds"))
-prec_gpcc_kenya <- readRDS(paste0(path_save_blueprint, "prec_gpcc.rds"))
-prec_em_kenya <- readRDS(paste0(path_save_blueprint, "prec_em.rds"))
-prec_gpcp_kenya <- readRDS(paste0(path_save_blueprint, "prec_gpcp.rds"))
-prec_mswep_kenya <- readRDS(paste0(path_save_blueprint, "prec_mswep.rds"))
-prec_gpm_kenya <- readRDS(paste0(path_save_blueprint, "prec_gpm.rds"))
+prec_era5_kenya <- raster(paste0(path_save_blueprint, "prec_era5.nc"))
+prec_gpcc_kenya <- raster(paste0(path_save_blueprint, "prec_gpcc.nc"))
+prec_em_kenya <- raster(paste0(path_save_blueprint, "prec_em.nc"))
+prec_gpcp_kenya <- raster(paste0(path_save_blueprint, "prec_gpcp.nc"))
+prec_mswep_kenya <- raster(paste0(path_save_blueprint, "prec_mswep.nc"))
+prec_gpm_kenya <- raster(paste0(path_save_blueprint, "prec_gpm.nc"))
 
 ## Set variables
 period_months_dates <- seq(period_start, by = "month", length.out = period_months)

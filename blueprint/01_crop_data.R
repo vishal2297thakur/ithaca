@@ -36,9 +36,9 @@ prec_gpm_kenya <- crop_space_time(prec_gpm, period_start, period_end, study_area
 rm(prec_gpm); gc()
 
 ## Save data for further use
-saveRDS(prec_era5_kenya, paste0(path_save_blueprint, "prec_era5.rds"))
-saveRDS(prec_gpcc_kenya, paste0(path_save_blueprint, "prec_gpcc.rds"))
-saveRDS(prec_em_kenya, paste0(path_save_blueprint, "prec_em.rds"))
-saveRDS(prec_gpcp_kenya, paste0(path_save_blueprint, "prec_gpcp.rds"))
-saveRDS(prec_mswep_kenya, paste0(path_save_blueprint, "prec_mswep.rds"))
-saveRDS(prec_gpm_kenya, paste0(path_save_blueprint, "prec_gpm.rds"))
+writeRaster(prec_era5_kenya, paste0(path_save_blueprint, "prec_era5.nc"))
+writeRaster(prec_gpcc_kenya, paste0(path_save_blueprint, "prec_gpcc.nc"))
+writeRaster(prec_em_kenya, paste0(path_save_blueprint, "prec_em.nc"))
+writeRaster(prec_gpcp_kenya, paste0(path_save_blueprint, "prec_gpcp.nc"))
+writeRaster(prec_mswep_kenya, paste0(path_save_blueprint, "prec_mswep.nc"))
+writeRaster(prec_gpm_kenya, paste0(path_save_blueprint, "prec_gpm.nc"))
