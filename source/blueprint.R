@@ -10,7 +10,7 @@ path_evap_obs <- paste0(path_data, "obs/evap/raw/")
 path_save_blueprint <- paste0(path_save, "blueprint/")
 
 # Variables
-n_datasets <- 2
+n_datasets <- 6
 n_variables <- 2
 
 # Specify the lat/lon for the region of analysis 

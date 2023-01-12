@@ -7,6 +7,8 @@ source('source/geo_functions.R')
 source('source/graphics.R')
 
 ## Read data 
+datasets_kenya <- readRDS(paste0(path_save_blueprint, "rasters_prec_kenya.rds"))
+
 prec_era5_kenya <- raster(paste0(path_save_blueprint, "prec_era5.nc"))
 prec_gpcc_kenya <- raster(paste0(path_save_blueprint, "prec_gpcc.nc"))
 prec_em_kenya <- raster(paste0(path_save_blueprint, "prec_em.nc"))
@@ -33,6 +35,13 @@ prec_stats_mean <- prec_stats_mean[, land_ocean := NULL]
 
 ## Main estimations
 # Version 1: Parallel computing
+prec_mean_month <- foreach(dataset_count = 1:length(datasets_kenya)) %dopar% { 
+  foreach(month_count = 1:period_months) %dopar% {
+  calc(stack(datasets_kenya[[month_count]]
+       fun = mean, 
+       na.rm = T)
+}
+
 prec_mean_month <- foreach(month_count = 1:period_months) %dopar% {
   calc(stack(prec_era5_kenya[[month_count]],
              prec_gpcc_kenya[[month_count]],
