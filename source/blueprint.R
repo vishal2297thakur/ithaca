@@ -13,7 +13,7 @@ path_save_blueprint <- paste0(path_save, "blueprint/")
 n_datasets <- 2
 n_variables <- 2
 
-# Specify the lat/lon for the region of analysis | In this example we are using the constants from the source file main.R
+# Specify the lat/lon for the region of analysis 
 study_area <- extent(PILOT_LON_MIN, 
                      PILOT_LON_MAX, 
                      PILOT_LAT_MIN, 
@@ -28,5 +28,9 @@ period_start_change <- PERIOD_START
 period_end_change <- PERIOD_END
 period_months_change <- interval(period_start, period_end) %/% months(1) + 1
 
-## Functions
+# Bias
+mid_cv_bias <- 0.8
+low_cv_bias <- 0.5
+
+# Functions
 

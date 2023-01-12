@@ -90,12 +90,19 @@ prec_cv_month_dt <- brick_to_dt(prec_cv_month)
 prec_stats <- merge(prec_mean_month_dt, prec_sd_month_dt, by = c('x', 'y', 'time'))
 prec_stats <- merge(prec_stats, prec_cv_month_dt, by = c('x', 'y', 'time'))
 colnames(prec_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
+
+## Extra variables
 prec_stats[, month := month(time)]
 prec_stats[, year := year(time)]
 prec_stats <- prec_stats[, .(lon, lat, time, month, year, mean, sd, cv)]
 
+prec_stats_mean <- prec_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv'), by = c('lon', 'lat')]
+prec_stats_mean_month <- prec_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv'), by = c('lon', 'lat', 'month')]
+
 ## Save data for further use
 saveRDS(prec_stats, paste0(path_save_blueprint, "ensemble_prec_stats.rds"))
+saveRDS(prec_stats_mean, paste0(path_save_blueprint, "prec_stats_mean.rds"))
+saveRDS(prec_stats_mean_month, paste0(path_save_blueprint, "prec_stats_mean_month.rds"))
 
 ## Plot results
 to_plot <- prec_stats[, .(value = mean(mean)), .(lon, lat)]
