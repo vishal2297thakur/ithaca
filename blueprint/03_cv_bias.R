@@ -1,5 +1,5 @@
 ### Determine the regions that have lower observation bias according to the 
-### coefficient of variability of the datasets
+### coefficient of variation of the datasets
 
 source('source/blueprint.R')
 source('source/geo_functions.R')
