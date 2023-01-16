@@ -15,12 +15,10 @@ prec_stats_mean_month <- readRDS(paste0(path_save_blueprint, "prec_stats_mean_mo
 
 ## Masks
 # Precipitation
-prec_stats_mean[, quant := ordered(quantcut(mean, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+prec_stats_mean[, quant_mean := ordered(quantcut(mean, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
 
 # Bias: Coefficient of Variation
-prec_stats_mean[, bias_cv := 'high']
-prec_stats_mean[cv <= mid_cv_bias, bias_cv := 'medium']
-prec_stats_mean[cv <= low_cv_bias, bias_cv := 'low']
+prec_stats_mean[, quant_cv := ordered(quantcut(cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
 
 # Koppen-Geiger
 fname_shape <- list.files(path = masks_dir_KG_beck, full.names = TRUE, pattern = "climate_beck_level3.shp")
@@ -40,20 +38,18 @@ prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
 
 # Land use
 
-# Vegetation
+# Ecoregions (Biomes)
 
 # Save for further use
-prec_stats_mean_month <- merge(prec_stats_mean_month, prec_stats_mean[, .(lon, lat, quant, bias_cv, KG_class)], by = c("lon", "lat"))
+prec_stats_mean_month <- merge(prec_stats_mean_month, prec_stats_mean[, .(lon, lat, quant_mean, quant_cv, KG_class)], by = c("lon", "lat"))
 
 saveRDS(prec_stats_mean, paste0(path_save_blueprint, "prec_mask_mean.rds"))
 saveRDS(prec_stats_mean_month, paste0(path_save_blueprint, "prec_mask_mean_month.rds"))
 
-
-## Plot results
-to_plot <- prec_stats_low_bias
+## Quick validation
+to_plot <- prec_stats_mean[quant_cv == '0-0.2']
 p00 <- ggplot() +
   geom_raster(data = to_plot, aes(x = lon, y = lat, fill = "")) +
-  geom_point(data = ghcn_stations_kenya, aes(x = lon, y = lat), col = 'dark red', size = 3) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
@@ -69,13 +65,6 @@ p01 <- p00 + scale_x_continuous(expand = c(0.015, 0.015), labels = paste0(x_labs
   scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
 p01
 
-to_plot <- cv_values_n
-ggplot(to_plot, aes(y = size, x = cv)) +
-  geom_point() +
-  geom_line() +
-  labs(y = "Number of grid cells", x = "CV") +
-  theme_light() +
-  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
-        panel.grid = element_line(color = "grey")) 
+
 
 
