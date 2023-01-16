@@ -64,3 +64,10 @@ ggplot(prec_quant_mean_cum) +
   scale_fill_manual(values = colset_mid_qual[1:5]) +
   theme_light()
 
+ggplot(prec_quant_mean_cum) +
+  geom_bar(aes(x = quant_cv, y = cumsum_quant_mean, fill = quant_mean), stat="identity") +
+  xlab('CV Quantile')  +
+  ylab('Total Precipitation')  +
+  scale_fill_manual(values = colset_mid_qual[1:5]) +
+  theme_light()
+
