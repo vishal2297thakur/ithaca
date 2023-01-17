@@ -14,11 +14,12 @@ prec_stats_mean <- readRDS(paste0(path_save_blueprint, "prec_stats_mean.rds"))
 prec_stats_mean_month <- readRDS(paste0(path_save_blueprint, "prec_stats_mean_month.rds"))
 
 ## Masks
-# Precipitation
-prec_stats_mean[, quant_mean := ordered(quantcut(mean, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
-
 # Bias: Coefficient of Variation
 prec_stats_mean[, quant_cv := ordered(quantcut(cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+prec_stats_mean_month[, quant_cv := ordered(quantcut(cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00')), month]
+
+# Precipitation
+prec_stats_mean[, prec_class := ordered(quantcut(mean, 5), labels = c('low', 'below average', 'average', 'above average', 'high'))]
 
 # Koppen-Geiger
 fname_shape <- list.files(path = masks_dir_KG_beck, full.names = TRUE, pattern = "climate_beck_level3.shp")
@@ -41,7 +42,7 @@ prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
 # Ecoregions (Biomes)
 
 # Save for further use
-prec_stats_mean_month <- merge(prec_stats_mean_month, prec_stats_mean[, .(lon, lat, quant_mean, quant_cv, KG_class)], by = c("lon", "lat"))
+prec_stats_mean_month <- merge(prec_stats_mean_month, prec_stats_mean[, .(lon, lat, prec_class, KG_class)], by = c("lon", "lat"))
 
 saveRDS(prec_stats_mean, paste0(path_save_blueprint, "prec_mask_mean.rds"))
 saveRDS(prec_stats_mean_month, paste0(path_save_blueprint, "prec_mask_mean_month.rds"))

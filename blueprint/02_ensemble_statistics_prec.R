@@ -6,6 +6,9 @@ source('source/masks.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
+install.packages("gtools")
+library(gtools)
+
 ## Read data 
 datasets_kenya <- readRDS(paste0(path_save_blueprint, "rasters_prec_kenya.rds"))
 
@@ -87,12 +90,23 @@ prec_stats <- merge(prec_stats, prec_cv_month_dt, by = c('x', 'y', 'time'))
 colnames(prec_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
 
 ## Extra variables
+prec_stats <- readRDS(paste0(path_save_blueprint, "ensemble_prec_stats.rds"))
 prec_stats[, month := month(time)]
 prec_stats[, year := year(time)]
 prec_stats <- prec_stats[, .(lon, lat, time, month, year, mean, sd, cv)]
+prec_stats[, quant_cv := ordered(quantcut(cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+prec_stats[, lower_bound_prec := mean - 2 * sd]
+prec_stats[, upper_bound_prec := mean + 2 * sd]
+prec_stats[lower_bound_prec < 0, lower_bound_prec := 0]
+prec_stats[, bound_range := upper_bound_prec - lower_bound_prec]
 
-prec_stats_mean <- prec_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv'), by = c('lon', 'lat')]
-prec_stats_mean_month <- prec_stats[, lapply(.SD, mean), .SDcols = c('mean', 'sd', 'cv'), by = c('lon', 'lat', 'month')]
+
+prec_stats_mean <- prec_stats[, lapply(.SD, mean), 
+                              .SDcols = c('mean', 'sd', 'cv', 'lower_bound_prec', 'upper_bound_prec', 'bound_range'), 
+                              by = c('lon', 'lat')]
+prec_stats_mean_month <- prec_stats[, lapply(.SD, mean), 
+                                    .SDcols = c('mean', 'sd', 'cv', 'lower_bound_prec', 'upper_bound_prec', 'bound_range'), 
+                                    by = c('lon', 'lat', 'month')]
 
 ## Save data for further use
 saveRDS(prec_stats, paste0(path_save_blueprint, "ensemble_prec_stats.rds"))
