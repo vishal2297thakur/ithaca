@@ -9,7 +9,7 @@ prec_stats <- readRDS(paste0(path_save_blueprint, "ensemble_prec_stats.rds"))
 prec_mask_mean <- readRDS(paste0(path_save_blueprint, "prec_mask_mean.rds"))
 prec_mask_mean_month <- readRDS(paste0(path_save_blueprint, "prec_mask_mean_month.rds"))
 
-## Analysis
+## Analysis | TODO: Estimate the partition by different monthly dataset agreement classes
 prec_quant_size <- prec_mask_mean[, .(total_grid_cells = .N), prec_class]
 prec_quant_size_bias <-  prec_mask_mean[, .N, .(prec_class, quant_cv)]
 prec_quant_size_bias <- merge(prec_quant_size, prec_quant_size_bias, by = 'prec_class')

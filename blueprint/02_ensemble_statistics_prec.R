@@ -12,12 +12,12 @@ library(gtools)
 ## Read data 
 datasets_kenya <- readRDS(paste0(path_save_blueprint, "rasters_prec_kenya.rds"))
 
-prec_era5_kenya <- raster(paste0(path_save_blueprint, "prec_era5.nc"))
-prec_gpcc_kenya <- raster(paste0(path_save_blueprint, "prec_gpcc.nc"))
-prec_em_kenya <- raster(paste0(path_save_blueprint, "prec_em.nc"))
-prec_gpcp_kenya <- raster(paste0(path_save_blueprint, "prec_gpcp.nc"))
-prec_mswep_kenya <- raster(paste0(path_save_blueprint, "prec_mswep.nc"))
-prec_gpm_kenya <- raster(paste0(path_save_blueprint, "prec_gpm.nc"))
+prec_era5_kenya <- brick(paste0(path_save_blueprint, "era5_tp_mm_kenya_200101_201912_025_monthly.nc"))
+prec_gpcc_kenya <- brick(paste0(path_save_blueprint, "gpcc_tp_mm_kenya_200101_201912_025_monthly.nc"))
+prec_em_kenya <- brick(paste0(path_save_blueprint, "em-earth_tp_mm_kenya_200101_201912_025_monthly.nc"))
+prec_gpcp_kenya <- brick(paste0(path_save_blueprint, "gpcp_tp_mm_kenya_200101_201912_025_monthly.nc"))
+prec_mswep_kenya <- brick(paste0(path_save_blueprint, "mswep_tp_mm_kenya_200101_201912_025_monthly.nc"))
+prec_gpm_kenya <- brick(paste0(path_save_blueprint, "gpm-imerg_tp_mm_kenya_200101_201912_025_monthly.nc"))
 
 ## Set variables
 period_months_dates <- seq(period_start, by = "month", length.out = period_months)
@@ -31,7 +31,7 @@ prec_mean_month <- foreach(dataset_count = 1:length(datasets_kenya)) %dopar% {
        na.rm = T)
 }
 
-prec_mean_month <- foreach(month_count = 1:period_months) %dopar% {
+prec_mean_month <- foreach(month_count = 1:period_months, .packages = 'raster') %dopar% {
   calc(stack(prec_era5_kenya[[month_count]],
              prec_gpcc_kenya[[month_count]],
              prec_em_kenya[[month_count]],
@@ -61,13 +61,35 @@ prec_sd_month <- brick(prec_sd_month)
 prec_sd_month <- setZ(prec_sd_month, period_months_dates)
 names(prec_sd_month) <- as.Date(period_months_dates)
 
-prec_cv_month <- foreach(month_count = 1:period_months) %dopar% {
-  prec_sd_month[[month_count]]/prec_mean_month[[month_count]]
+estimate_q25 <- function(x) {as.numeric(quantile(x, 0.25, na.rm = TRUE))}
+prec_q25_month <- foreach(month_count = 1:period_months) %dopar% {
+  calc(stack(prec_era5_kenya[[month_count]],
+             prec_gpcc_kenya[[month_count]],
+             prec_em_kenya[[month_count]],
+             prec_gpcp_kenya[[month_count]],
+             prec_mswep_kenya[[month_count]],
+             prec_gpm_kenya[[month_count]]), 
+       fun = estimate_q25)
 }
 
-prec_cv_month <- brick(prec_cv_month)
-prec_cv_month <- setZ(prec_cv_month, period_months_dates)
-names(prec_cv_month) <- as.Date(period_months_dates)
+prec_q25_month <- brick(prec_q25_month)
+prec_q25_month <- setZ(prec_q25_month, period_months_dates)
+names(prec_q25_month) <- as.Date(period_months_dates)
+
+estimate_q75 <- function(x) {as.numeric(quantile(x, 0.75, na.rm = TRUE))}
+prec_q75_month <- foreach(month_count = 1:period_months) %dopar% {
+  calc(stack(prec_era5_kenya[[month_count]],
+             prec_gpcc_kenya[[month_count]],
+             prec_em_kenya[[month_count]],
+             prec_gpcp_kenya[[month_count]],
+             prec_mswep_kenya[[month_count]],
+             prec_gpm_kenya[[month_count]]), 
+       fun = estimate_q75)
+}
+
+prec_q75_month <- brick(prec_q75_month)
+prec_q75_month <- setZ(prec_q75_month, period_months_dates)
+names(prec_q75_month) <- as.Date(period_months_dates)
 
 ## Quick validation
 plot(mean(prec_era5_kenya))
@@ -78,34 +100,41 @@ plot(mean(prec_mswep_kenya))
 plot(mean(prec_gpm_kenya))
 plot(mean(prec_mean_month))
 plot(mean(prec_sd_month))
-plot(mean(prec_cv_month))
+plot(mean(prec_q25_month))
+plot(mean(prec_q75_month))
 
 ## Transform to data.table 
 prec_mean_month_dt <- brick_to_dt(prec_mean_month) 
 prec_sd_month_dt <- brick_to_dt(prec_sd_month)
-prec_cv_month_dt <- brick_to_dt(prec_cv_month)
+prec_q25_month_dt <- brick_to_dt(prec_q25_month)
+prec_q75_month_dt <- brick_to_dt(prec_q75_month)
 
 prec_stats <- merge(prec_mean_month_dt, prec_sd_month_dt, by = c('x', 'y', 'time'))
-prec_stats <- merge(prec_stats, prec_cv_month_dt, by = c('x', 'y', 'time'))
-colnames(prec_stats) <- c('lon', 'lat', 'time', 'mean', 'sd', 'cv')
+prec_stats <- merge(prec_stats, prec_q25_month_dt, by = c('x', 'y', 'time'))
+prec_stats <- merge(prec_stats, prec_q75_month_dt, by = c('x', 'y', 'time'))
+colnames(prec_stats) <- c('lon', 'lat', 'time', 'ens_mean', 'ens_sd', 'ens_q25', 'ens_q75')
 
 ## Extra variables
-prec_stats <- readRDS(paste0(path_save_blueprint, "ensemble_prec_stats.rds"))
+#prec_stats <- readRDS(paste0(path_save_blueprint, "ensemble_prec_stats.rds"))
 prec_stats[, month := month(time)]
 prec_stats[, year := year(time)]
-prec_stats <- prec_stats[, .(lon, lat, time, month, year, mean, sd, cv)]
-prec_stats[, quant_cv := ordered(quantcut(cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
-prec_stats[, lower_bound_prec := mean - 2 * sd]
-prec_stats[, upper_bound_prec := mean + 2 * sd]
-prec_stats[lower_bound_prec < 0, lower_bound_prec := 0]
-prec_stats[, bound_range := upper_bound_prec - lower_bound_prec]
-
+prec_stats <- prec_stats[, .(lon, lat, time, month, year, ens_mean, ens_sd, ens_q25, ens_q75)]
+prec_stats[, std_quant_range := (ens_q75 - ens_q25) / ens_mean] # Using q75 - q25 as in Sun et al. 2018 paper
+prec_stats[, ens_cv := ens_sd / ens_mean]
+prec_stats[, quant_cv := ordered(quantcut(ens_cv, 5), 
+                                 labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+prec_stats[, dataset_agreement := ordered(quantcut(std_quant_range, 5), 
+                                          labels = c('high', 'above average', 'average', 'below average', 'low'))]
 
 prec_stats_mean <- prec_stats[, lapply(.SD, mean), 
-                              .SDcols = c('mean', 'sd', 'cv', 'lower_bound_prec', 'upper_bound_prec', 'bound_range'), 
+                              .SDcols = c('ens_mean', 'ens_sd', 'ens_cv', 'ens_q25', 'ens_q75', 'std_quant_range'), 
                               by = c('lon', 'lat')]
+prec_stats_mean[, quant_cv := ordered(quantcut(ens_cv, 5), 
+                                 labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+prec_stats_mean[, dataset_agreement := ordered(quantcut(std_quant_range, 5), 
+                                          labels = c('high', 'above average', 'average', 'below average', 'low'))]
 prec_stats_mean_month <- prec_stats[, lapply(.SD, mean), 
-                                    .SDcols = c('mean', 'sd', 'cv', 'lower_bound_prec', 'upper_bound_prec', 'bound_range'), 
+                                    .SDcols =  c('ens_mean', 'ens_sd', 'ens_cv', 'ens_q25', 'ens_q75', 'std_quant_range'), 
                                     by = c('lon', 'lat', 'month')]
 
 ## Save data for further use
