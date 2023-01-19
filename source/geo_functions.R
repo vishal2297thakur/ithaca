@@ -10,12 +10,14 @@
 #' land_brick <- landmask(dummie_brick)
 #' ocean_brick <- landmask(dummie_brick, keep_land = FALSE)
 
-
-source('./source/main.R')
-
 landmask <- function(x, keep_land = TRUE){
   lsmask <- raster("~/shared/data_projects/ithaca/misc/landmask.nc")
   inv_mask <- !keep_land
+  mask_ext <- extent(lsmask)
+  x_ext <- extent(x)
+  if (x_ext < mask_ext){
+    lsmask <- crop(lsmask, x_ext)
+  }
   dummie <- mask(x, lsmask, inverse = inv_mask)
   return(dummie)
 }
