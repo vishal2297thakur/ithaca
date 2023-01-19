@@ -22,8 +22,7 @@ prec_gpm_kenya <- brick(paste0(path_save_blueprint, "gpm-imerg_tp_mm_kenya_20010
 ## Set variables
 period_months_dates <- seq(period_start, by = "month", length.out = period_months)
 
-## Main estimations
-# Version 1: Parallel computing
+## Main estimations #test
 prec_mean_month <- foreach(dataset_count = 1:length(datasets_kenya)) %dopar% { 
   foreach(month_count = 1:period_months) %dopar% {
   calc(stack(datasets_kenya[[month_count]]
