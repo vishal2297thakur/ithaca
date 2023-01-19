@@ -7,15 +7,14 @@
 #' 
 #' @example
 #' dummie_brick <- brick("~/shared/data/sim/precip/raw/ncep-doe_tp_mm_global_197901_202208_025_monthly.nc")
-#' land_brick <- lsmask(dummie_brick)
-#' ocean_brick <- lsmask(dummie_brick, keep_land = FALSE)
+#' land_brick <- landmask(dummie_brick)
+#' ocean_brick <- landmask(dummie_brick, keep_land = FALSE)
 
 
 source('./source/main.R')
 
-lsmask <- raster("~/shared/data_projects/ithaca/misc/landmask.nc")
-
 landmask <- function(x, keep_land = TRUE){
+  lsmask <- raster("~/shared/data_projects/ithaca/misc/landmask.nc")
   inv_mask <- !keep_land
   dummie <- mask(x, lsmask, inverse = inv_mask)
   return(dummie)
