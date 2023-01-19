@@ -1,0 +1,22 @@
+#' Landmask
+#'
+#' Function to mask a data set
+#' 
+#' @param x a RasterBrick to be masked
+#' @param keep_land logical. If TRUE (default) you get land values, else you get ocean values
+#' 
+#' @example
+#' dummie_brick <- brick("~/shared/data/sim/precip/raw/ncep-doe_tp_mm_global_197901_202208_025_monthly.nc")
+#' land_brick <- lsmask(dummie_brick)
+#' ocean_brick <- lsmask(dummie_brick, keep_land = FALSE)
+
+
+source('./source/main.R')
+
+lsmask <- raster("~/shared/data_projects/ithaca/misc/landmask.nc")
+
+landmask <- function(x, keep_land = TRUE){
+  inv_mask <- !keep_land
+  dummie <- mask(x, lsmask, inverse = inv_mask)
+  return(dummie)
+}
