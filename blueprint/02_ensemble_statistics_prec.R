@@ -142,7 +142,7 @@ saveRDS(prec_stats_mean, paste0(path_save_blueprint, "prec_stats_mean.rds"))
 saveRDS(prec_stats_mean_month, paste0(path_save_blueprint, "prec_stats_mean_month.rds"))
 
 ## Plot results
-to_plot <- prec_stats[, .(value = mean(mean)), .(lon, lat)]
+to_plot <- prec_stats[, .(value = mean(ens_mean)), .(lon, lat)]
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +
   borders(colour = "black") +

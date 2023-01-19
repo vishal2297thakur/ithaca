@@ -15,9 +15,9 @@ quantiles <- seq(0.1, 1, 0.1)
 bias_thres_cv <- 0.5
 
 ## Main estimations
-prec_stats_low_bias <- prec_stats_mean[cv <= bias_thres_cv,  .(lon, lat)]
+prec_stats_low_bias <- prec_stats_mean[ens_cv <= bias_thres_cv,  .(lon, lat)]
 
-cv_quantiles <- prec_stats_mean[, quantile(cv, quantiles)]
+cv_quantiles <- prec_stats_mean[, quantile(ens_cv, quantiles)]
 cv_values_n <- data.table(quantile = quantiles, 
                           cv = cv_quantiles, 
                           size = floor(quantile(1:nrow(prec_stats_mean), quantiles)))

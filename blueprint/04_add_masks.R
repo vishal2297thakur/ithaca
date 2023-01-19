@@ -9,17 +9,17 @@ install.packages("gtools")
 library(gtools)
 
 ## Read data 
-prec_era5_kenya <- readRDS(paste0(path_save_blueprint, "prec_era5.rds"))
+prec_era5_kenya <- brick(paste0(path_save_blueprint, "era5_tp_mm_kenya_200101_201912_025_monthly.nc"))
 prec_stats_mean <- readRDS(paste0(path_save_blueprint, "prec_stats_mean.rds"))
 prec_stats_mean_month <- readRDS(paste0(path_save_blueprint, "prec_stats_mean_month.rds"))
 
 ## Masks
 # Bias: Coefficient of Variation
-prec_stats_mean[, quant_cv := ordered(quantcut(cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
-prec_stats_mean_month[, quant_cv := ordered(quantcut(cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00')), month]
+prec_stats_mean[, quant_cv := ordered(quantcut(ens_cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+prec_stats_mean_month[, quant_cv := ordered(quantcut(ens_cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00')), month]
 
 # Precipitation
-prec_stats_mean[, prec_class := ordered(quantcut(mean, 5), labels = c('low', 'below average', 'average', 'above average', 'high'))]
+prec_stats_mean[, prec_class := ordered(quantcut(ens_mean, 5), labels = c('low', 'below average', 'average', 'above average', 'high'))]
 
 # Koppen-Geiger
 fname_shape <- list.files(path = masks_dir_KG_beck, full.names = TRUE, pattern = "climate_beck_level3.shp")
