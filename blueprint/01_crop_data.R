@@ -19,7 +19,7 @@ datasets_kenya <- foreach(dataset_count = 1:n_datasets) %dopar% {
   #result <- st_crop(result, shape_mask)   ## TODO: Crop global data over land 
   writeRaster(result, 
               filename = paste0(path_save_blueprint, datasets_fnames_short[[dataset_count]], "_tp_mm_kenya_200101_201912_025_monthly.nc"),
-              format= 'CDF', overwrite = TRUE)
+              format= 'CDF')
   result
 } 
 names(datasets_kenya) <- datasets_fnames_short

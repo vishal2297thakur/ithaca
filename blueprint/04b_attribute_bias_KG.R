@@ -21,7 +21,7 @@ KG_class_size_bias_cum[, fraction_cv_bias := round(grid_cell_cum / sum(grid_cell
 ## Quick validation
 ggplot() +
   geom_raster(data = prec_mask_mean, aes(lon, lat, fill = KG_class)) +
-  geom_point(data = prec_mask_mean[bias_cv == 'low', .(lon, lat)],  aes(lon, lat)) +
+  geom_point(data = prec_mask_mean[dataset_agreement == 'high', .(lon, lat)],  aes(lon, lat)) +
   scale_fill_manual(values = colset_mid_qual[3:5]) +
   labs(fill = 'Precipitation')  +
   theme_light()
