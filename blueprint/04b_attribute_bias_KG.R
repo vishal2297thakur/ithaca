@@ -24,7 +24,13 @@ ggplot() +
   geom_point(data = prec_mask_mean[dataset_agreement == 'high', .(lon, lat)],  aes(lon, lat)) +
   scale_fill_manual(values = colset_mid_qual[3:5]) +
   labs(fill = 'Precipitation')  +
-  theme_light()
+  theme_light() +
+  coord_sf(default_crs = sf::st_crs(3395)) + #Mercator
+  scale_x_continuous(labels = function(x) paste0(x, '\u00B0'), expand = c(0, 0)) +
+  scale_y_continuous(labels = function(x) paste0(x, '\u00B0'), expand = c(0, 0)) +
+  theme(plot.background = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank())
 
 ggplot(prec_mask_mean) +
   geom_bar(aes(x = KG_class)) + 
