@@ -20,6 +20,19 @@ path_data <- '~/shared/data/'
 path_data_review <- '~/shared/data_review/'
 path_save <- '~/shared/data_projects/ithaca/'
 
+##Datasets
+#06/2000-12/2019
+datasets_fnames_2000_2019 <- c(list.files(path = path_prec_sim, full.names = TRUE)[c(3, 9)],
+                     list.files(path = path_prec_obs, full.names = TRUE)[-c(7, 12, 14, 15)])
+datasets_fnames_short <- c(list.files(path = path_prec_sim)[c(3, 9)],
+                           list.files(path = path_prec_obs)[-c(7, 12, 14, 15)])
+datasets_fnames_short <- strsplit(datasets_fnames_short, split = '_', fixed = TRUE)
+datasets_fnames_short_2000_2019 <- sapply(datasets_fnames_short, "[[", 1)
+
+#01/1981-12/2019
+
+#01/1961-12/2019
+
 ##Constants
 #Time
 PERIOD_START <- as.Date("1960-01-01")
