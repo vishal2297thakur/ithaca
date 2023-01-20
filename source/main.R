@@ -26,12 +26,14 @@ path_evap_obs <- paste0(path_data, "obs/evap/raw/")
 
 ##Datasets
 #06/2000-12/2019
-datasets_fnames_2000_2019 <- c(list.files(path = path_prec_sim, full.names = TRUE)[c(3, 9)],
-                     list.files(path = path_prec_obs, full.names = TRUE)[-c(7, 12, 14, 15)])
-datasets_fnames_short <- c(list.files(path = path_prec_sim)[c(3, 9)],
+prec_fnames_2000_2019 <- c(list.files(path = path_prec_sim, full.names = TRUE),
+                     list.files(path = path_prec_obs, full.names = TRUE))
+grep("land", prec_fnames_2000_2019, value = TRUE)[c(2, 8:10, 12:19, 12:16)]
+prec_fnames_2000_2019 <- 
+prec_fnames_short <- c(list.files(path = path_prec_sim)[c(3, 9)],
                            list.files(path = path_prec_obs)[-c(7, 12, 14, 15)])
-datasets_fnames_short <- strsplit(datasets_fnames_short, split = '_', fixed = TRUE)
-datasets_fnames_short_2000_2019 <- sapply(datasets_fnames_short, "[[", 1)
+prec_fnames_short <- strsplit(prec_fnames_short, split = '_', fixed = TRUE)
+prec_fnames_short_2000_2019 <- sapply(prec_fnames_short, "[[", 1)
 
 #01/1981-12/2019
 

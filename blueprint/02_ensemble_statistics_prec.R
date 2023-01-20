@@ -1,24 +1,23 @@
 ### Estimation of monthly precipitation mean, standard deviation (sd), and coefficient of variance
 ### for the dataset ensemble
+install.packages("gtools")
+library(gtools)
 
 source('source/blueprint.R')
 source('source/masks.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
-install.packages("gtools")
-library(gtools)
-
 ## Read data 
-datasets_kenya_2000_2019 <- lapply(datasets_fnames_2000_2019, brick)
-names(datasets_kenya_2000_2019) <- datasets_fnames_short_2000_2019 
+prec_kenya_2000_2019 <- lapply(prec_fnames_2000_2019, brick)
+names(prec_kenya_2000_2019) <- prec_fnames_short_2000_2019 
 
-prec_era5_kenya <- brick(paste0(path_save_blueprint, "era5_tp_mm_kenya_200101_201912_025_monthly.nc"))
-prec_gpcc_kenya <- brick(paste0(path_save_blueprint, "gpcc_tp_mm_kenya_200101_201912_025_monthly.nc"))
-prec_em_kenya <- brick(paste0(path_save_blueprint, "em-earth_tp_mm_kenya_200101_201912_025_monthly.nc"))
-prec_gpcp_kenya <- brick(paste0(path_save_blueprint, "gpcp_tp_mm_kenya_200101_201912_025_monthly.nc"))
-prec_mswep_kenya <- brick(paste0(path_save_blueprint, "mswep_tp_mm_kenya_200101_201912_025_monthly.nc"))
-prec_gpm_kenya <- brick(paste0(path_save_blueprint, "gpm-imerg_tp_mm_kenya_200101_201912_025_monthly.nc"))
+prec_era5_kenya <- brick(paste0(path_save_blueprint, "era5_tp_mm_kenya_200006_201912_025_monthly.nc"))
+prec_gpcc_kenya <- brick(paste0(path_save_blueprint, "gpcc_tp_mm_kenya_200006_201912_025_monthly.nc"))
+prec_em_kenya <- brick(paste0(path_save_blueprint, "em-earth_tp_mm_kenya_200006_201912_025_monthly.nc"))
+prec_gpcp_kenya <- brick(paste0(path_save_blueprint, "gpcp_tp_mm_kenya_200006_201912_025_monthly.nc"))
+prec_mswep_kenya <- brick(paste0(path_save_blueprint, "mswep_tp_mm_kenya_200006_201912_025_monthly.nc"))
+prec_gpm_kenya <- brick(paste0(path_save_blueprint, "gpm-imerg_tp_mm_kenya_200006_201912_025_monthly.nc"))
 
 ## Set variables
 period_months_dates <- seq(period_start, by = "month", length.out = period_months)
