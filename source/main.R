@@ -19,6 +19,10 @@ library(doParallel)
 path_data <- '~/shared/data/'
 path_data_review <- '~/shared/data_review/'
 path_save <- '~/shared/data_projects/ithaca/'
+path_prec_sim <- paste0(path_data, "sim/precip/raw/")
+path_prec_obs <- paste0(path_data, "obs/precip/raw/")
+path_evap_sim <- paste0(path_data, "sim/evap/raw/")
+path_evap_obs <- paste0(path_data, "obs/evap/raw/")
 
 ##Datasets
 #06/2000-12/2019

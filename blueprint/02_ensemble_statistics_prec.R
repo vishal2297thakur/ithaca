@@ -10,7 +10,8 @@ install.packages("gtools")
 library(gtools)
 
 ## Read data 
-datasets_kenya <- readRDS(paste0(path_save_blueprint, "rasters_prec_kenya.rds"))
+datasets_kenya_2000_2019 <- lapply(datasets_fnames_2000_2019, brick)
+names(datasets_kenya_2000_2019) <- datasets_fnames_short_2000_2019 
 
 prec_era5_kenya <- brick(paste0(path_save_blueprint, "era5_tp_mm_kenya_200101_201912_025_monthly.nc"))
 prec_gpcc_kenya <- brick(paste0(path_save_blueprint, "gpcc_tp_mm_kenya_200101_201912_025_monthly.nc"))
