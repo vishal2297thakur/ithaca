@@ -9,7 +9,7 @@ install.packages("gtools")
 library(gtools)
 
 ## Read data 
-prec_era5_kenya <- brick(paste0(path_save_blueprint, "era5_tp_mm_kenya_200101_201912_025_monthly.nc"))
+prec_era5_kenya <- brick(paste0(path_save_blueprint, "era5_tp_mm_kenya_200006_201912_025_monthly.nc"))
 prec_stats_mean <- readRDS(paste0(path_save_blueprint, "prec_stats_mean.rds"))
 prec_stats_mean_month <- readRDS(paste0(path_save_blueprint, "prec_stats_mean_month.rds"))
 
@@ -36,13 +36,53 @@ prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), a
 prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
 
 # Elevation
+fname <- list.files(path = masks_dir_oro, full.names = TRUE, pattern = "mask_orography_groups_025.nc")
+shape_mask <- raster(paste0(fname[1]))
+
+shape_mask_crop <- crop(shape_mask, study_area)
+shape_mask_df <- shape_mask_crop %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
+colnames(shape_mask_df) <- c('lon', 'lat', 'elev_class')
+
+prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), all.x = T)
+prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
 
 # Land use
 
+fname <- list.files(path = masks_dir_landcover, full.names = TRUE, pattern = "mask_landcover_modis_025.nc")
+shape_mask <- raster(paste0(fname[1]))
+
+shape_mask_crop <- crop(shape_mask, study_area)
+shape_mask_df <- shape_mask_crop %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
+colnames(shape_mask_df) <- c('lon', 'lat', 'land_class')
+
+prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), all.x = T)
+prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
+
 # Ecoregions (Biomes)
 
+fname_shape <- list.files(path = masks_dir_ecoregions, full.names = TRUE, pattern = "mask_biomes_dinerstein.shp")
+shape_mask <- st_read(paste0(fname_shape[1]))
+shape_mask <- st_make_valid(shape_mask)
+
+shape_mask_raster <- rasterize(shape_mask, prec_era5_kenya[[1]]) #directly rasterized; no cropping
+#shape_raster_crop <- crop(shape_mask_raster, study_area)
+shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'layer_BIOME_NUM'))
+colnames(shape_mask_df) <- c('lon', 'lat', 'biome_class')
+
+prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), all.x = T)
+prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
+
 # Save for further use
-prec_stats_mean_month <- merge(prec_stats_mean_month, prec_stats_mean[, .(lon, lat, prec_class, KG_class)], by = c("lon", "lat"))
+prec_stats_mean_month <- merge(prec_stats_mean_month, prec_stats_mean[, .(lon, 
+                                                                          lat, 
+                                                                          prec_class, 
+                                                                          KG_class, 
+                                                                          elev_class, 
+                                                                          land_class, 
+                                                                          biome_class)], by = c("lon", "lat"))
 
 saveRDS(prec_stats_mean, paste0(path_save_blueprint, "prec_mask_mean.rds"))
 saveRDS(prec_stats_mean_month, paste0(path_save_blueprint, "prec_mask_mean_month.rds"))
