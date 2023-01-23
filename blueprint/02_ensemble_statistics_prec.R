@@ -13,11 +13,11 @@ prec_kenya_2000_2019 <- lapply(prec_fnames_2000_2019, brick)
 names(prec_kenya_2000_2019) <- prec_fnames_short_2000_2019 
 
 prec_era5_kenya <- brick(paste0(path_save_blueprint, "era5_tp_mm_kenya_200006_201912_025_monthly.nc"))
-prec_gpcc_kenya <- brick(paste0(path_save_blueprint, "gpcc_tp_mm_kenya_200006_201912_025_monthly.nc"))
+prec_ncar_kenya <- brick(paste0(path_save_blueprint, "ncep-ncar_tp_mm_kenya_200006_201912_025_monthly.nc"))
 prec_em_kenya <- brick(paste0(path_save_blueprint, "em-earth_tp_mm_kenya_200006_201912_025_monthly.nc"))
-prec_gpcp_kenya <- brick(paste0(path_save_blueprint, "gpcp_tp_mm_kenya_200006_201912_025_monthly.nc"))
-prec_mswep_kenya <- brick(paste0(path_save_blueprint, "mswep_tp_mm_kenya_200006_201912_025_monthly.nc"))
-prec_gpm_kenya <- brick(paste0(path_save_blueprint, "gpm-imerg_tp_mm_kenya_200006_201912_025_monthly.nc"))
+prec_gpcc_kenya <- brick(paste0(path_save_blueprint, "gpcc_tp_mm_kenya_200006_201912_025_monthly.nc"))
+prec_cru_kenya <- brick(paste0(path_save_blueprint, "cru-ts_tp_mm_kenya_200006_201912_025_monthly.nc"))
+prec_precl_kenya <- brick(paste0(path_save_blueprint, "precl_tp_mm_kenya_200006_201912_025_monthly.nc"))
 
 ## Set variables
 period_months_dates <- seq(period_start, by = "month", length.out = period_months)
@@ -34,9 +34,9 @@ prec_mean_month <- foreach(month_count = 1:period_months, .packages = 'raster') 
   calc(stack(prec_era5_kenya[[month_count]],
              prec_gpcc_kenya[[month_count]],
              prec_em_kenya[[month_count]],
-             prec_gpcp_kenya[[month_count]],
-             prec_mswep_kenya[[month_count]],
-             prec_gpm_kenya[[month_count]]), 
+             prec_ncar_kenya[[month_count]],
+             prec_cru_kenya[[month_count]],
+             prec_precl_kenya[[month_count]]), 
        fun = mean, 
        na.rm = T)
 }
@@ -45,13 +45,13 @@ prec_mean_month <- brick(prec_mean_month)
 prec_mean_month <- setZ(prec_mean_month, period_months_dates)
 names(prec_mean_month) <- as.Date(period_months_dates)
 
-prec_sd_month <- foreach(month_count = 1:period_months) %dopar% {
+prec_sd_month <- foreach(month_count = 1:period_months, .packages = 'raster') %dopar% {
   calc(stack(prec_era5_kenya[[month_count]],
              prec_gpcc_kenya[[month_count]],
              prec_em_kenya[[month_count]],
-             prec_gpcp_kenya[[month_count]],
-             prec_mswep_kenya[[month_count]],
-             prec_gpm_kenya[[month_count]]), 
+             prec_ncar_kenya[[month_count]],
+             prec_cru_kenya[[month_count]],
+             prec_precl_kenya[[month_count]]), 
        fun = sd, 
        na.rm = T)
 }
@@ -61,28 +61,27 @@ prec_sd_month <- setZ(prec_sd_month, period_months_dates)
 names(prec_sd_month) <- as.Date(period_months_dates)
 
 estimate_q25 <- function(x) {as.numeric(quantile(x, 0.25, na.rm = TRUE))}
-prec_q25_month <- foreach(month_count = 1:period_months) %dopar% {
+prec_q25_month <- foreach(month_count = 1:period_months, .packages = 'raster') %dopar% {
   calc(stack(prec_era5_kenya[[month_count]],
              prec_gpcc_kenya[[month_count]],
              prec_em_kenya[[month_count]],
-             prec_gpcp_kenya[[month_count]],
-             prec_mswep_kenya[[month_count]],
-             prec_gpm_kenya[[month_count]]), 
+             prec_ncar_kenya[[month_count]],
+             prec_cru_kenya[[month_count]],
+             prec_precl_kenya[[month_count]]), 
        fun = estimate_q25)
 }
-
 prec_q25_month <- brick(prec_q25_month)
 prec_q25_month <- setZ(prec_q25_month, period_months_dates)
 names(prec_q25_month) <- as.Date(period_months_dates)
 
 estimate_q75 <- function(x) {as.numeric(quantile(x, 0.75, na.rm = TRUE))}
-prec_q75_month <- foreach(month_count = 1:period_months) %dopar% {
+prec_q75_month <- foreach(month_count = 1:period_months, .packages = 'raster') %dopar% {
   calc(stack(prec_era5_kenya[[month_count]],
              prec_gpcc_kenya[[month_count]],
              prec_em_kenya[[month_count]],
-             prec_gpcp_kenya[[month_count]],
-             prec_mswep_kenya[[month_count]],
-             prec_gpm_kenya[[month_count]]), 
+             prec_ncar_kenya[[month_count]],
+             prec_cru_kenya[[month_count]],
+             prec_precl_kenya[[month_count]]), 
        fun = estimate_q75)
 }
 
@@ -94,9 +93,9 @@ names(prec_q75_month) <- as.Date(period_months_dates)
 plot(mean(prec_era5_kenya))
 plot(mean(prec_gpcc_kenya))
 plot(mean(prec_em_kenya))
-plot(mean(prec_gpcp_kenya))
-plot(mean(prec_mswep_kenya))
-plot(mean(prec_gpm_kenya))
+plot(mean(prec_gpcc_kenya))
+plot(mean(prec_cru_kenya))
+plot(mean(prec_precl_kenya))
 plot(mean(prec_mean_month))
 plot(mean(prec_sd_month))
 plot(mean(prec_q25_month))

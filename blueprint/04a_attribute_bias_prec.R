@@ -50,7 +50,7 @@ prec_prec_class_cum[, fraction_cv_bias := round(cumsum_prec_class / sum(cumsum_p
 
 ## Quick validation
 ggplot() +
-  geom_raster(data = prec_mask_mean, aes(lon, lat, fill = prec_class)) +
+  geom_raster(data = prec_mask_mean, aes(lon, lat, fill = biome_class)) +
   geom_point(data = prec_mask_mean[abs_dataset_agreement == 'average' | abs_dataset_agreement == 'above average' , .(lon, lat)],  aes(lon, lat)) +
   scale_fill_manual(values = colset_mid[8:4]) +
   labs(fill = 'Precipitation')  +
