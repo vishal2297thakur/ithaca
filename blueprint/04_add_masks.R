@@ -1,12 +1,11 @@
 ### Add categorical classes to each variable 
+install.packages("gtools")
+library(gtools)
 
 source('source/blueprint.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 source('source/masks.R')
-
-install.packages("gtools")
-library(gtools)
 
 ## Read data 
 prec_era5_kenya <- brick(paste0(path_save_blueprint, "era5_tp_mm_kenya_200006_201912_025_monthly.nc"))
@@ -88,13 +87,13 @@ saveRDS(prec_stats_mean, paste0(path_save_blueprint, "prec_mask_mean.rds"))
 saveRDS(prec_stats_mean_month, paste0(path_save_blueprint, "prec_mask_mean_month.rds"))
 
 ## Quick validation
-to_plot <- prec_stats_mean[quant_cv == '0-0.2']
+to_plot <- prec_stats_mean
 p00 <- ggplot() +
-  geom_raster(data = to_plot, aes(x = lon, y = lat, fill = "")) +
+  geom_raster(data = to_plot, aes(x = lon, y = lat, fill = biome_class)) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
-  labs(x = "", y = "", fill = 'Low bias') +
+  labs(x = "", y = "", fill = 'Class') +
   scale_x_continuous(expand = c(0.015, 0.015)) +
   theme_bw() +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
