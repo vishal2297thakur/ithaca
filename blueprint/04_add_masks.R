@@ -7,6 +7,7 @@ source('source/masks.R')
 
 install.packages("gtools")
 library(gtools)
+library(plyr)
 
 ## Read data 
 prec_era5_kenya <- brick(paste0(path_save_blueprint, "era5_tp_mm_kenya_200006_201912_025_monthly.nc"))
@@ -43,13 +44,16 @@ shape_mask <- ratify(shape_mask)
 
 mask_fname <- list.files(path = masks_dir_oro, pattern = "*groups_025_classes.txt" , full.names = T)
 mask_raster_classes <- read.table(paste(mask_fname[1]))
+mask_raster_classes <- as.data.frame(sapply(mask_raster_classes,
+                         mapvalues, from = c("(-Inf,100]", "(800,1.5e+03]", "(1.5e+03,3e+03]", "(3e+03, Inf]"), 
+                         to = c("(0,100]", "(800,1500]", "(1500,3000]", "(3000,Inf]")))
 levels(shape_mask)[[1]] <- mask_raster_classes
 
 shape_mask_crop <- crop(shape_mask, study_area)
 shape_mask_df <- shape_mask_crop %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'elev_class')
-shape_mask_df$elev_class <- factor(shape_mask_df$elev_class, ordered = TRUE)
+shape_mask_df$elev_class <- factor(shape_mask_df$elev_class, levels = c("(0,100]", "(100,400]", "(400,800]", "(800,1500]", "(1500,3000]", "(3000,Inf]"), ordered =TRUE)
 
 prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), all.x = T)
 prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
