@@ -31,6 +31,7 @@ shape_mask_raster <- rasterize(shape_mask_crop, prec_era5_kenya[[1]])
 shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class')
+shape_mask_df$KG_class <- factor(shape_mask_df$KG_class)
 
 prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), all.x = T)
 prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
@@ -38,11 +39,17 @@ prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
 # Elevation
 fname <- list.files(path = masks_dir_oro, full.names = TRUE, pattern = "mask_orography_groups_025.nc")
 shape_mask <- raster(paste0(fname[1]))
+shape_mask <- ratify(shape_mask)
+
+mask_fname <- list.files(path = masks_dir_oro, pattern = "*groups_025_classes.txt" , full.names = T)
+mask_raster_classes <- read.table(paste(mask_fname[1]))
+levels(shape_mask)[[1]] <- mask_raster_classes
 
 shape_mask_crop <- crop(shape_mask, study_area)
 shape_mask_df <- shape_mask_crop %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'elev_class')
+shape_mask_df$elev_class <- factor(shape_mask_df$elev_class, ordered = TRUE)
 
 prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), all.x = T)
 prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
@@ -51,11 +58,17 @@ prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
 
 fname <- list.files(path = masks_dir_landcover, full.names = TRUE, pattern = "mask_landcover_modis_025.nc")
 shape_mask <- raster(paste0(fname[1]))
+shape_mask <- ratify(shape_mask)
+
+mask_fname <- list.files(path = masks_dir_landcover, pattern = "*modis_025_classes.txt" , full.names = T)
+mask_raster_classes <- read.table(paste(mask_fname[1]))
+levels(shape_mask) <- mask_raster_classes
 
 shape_mask_crop <- crop(shape_mask, study_area)
 shape_mask_df <- shape_mask_crop %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'land_class')
+shape_mask_df$land_class <- factor(shape_mask_df$land_class)
 
 prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), all.x = T)
 prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
@@ -69,8 +82,9 @@ shape_mask <- st_make_valid(shape_mask)
 shape_mask_raster <- rasterize(shape_mask, prec_era5_kenya[[1]]) #directly rasterized; no cropping
 #shape_raster_crop <- crop(shape_mask_raster, study_area)
 shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
-shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'layer_BIOME_NUM'))
+shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'layer_BIOME_NAME'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'biome_class')
+shape_mask_df$biome_class <- factor(shape_mask_df$biome_class)
 
 prec_stats_mean <- merge(prec_stats_mean, shape_mask_df, by = c('lon', 'lat'), all.x = T)
 prec_stats_mean <- prec_stats_mean[complete.cases(prec_stats_mean)]
