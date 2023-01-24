@@ -23,18 +23,18 @@ period_months_dates <- seq(period_start, by = "month", length.out = period_month
 
 ## Main estimations
 # Total
-prec_2000_2019_mean_mean <- lapply(prec_2000_2019, calc, fun = mean)
-prec_ens_mean <- calc(stack(prec_2000_2019_mean), fun = mean, na.rm = T)
-prec_ens_stats <- data.table(rasterToPoints(prec_ens_mean))
+prec_2000_2019_mean <- lapply(prec_2000_2019, calc, fun = mean)
+prec_ens_mean_mean <- calc(stack(prec_2000_2019_mean_mean), fun = mean, na.rm = T)
+prec_ens_stats <- data.table(rasterToPoints(prec_ens_mean_mean))
 colnames(prec_ens_stats) <- c('lon', 'lat', 'ens_mean_mean')
 prec_ens_stats[, ens_mean_mean := round(ens_mean_mean, 0)]
 
-prec_2000_2019_sd_mean <- lapply(prec_2000_2019, calc, fun = sd)
-prec_ens_sd <- calc(stack(prec_2000_2019_sd), fun = mean, na.rm = T)
-prec_ens_sd_dt <- data.table(rasterToPoints(prec_ens_sd))
-colnames(prec_ens_sd_dt) <- c('lon', 'lat', 'ens_sd_mean')
-prec_ens_sd_dt[, ens_sd_mean := round(ens_sd_mean, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_sd_dt, by = c('lon', 'lat'))
+prec_2000_2019_sd <- lapply(prec_2000_2019, calc, fun = sd)
+prec_ens_sd_mean <- calc(stack(prec_2000_2019_sd), fun = mean, na.rm = T)
+prec_ens_sd_mean_dt <- data.table(rasterToPoints(prec_ens_sd_mean))
+colnames(prec_ens_sd_mean_dt) <- c('lon', 'lat', 'ens_sd_mean')
+prec_ens_sd_mean_dt[, ens_sd_mean := round(ens_sd_mean, 0)]
+prec_ens_stats <- merge(prec_ens_stats, prec_ens_sd_mean_dt, by = c('lon', 'lat'))
 
 prec_ens_mean_median <- calc(stack(prec_2000_2019_mean), fun = median, na.rm = T)
 prec_ens_mean_median_dt <- data.table(rasterToPoints(prec_ens_mean_median))
@@ -150,9 +150,9 @@ prec_ens_stats_month_mean <- prec_ens_stats_month[, lapply(.SD, mean),
                                     by = c('lon', 'lat', 'month')]
 
 ## Save data for further use
-saveRDS(prec_stats, paste0(path_save_blueprint, "ensemble_prec_stats.rds"))
-saveRDS(prec_stats_mean, paste0(path_save_blueprint, "prec_stats_mean.rds"))
-saveRDS(prec_stats_mean_month, paste0(path_save_blueprint, "prec_stats_mean_month.rds"))
+saveRDS(prec_ens_stats, paste0(path_save_blueprint, "prec_ensemble_stats.rds"))
+saveRDS(prec_ens_stats_month, paste0(path_save_blueprint, "prec_ensemble_stats_month.rds"))
+saveRDS(prec_ens_stats_month_mean, paste0(path_save_blueprint, "prec_ensemble_stats_month_mean.rds"))
 
 ## Plot results
 to_plot <- prec_stats[, .(value = mean(ens_mean)), .(lon, lat)]
