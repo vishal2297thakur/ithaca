@@ -1,25 +1,18 @@
-#' Landmask
+#' Lake mask
 #'
-#' Function to mask a data set
+#' Function to mask the lakes in a data set
 #' 
 #' @param x a RasterBrick to be masked
-#' @param keep_land logical. If TRUE (default) you get land values, else you get ocean values
 #' @return a RasterBrick with the respective mask
-#' 
-#' @example
-#' dummie_brick <- brick("~/shared/data/sim/precip/raw/ncep-doe_tp_mm_global_197901_202208_025_monthly.nc")
-#' land_brick <- landmask(dummie_brick)
-#' ocean_brick <- landmask(dummie_brick, keep_land = FALSE)
 
-landmask <- function(x, keep_land = TRUE){
-  lsmask <- raster("~/shared/data_projects/ithaca/misc/landmask.nc")
-  inv_mask <- !keep_land
+lake_mask <- function(x){
+  lsmask <- raster("~/shared/data_projects/ithaca/misc/water-bodies-mask_global_025.nc")
   mask_ext <- extent(lsmask)
   x_ext <- extent(x)
   if (x_ext < mask_ext){
     lsmask <- crop(lsmask, x_ext)
   }
-  dummie <- mask(x, lsmask, inverse = inv_mask)
+  dummie <- mask(x, lsmask)
   return(dummie)
 }
 
