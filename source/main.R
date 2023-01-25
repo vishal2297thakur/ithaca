@@ -29,11 +29,10 @@ path_evap_obs <- paste0(path_data, "obs/evap/raw/")
 load('~/shared/data_projects/ithaca/misc/common_periods.Rdata')
 
 #Types
-prec_datasets_obs <- c()
-prec_datasets_reanal <- c()
-prec_datasets_remote <- c()
-prec_datasets_hydrol <- c()
-prec_datasets_merged <- c() #MSWEP?
+prec_datasets_obs <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", "udel")
+prec_datasets_reanal <- c("20cr", "era20c", "era5", "ncep-doe", "ncep-ncar")
+prec_datasets_remote <- c("chirps", "cmap", "cmorph", "gpcp", "gpm-imerg", "mswep", "persiann", "trmm-3b43")
+prec_datasets_hydrol <- c("gldas-clsm", "gldas-noah", "gldas-vic", "terraclimate")
 
 ##Constants
 #Time
