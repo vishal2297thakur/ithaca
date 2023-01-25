@@ -1,46 +1,45 @@
 source('source/blueprint.R')
-source('source/masks.R')
 source('source/graphics.R')
 
 ## Read data 
-prec_mask_mean <- readRDS(paste0(path_save_blueprint, "prec_mask_mean.rds"))
-prec_mask_mean_month <- readRDS(paste0(path_save_blueprint, "prec_mask_mean_month.rds"))
+prec_mask <- readRDS(paste0(path_save_blueprint, "prec_masks.rds"))
+prec_mask_month <- readRDS(paste0(path_save_blueprint, "prec_masks_month.rds"))
+
+## Variables
+needed_for_cumsum <- expand.grid(prec_mask[, unique(rel_dataset_agreement)], prec_mask[, unique(KG_class)])
+colnames(needed_for_cumsum) <- c("rel_dataset_agreement", 'KG_class')
 
 ## Analysis
-KG_class_size <- prec_mask_mean[, .(total_grid_cells = .N), KG_class]
-KG_class_size_low_bias <- prec_mask_mean[quant_cv == '0-0.2', .N, KG_class]
-KG_class_size_low_bias[, fraction := round(N/KG_class_size$total_grid_cells, 2)]
-KG_class_size_bias <-  prec_mask_mean[, .N, .(KG_class, quant_cv)]
-KG_class_size_bias <- merge(KG_class_size, KG_class_size_bias, by = 'KG_class')
-KG_class_size_bias[, fraction := round(N/total_grid_cells, 2)]
-KG_class_size_bias <- KG_class_size_bias[order(KG_class, quant_cv), ]
+KG_class <- prec_mask[, .(sum_KG_class = sum(prec_mean)), 
+                        .(KG_class, rel_dataset_agreement)]
+KG_class <-  merge(KG_class, needed_for_cumsum, by = c('KG_class', "rel_dataset_agreement"), all.y = TRUE)
+KG_class <- KG_class[order(KG_class, rel_dataset_agreement), ]
 
-KG_class_size_bias_cum <- KG_class_size_bias[, .(grid_cell_cum = cumsum(N), quant_cv), .(KG_class)]
-KG_class_size_bias_cum[, fraction_cv_bias := round(grid_cell_cum / sum(grid_cell_cum), 2), quant_cv]
+KG_class_cum <- KG_class[, .(cumsum_KG_class = cumsum(sum_KG_class), 
+                                 rel_dataset_agreement), .(KG_class)]
+KG_class_cum[, fraction_bias := cumsum_KG_class  / sum(cumsum_KG_class), rel_dataset_agreement]
 
 ## Quick validation
 ggplot() +
-  geom_raster(data = prec_mask_mean, aes(lon, lat, fill = KG_class)) +
-  geom_point(data = prec_mask_mean[dataset_agreement == 'high', .(lon, lat)],  aes(lon, lat)) +
+  geom_raster(data = prec_mask, aes(lon, lat, fill = KG_class)) +
+  geom_point(data = prec_mask[rel_dataset_agreement == 'high', .(lon, lat)],  aes(lon, lat)) +
   scale_fill_manual(values = colset_mid_qual[3:5]) +
   coord_sf(default_crs = sf::st_crs(3395)) + #Mercator
   labs(fill = 'Precipitation')  +
   theme_light()
 
-ggplot(prec_mask_mean) +
+ggplot(prec_mask) +
   geom_bar(aes(x = KG_class)) + 
   theme_light()
 
-ggplot(KG_class_size_bias) +
-  geom_bar(aes(x = KG_class, y = fraction), stat="identity") +
-  facet_wrap(~quant_cv) +
-  xlab('KG Class')  +
-  theme_light()
-
-
 ## Plot
-ggplot(KG_class_size_bias_cum) +
-  geom_bar(aes(x = quant_cv, y = fraction_cv_bias, fill = KG_class), stat="identity") +
-  xlab('CV Quantile')  +
+# Main: Partition (%) of total precipitation per climatology for different levels of dataset agreement 
+ggplot(KG_class_cum) +
+  geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias , fill = KG_class), stat="identity") +
+  xlab('Cumulative dataset agreement')  +
+  ylab('Precipitation fraction')  +
+  labs(fill = 'KG class')  +
   scale_fill_manual(values = colset_mid_qual[3:5]) +
   theme_light()
+
+

@@ -4,12 +4,20 @@ source("source/main.R")
 
 # Paths
 path_save_blueprint <- paste0(path_save, "blueprint/")
+prec_fnames_2000_2019_kenya <-  list.files(path = path_save_blueprint, full.names = TRUE)
+prec_fnames_2000_2019_kenya <-  grep("kenya_200006_201912", prec_fnames_2000_2019_kenya, value = TRUE)
+prec_fnames_short_2000_2019_kenya <-  prec_fnames_short_2000_2019
+
+prec_fnames_1960_2019_kenya <-  list.files(path = path_save_blueprint, full.names = TRUE)
+prec_fnames_1960_2019_kenya <-  grep("kenya_196001_201912", prec_fnames_1960_2019_kenya, value = TRUE)
+prec_fnames_short_1960_2019_kenya <-  prec_fnames_short_1960_2019
+
 
 # Variables
-n_datasets_2000_2019 <- length(datasets_fnames_2000_2019)
-#n_datasets_1980_2019 <- length(datasets_fnames_1980_2019)
-#n_datasets_1960_2019 <- length(datasets_fnames_1960_2019)
-n_variables <- 2
+n_datasets_2000_2019 <- length(prec_fnames_2000_2019)
+n_datasets_1980_2019 <- length(prec_fnames_1980_2019)
+n_datasets_1960_2019 <- length(prec_fnames_1960_2019)
+n_variables <- 1
 
 # Specify the lat/lon for the region of analysis 
 study_area <- extent(PILOT_LON_MIN, 
