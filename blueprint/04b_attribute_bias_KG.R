@@ -19,6 +19,9 @@ KG_class_cum <- KG_class[, .(cumsum_KG_class = cumsum(sum_KG_class),
                                  rel_dataset_agreement), .(KG_class)]
 KG_class_cum[, fraction_bias := cumsum_KG_class  / sum(cumsum_KG_class), rel_dataset_agreement]
 
+KG_class_prec <- prec_mask[, .(lon, lat, prec_mean, KG_class, rel_dataset_agreement)]
+
+
 ## Quick validation
 ggplot() +
   geom_raster(data = prec_mask, aes(lon, lat, fill = KG_class)) +
@@ -35,11 +38,20 @@ ggplot(prec_mask) +
 ## Plot
 # Main: Partition (%) of total precipitation per climatology for different levels of dataset agreement 
 ggplot(KG_class_cum) +
-  geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias , fill = KG_class), stat="identity") +
+  geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias , fill = KG_class), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
   labs(fill = 'KG class')  +
   scale_fill_manual(values = colset_mid_qual[3:5]) +
   theme_light()
 
-
+ggplot(KG_class_prec) +
+  geom_boxplot(aes(y = prec_mean, fill = rel_dataset_agreement)) +
+  facet_wrap(~KG_class, scales = 'free') +
+  labs(fill = 'Dataset agreement')  +
+  ylab('Mean monthly precipitation')  +
+  scale_fill_manual(values = colset_mid_qual[c(1, 4, 3, 2, 5)]) +
+  theme_light() +
+  theme(strip.background = element_rect(fill = "black"),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
