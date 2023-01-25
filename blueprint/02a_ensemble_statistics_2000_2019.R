@@ -4,7 +4,6 @@ install.packages("gtools")
 library(gtools)
 
 source('source/blueprint.R')
-source('source/masks.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
@@ -23,38 +22,38 @@ period_months_dates <- seq(period_start, by = "month", length.out = period_month
 
 ## Main estimations
 # Total
-prec_2000_2019_mean <- lapply(prec_2000_2019, calc, fun = mean)
-prec_ens_mean_mean <- calc(stack(prec_2000_2019_mean_mean), fun = mean, na.rm = T)
+prec_mean <- lapply(prec_2000_2019, calc, fun = mean)
+prec_ens_mean_mean <- calc(stack(prec_mean_mean), fun = mean, na.rm = T)
 prec_ens_stats <- data.table(rasterToPoints(prec_ens_mean_mean))
 colnames(prec_ens_stats) <- c('lon', 'lat', 'ens_mean_mean')
 prec_ens_stats[, ens_mean_mean := round(ens_mean_mean, 0)]
 
-prec_2000_2019_sd <- lapply(prec_2000_2019, calc, fun = sd)
-prec_ens_sd_mean <- calc(stack(prec_2000_2019_sd), fun = mean, na.rm = T)
+prec_sd <- lapply(prec_2000_2019, calc, fun = sd)
+prec_ens_sd_mean <- calc(stack(prec_sd), fun = mean, na.rm = T)
 prec_ens_sd_mean_dt <- data.table(rasterToPoints(prec_ens_sd_mean))
 colnames(prec_ens_sd_mean_dt) <- c('lon', 'lat', 'ens_sd_mean')
 prec_ens_sd_mean_dt[, ens_sd_mean := round(ens_sd_mean, 0)]
 prec_ens_stats <- merge(prec_ens_stats, prec_ens_sd_mean_dt, by = c('lon', 'lat'))
 
-prec_ens_mean_median <- calc(stack(prec_2000_2019_mean), fun = median, na.rm = T)
+prec_ens_mean_median <- calc(stack(prec_mean), fun = median, na.rm = T)
 prec_ens_mean_median_dt <- data.table(rasterToPoints(prec_ens_mean_median))
 colnames(prec_ens_mean_median_dt) <- c('lon', 'lat', 'ens_mean_median')
 prec_ens_mean_median_dt[, ens_mean_median := round(ens_mean_median, 0)]
 prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_median_dt, by = c('lon', 'lat'))
 
-prec_ens_mean_sd <- calc(stack(prec_2000_2019_mean), fun = sd, na.rm = T)
+prec_ens_mean_sd <- calc(stack(prec_mean), fun = sd, na.rm = T)
 prec_ens_mean_sd_dt <- data.table(rasterToPoints(prec_ens_mean_sd))
 colnames(prec_ens_mean_sd_dt) <- c('lon', 'lat', 'ens_mean_sd')
 prec_ens_mean_sd_dt[, ens_mean_sd := round(ens_mean_sd, 0)]
 prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_sd_dt, by = c('lon', 'lat'))
 
-prec_ens_mean_q25 <- calc(stack(prec_2000_2019_mean), fun = estimate_q25)
+prec_ens_mean_q25 <- calc(stack(prec_mean), fun = estimate_q25)
 prec_ens_mean_q25_dt <- data.table(rasterToPoints(prec_ens_mean_q25))
 colnames(prec_ens_mean_q25_dt) <- c('lon', 'lat', 'ens_mean_q25')
 prec_ens_mean_q25_dt[, ens_mean_q25 := round(ens_mean_q25, 0)]
 prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_q25_dt, by = c('lon', 'lat'))
 
-prec_ens_mean_q75 <- calc(stack(prec_2000_2019_mean), fun = estimate_q75)
+prec_ens_mean_q75 <- calc(stack(prec_mean), fun = estimate_q75)
 prec_ens_mean_q75_dt <- data.table(rasterToPoints(prec_ens_mean_q75))
 colnames(prec_ens_mean_q75_dt) <- c('lon', 'lat', 'ens_mean_q75')
 prec_ens_mean_q75_dt[, ens_mean_q75 := round(ens_mean_q75, 0)]
@@ -64,9 +63,9 @@ prec_ens_mean_q25_dt[, ens_mean := round(ens_mean_q25, 0)]
 prec_ens_stats[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_mean_mean, 2)] # Using q75 - q25 as in Sun et al. 2018 paper
 prec_ens_stats[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 prec_ens_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5), 
-                                               labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+                                         labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
 prec_ens_stats[, rel_dataset_agreement := ordered(quantcut(std_quant_range, 5), 
-                                                    labels = c('high', 'above average', 'average', 'below average', 'low'))]
+                                                  labels = c('high', 'above average', 'average', 'below average', 'low'))]
 
 prec_ens_stats[, abs_dataset_agreement := ordered(1, labels = "very high")]
 prec_ens_stats[std_quant_range > 0.1 & std_quant_range < 0.2, abs_dataset_agreement := ordered(2, labels = "high")]
@@ -140,14 +139,14 @@ prec_ens_stats_month <- prec_ens_stats_month[, .(lon, lat, time, month, year, en
 prec_ens_stats_month[, std_quant_range := (ens_mean_q75 - ens_mean_q25) / ens_mean] # Using q75 - q25 as in Sun et al. 2018 paper
 prec_ens_stats_month[, ens_mean_cv := ens_mean_sd / ens_mean]
 prec_ens_stats_month[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5), 
-                                 labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+                                               labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
 prec_ens_stats_month[, dataset_agreement := ordered(quantcut(std_quant_range, 5), 
-                                          labels = c('high', 'above average', 'average', 'below average', 'low'))]
+                                                    labels = c('high', 'above average', 'average', 'below average', 'low'))]
 
 
 prec_ens_stats_month_mean <- prec_ens_stats_month[, lapply(.SD, mean), 
-                                    .SDcols =  c('ens_mean', 'ens_mean_sd', 'ens_mean_cv', 'ens_mean_q25', 'ens_mean_q75', 'std_quant_range'), 
-                                    by = c('lon', 'lat', 'month')]
+                                                  .SDcols =  c('ens_mean', 'ens_mean_sd', 'ens_mean_cv', 'ens_mean_q25', 'ens_mean_q75', 'std_quant_range'), 
+                                                  by = c('lon', 'lat', 'month')]
 
 ## Save data for further use
 saveRDS(prec_ens_stats, paste0(path_save_blueprint, "prec_ensemble_stats.rds"))

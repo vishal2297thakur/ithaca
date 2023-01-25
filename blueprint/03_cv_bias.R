@@ -6,21 +6,21 @@ source('source/geo_functions.R')
 source('source/graphics.R')
 
 ## Read data 
-prec_stats_mean <- readRDS(paste0(path_save_blueprint, "prec_stats_mean.rds"))
-prec_stats_mean_month <- readRDS(paste0(path_save_blueprint, "prec_stats_mean_month.rds"))
+prec_stats <- readRDS(paste0(path_save_blueprint, "prec_ensemble_stats.rds"))
+prec_stats_month <- readRDS(paste0(path_save_blueprint, "prec_ensemble_stats_month.rds"))
 ghcn_stations <- fread('~/shared/data_review/ghcn_stations_now.csv')[, .(lat, lon)]
 
 ## Set variables
 quantiles <- seq(0.1, 1, 0.1)
-bias_thres_cv <- 0.5
+bias_thres_cv <- 0.2
 
 ## Main estimations
-prec_stats_low_bias <- prec_stats_mean[ens_cv <= bias_thres_cv,  .(lon, lat)]
+prec_stats_low_bias <- prec_stats[ens_mean_cv <= bias_thres_cv,  .(lon, lat)]
 
-cv_quantiles <- prec_stats_mean[, quantile(ens_cv, quantiles)]
+cv_quantiles <- prec_stats[, quantile(ens_mean_cv, quantiles)]
 cv_values_n <- data.table(quantile = quantiles, 
                           cv = cv_quantiles, 
-                          size = floor(quantile(1:nrow(prec_stats_mean), quantiles)))
+                          size = floor(quantile(1:nrow(prec_stats), quantiles)))
 
 ghcn_stations_kenya <- ghcn_stations[lat <= PILOT_LAT_MAX & lat >= PILOT_LAT_MIN & 
                                        lon <= PILOT_LON_MAX & lon >= PILOT_LON_MIN]
