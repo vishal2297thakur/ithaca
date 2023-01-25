@@ -23,7 +23,7 @@ period_months_dates <- seq(period_start, by = "month", length.out = period_month
 ## Main estimations
 # Total
 prec_mean <- lapply(prec_2000_2019, calc, fun = mean)
-prec_ens_mean_mean <- calc(stack(prec_mean_mean), fun = mean, na.rm = T)
+prec_ens_mean_mean <- calc(stack(prec_mean), fun = mean, na.rm = T)
 prec_ens_stats <- data.table(rasterToPoints(prec_ens_mean_mean))
 colnames(prec_ens_stats) <- c('lon', 'lat', 'ens_mean_mean')
 prec_ens_stats[, ens_mean_mean := round(ens_mean_mean, 0)]
@@ -128,7 +128,7 @@ plot(mean(prec_2000_2019$`cru-ts`))
 plot(mean(prec_2000_2019$era5))
 plot(mean(prec_2000_2019$`em-earth`))
 plot(mean(prec_2000_2019$gpcc))
-plot(mean(prec_2000_2019$precl))
+plot(mean(prec_2000_2019$`gpm-imerg`))
 plot(mean(prec_ens_mean_month))
 
 ## Extra variables
@@ -154,7 +154,7 @@ saveRDS(prec_ens_stats_month, paste0(path_save_blueprint, "prec_ensemble_stats_m
 saveRDS(prec_ens_stats_month_mean, paste0(path_save_blueprint, "prec_ensemble_stats_month_mean.rds"))
 
 ## Plot results
-to_plot <- prec_stats[, .(value = mean(ens_mean)), .(lon, lat)]
+to_plot <- prec_ens_stats[, .(value = mean(ens_mean_mean)), .(lon, lat)]
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +
   borders(colour = "black") +
