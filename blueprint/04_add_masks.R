@@ -1,6 +1,7 @@
 ### Add categorical classes to each variable 
 install.packages("gtools")
 library(gtools)
+library(plyr)
 
 source('source/blueprint.R')
 source('source/geo_functions.R')
@@ -52,7 +53,10 @@ shape_mask_crop <- crop(shape_mask, study_area)
 shape_mask_df <- shape_mask_crop %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'elev_class')
-shape_mask_df$elev_class <- factor(shape_mask_df$elev_class, levels = c("(0,100]", "(100,400]", "(400,800]", "(800,1500]", "(1500,3000]", "(3000,Inf]"), ordered =TRUE)
+shape_mask_df$elev_class <- factor(shape_mask_df$elev_class, 
+                                   levels = c("(0,100]", "(100,400]", "(400,800]", "(800,1500]", "(1500,3000]", "(3000,Inf]"), 
+                                   labels = c("0-100", "100-400", "400-800", "800-1500", "1500-3000", "3000+"), 
+                                   ordered =TRUE)
 
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'), all.x = T)
 prec_stats <- prec_stats[complete.cases(prec_stats)]
