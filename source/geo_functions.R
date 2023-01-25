@@ -19,7 +19,6 @@ lake_mask <- function(x){
 # Subset a brick object over space and time
 
 crop_space_time <- function(dataset, start, end, crop_box){
-  dummie_flag <- NAflag(dataset)
   time_filter <- which(getZ(dataset) >= start & 
                          (getZ(dataset) <= end))
   filtered <- subset(dataset, time_filter)
@@ -40,7 +39,7 @@ crop_space_time <- function(dataset, start, end, crop_box){
     dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
   }
   cropped <- setZ(cropped, dummie_Z)
-  NAflag(cropped) <- dummie_flag
+  cropped[cropped <= -9999] <- NA
   return(cropped)
 }
 
