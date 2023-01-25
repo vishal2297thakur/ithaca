@@ -19,10 +19,28 @@ lake_mask <- function(x){
 # Subset a brick object over space and time
 
 crop_space_time <- function(dataset, start, end, crop_box){
+  dummie_flag <- NAflag(dataset)
   time_filter <- which(getZ(dataset) >= start & 
                          (getZ(dataset) <= end))
   filtered <- subset(dataset, time_filter)
   cropped <- crop(filtered, crop_box)
+  dummie_names <- names(cropped)
+  if (!Reduce("|", grepl("^X\\d\\d\\d\\d\\.\\d\\d\\.\\d\\d", 
+                         dummie_names))) {
+    if (grepl("persiann", nc_out)) {
+      dummie_names <- sub("^.", "", dummie_names)
+      dummie_names <- as.numeric(dummie_names)
+      dummie_Z <- as.Date(dummie_names, origin = "1983-01-01 00:00:00")
+    } else if (grepl("gldas-clsm", nc_out)) {
+      dummie_names <- sub("^.", "", dummie_names)
+      dummie_names <- as.numeric(dummie_names)
+      dummie_Z <- as.Date(dummie_names, origin = "1948-01-01 00:00:00")
+    }
+  } else {
+    dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
+  }
+  cropped <- setZ(cropped, dummie_Z)
+  NAflag(cropped) <- dummie_flag
   return(cropped)
 }
 
@@ -69,22 +87,6 @@ spatial_weight <- function(x){
 save_nc <- function(dummie_nc, nc_out){
   lon <- xFromCol(dummie_nc)
   lat <- yFromRow(dummie_nc)
-  dummie_names <- names(dummie_nc)
-  if (!Reduce("|", grepl("^X\\d\\d\\d\\d\\.\\d\\d\\.\\d\\d", 
-                         dummie_names))) {
-    if (grepl("persiann", nc_out)) {
-      dummie_names <- sub("^.", "", dummie_names)
-      dummie_names <- as.numeric(dummie_names)
-      dummie_Z <- as.Date(dummie_names, origin = "1983-01-01 00:00:00")
-    } else if (grepl("gldas-clsm", nc_out)) {
-      dummie_names <- sub("^.", "", dummie_names)
-      dummie_names <- as.numeric(dummie_names)
-      dummie_Z <- as.Date(dummie_names, origin = "1948-01-01 00:00:00")
-    }
-  } else {
-    dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
-  }
-  dummie_nc <- setZ(dummie_nc, dummie_Z)
   time <- getZ(dummie_nc)
   if (is.character(time) | is.numeric(time)) {
     if (is.numeric(time)) {
