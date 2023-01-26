@@ -60,7 +60,7 @@ prec_ens_mean_q75_dt[, ens_mean_q75 := round(ens_mean_q75, 0)]
 prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_q75_dt, by = c('lon', 'lat'))
 prec_ens_mean_q25_dt[, ens_mean := round(ens_mean_q25, 0)]
 
-prec_ens_stats[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_mean_mean, 2)] # Using q75 - q25 as in Sun et al. 2018 paper
+prec_ens_stats[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_mean_median, 2)] # Using q75 - q25 as in Sun et al. 2018 paper
 prec_ens_stats[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 prec_ens_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5), 
                                          labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]

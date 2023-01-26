@@ -34,8 +34,8 @@ biome_class_cum <- biome_class[, .(cumsum_biome_class = cumsum(sum_biome_class),
                              rel_dataset_agreement), .(biome_class)]
 biome_class_cum[, fraction_bias := cumsum_biome_class  / sum(cumsum_biome_class), rel_dataset_agreement]
 
-
-
+# Save for further use 
+saveRDS(prec_mask_biomes, paste0(path_save_blueprint, "prec_masks_biomes.rds"))
 
 ## Quick validation
 ggplot() +
