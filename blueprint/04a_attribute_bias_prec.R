@@ -41,7 +41,7 @@ ggplot(prec_class_cum) +
   scale_fill_manual(values = colset_mid_qual[1:5]) +
   theme_light()
 
-ggplot(prec_prec_class) +
+ggplot(prec_class) +
   geom_bar(aes(x = rel_dataset_agreement, y = sum_prec_class, fill = prec_class), stat="identity") +
   xlab('Dataset agreement')  +
   ylab('Total Precipitation')  +

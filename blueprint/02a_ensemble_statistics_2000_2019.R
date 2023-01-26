@@ -11,7 +11,7 @@ source('source/graphics.R')
 prec_2000_2019 <- lapply(prec_fnames_2000_2019_kenya, brick)
 names(prec_2000_2019) <- prec_fnames_short_2000_2019_kenya 
 
-prec_2000_2019 <- prec_2000_2019[c('cru-ts', 'era5', 'em-earth', 'gpcc', 'precl')] #pilot study
+#prec_2000_2019 <- prec_2000_2019[c('cru-ts', 'era5', 'em-earth', 'gpcc', 'precl')] #pilot study
 
 ## Set functions
 estimate_q25 <- function(x) {as.numeric(quantile(x, 0.25, na.rm = TRUE))}
