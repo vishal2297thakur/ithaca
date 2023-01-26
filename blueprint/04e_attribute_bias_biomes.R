@@ -3,12 +3,13 @@ source('source/graphics.R')
 
 ## Read data 
 prec_stats <- readRDS(paste0(path_save_blueprint, "prec_ensemble_stats.rds"))
+prec_mask_biomes <- readRDS(paste0(path_save_blueprint, "prec_masks_biomes.rds"))
 
 ## Variables
 needed_for_cumsum <- expand.grid(prec_mask_biomes[, unique(rel_dataset_agreement)], prec_mask_biomes[, unique(biome_class)])
 colnames(needed_for_cumsum) <- c("rel_dataset_agreement", 'biome_class')
 
-# Mask the data
+## Mask the data *** DO NOT RUN ***
 fname_shape <- list.files(path = masks_dir_ecoregions, full.names = TRUE, pattern = "mask_biomes_dinerstein.shp")
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
@@ -21,7 +22,6 @@ colnames(shape_mask_df) <- c('lon', 'lat', 'biome_class')
 shape_mask_df$biome_class <- factor(shape_mask_df$biome_class)
 
 prec_mask_biomes <- merge(prec_stats[, .(lat, lon, prec_mean = ens_mean_mean), rel_dataset_agreement], shape_mask_df, by = c('lon', 'lat'))
-
 
 ## Analysis
 biome_class <- prec_mask_biomes[, .(sum_biome_class = sum(prec_mean)), 
