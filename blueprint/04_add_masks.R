@@ -15,8 +15,21 @@ prec_stats_month <- readRDS(paste0(path_save_blueprint, "prec_ensemble_stats_mon
 
 ## Masks
 # Bias: Coefficient of Variation
-prec_stats[, quant_cv := ordered(quantcut(ens_mean_cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
-prec_stats_month[, quant_cv := ordered(quantcut(ens_mean_cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00')), month]
+prec_ens_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5), 
+                                         labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+prec_ens_stats[, rel_dataset_agreement := ordered(quantcut(std_quant_range, 5), 
+                                                  labels = c('high', 'above average', 'average', 'below average', 'low'))]
+
+prec_ens_stats[, abs_dataset_agreement := ordered(1, labels = "very high")]
+prec_ens_stats[std_quant_range > 0.1 & std_quant_range < 0.2, abs_dataset_agreement := ordered(2, labels = "high")]
+prec_ens_stats[std_quant_range > 0.2 & std_quant_range < 0.4, abs_dataset_agreement := ordered(3, labels = "above average")]
+prec_ens_stats[std_quant_range > 0.4 & std_quant_range < 0.6, abs_dataset_agreement := ordered(4, labels = "average")]
+prec_ens_stats[std_quant_range > 0.6 & std_quant_range < 0.8, abs_dataset_agreement := ordered(5, labels = "below average")]
+prec_ens_stats[std_quant_range > 0.8 & std_quant_range < 1, abs_dataset_agreement := ordered(6, labels = "low")]
+prec_ens_stats[std_quant_range > 1, abs_dataset_agreement := ordered(7, labels = "very low")]
+
+prec_ens_stats[, outlier_dataset := FALSE]
+prec_ens_stats[ens_mean_mean / ens_mean_median > 1.2 | ens_mean_mean / ens_mean_median < 0.8, outlier_dataset := TRUE]
 
 ## Masks
 # Precipitation
@@ -34,7 +47,7 @@ shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class')
 shape_mask_df$KG_class <- factor(shape_mask_df$KG_class)
 
-prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'), all.x = T)
+prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 prec_stats <- prec_stats[complete.cases(prec_stats)]
 
 # Elevation
@@ -58,7 +71,7 @@ shape_mask_df$elev_class <- factor(shape_mask_df$elev_class,
                                    labels = c("0-100", "100-400", "400-800", "800-1500", "1500-3000", "3000+"), 
                                    ordered =TRUE)
 
-prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'), all.x = T)
+prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 prec_stats <- prec_stats[complete.cases(prec_stats)]
 
 # Land use
@@ -77,36 +90,19 @@ shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'land_class')
 shape_mask_df$land_class <- factor(shape_mask_df$land_class)
 
-prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'), all.x = T)
-prec_stats <- prec_stats[complete.cases(prec_stats)]
-
-# Ecoregions (Biomes)
-
-fname_shape <- list.files(path = masks_dir_ecoregions, full.names = TRUE, pattern = "mask_biomes_dinerstein.shp")
-shape_mask <- st_read(paste0(fname_shape[1]))
-shape_mask <- st_make_valid(shape_mask)
-
-shape_mask_raster <- rasterize(shape_mask, prec_era5_kenya[[1]]) #directly rasterized; no cropping
-#shape_raster_crop <- crop(shape_mask_raster, study_area)
-shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
-shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'layer_BIOME_NAME'))
-colnames(shape_mask_df) <- c('lon', 'lat', 'biome_class')
-shape_mask_df$biome_class <- factor(shape_mask_df$biome_class)
-
-prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'), all.x = T)
+prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 prec_stats <- prec_stats[complete.cases(prec_stats)]
 
 # Save for further use
 prec_masks <- prec_stats[, .(lon, lat, prec_mean = ens_mean_mean, quant_ens_cv, rel_dataset_agreement, 
                              abs_dataset_agreement, outlier_dataset, prec_class, 
-                             KG_class, elev_class, land_class, biome_class)]
+                             KG_class, elev_class, land_class)]
 prec_masks_month <- merge(prec_stats_month, prec_masks[, .(lon, 
                                                            lat, 
                                                            prec_class, 
                                                            KG_class, 
                                                            elev_class, 
-                                                           land_class, 
-                                                           biome_class)], 
+                                                           land_class)], 
                           by = c("lon", "lat"), all.y = TRUE)
 
 saveRDS(prec_masks, paste0(path_save_blueprint, "prec_masks.rds"))

@@ -8,10 +8,10 @@ prec_mask_month <- readRDS(paste0(path_save_blueprint, "prec_masks_month.rds"))
 
 prec_weights <- prec_mask[, .(lon, lat)] %>% spatial_weight()
 prec_mask <- merge(prec_mask, prec_weights, by = c("lon", "lat"))
-prec_mask <- prec_mask[, prec_mean := prec_mean * weight, by = .(lon, lat)
+prec_mask <- prec_mask[, prec_weight := prec_mean * weight, by = .(lon, lat)
                        ][, weight := NULL]
 
-prec_class <- prec_mask[, .(sum_prec_class = sum(prec_mean)), 
+prec_class <- prec_mask[, .(sum_prec_class = sum(prec_weight)), 
                                   .(prec_class, rel_dataset_agreement)]
 prec_class <- prec_class[order(prec_class, rel_dataset_agreement), ]
 
