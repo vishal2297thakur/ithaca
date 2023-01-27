@@ -26,7 +26,7 @@ path_evap_obs <- paste0(path_data, "obs/evap/raw/")
 
 ##Datasets
 #Datasets with common periods
-load('~/shared/data_projects/ithaca/misc/common_periods.Rdata')
+load('~/shared/data_projects/ithaca/misc/common_periods.Rdata') #Created in database/scripts/05_shared period_dataset.R
 
 #Types
 prec_datasets_obs <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", "udel")

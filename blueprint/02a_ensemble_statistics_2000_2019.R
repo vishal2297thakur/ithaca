@@ -23,7 +23,7 @@ prec_sd <- lapply(prec_2000_2019, calc, fun = sd)
 
 prec_mean_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine = rbind) %dopar% {
   dummy <- data.table(as.data.frame(rasterToPoints(prec_mean[[dataset_count]], spatial = TRUE)))
-  colnames(dummy) <- c('prec_mean_00_09', 'lon', 'lat')
+  colnames(dummy) <- c('prec_mean', 'lon', 'lat')
   dummy$dataset <- names(prec_mean[dataset_count])
   dummy[, lon := round(lon, 3)]
   dummy[, lat := round(lat, 3)]
@@ -32,6 +32,14 @@ prec_mean_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine =
 prec_mean_datasets[, n_datasets := .N, .(lon, lat)]
 prec_mean_datasets <- prec_mean_datasets[n_datasets >= 10]
 grid_cells_with_10_datasets <- unique(prec_mean_datasets[, .(lon, lat, n_datasets)])
+
+prec_mean_datasets[dataset %in% prec_datasets_obs, dataset_type := 'ground stations']
+prec_mean_datasets[dataset %in% prec_datasets_reanal, dataset_type := 'reanalysis']
+prec_mean_datasets[dataset %in% prec_datasets_remote, dataset_type := 'remote sensing']
+
+prec_mean_datasets[dataset_type == 'ground stations', mean(prec_mean)]
+prec_mean_datasets[dataset_type == 'reanalysis', mean(prec_mean)]
+prec_mean_datasets[dataset_type == 'remote sensing', mean(prec_mean)]
 
 #Ensemble statistics
 prec_ens_mean_mean <- calc(stack(prec_mean), fun = mean, na.rm = TRUE)
@@ -89,9 +97,6 @@ plot(mean(prec_2000_2019$gpcp))
 plot(mean(prec_2000_2019$`em-earth`))
 plot(mean(prec_2000_2019$gpcc))
 plot(mean(prec_2000_2019$`gpm-imerg`))
-
-## Extra variables
-#prec_stats <- readRDS(paste0(path_save_blueprint, "ensemble_prec_stats.rds"))
 
 ## Save data for further use
 saveRDS(prec_ens_stats, paste0(path_save_blueprint, "prec_ensemble_stats.rds"))
