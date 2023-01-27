@@ -1,9 +1,15 @@
 source('source/blueprint.R')
 source('source/graphics.R')
+source('source/geo_functions.R')
 
 ## Read data 
 prec_mask <- readRDS(paste0(path_save_blueprint, "prec_masks.rds"))
 prec_mask_month <- readRDS(paste0(path_save_blueprint, "prec_masks_month.rds"))
+
+prec_weights <- prec_mask[, .(lon, lat)] %>% spatial_weight()
+prec_mask <- merge(prec_mask, prec_weights, by = c("lon", "lat"))
+prec_mask <- prec_mask[, prec_mean := prec_mean * weight, by = .(lon, lat)
+                       ][, weight := NULL]
 
 prec_class <- prec_mask[, .(sum_prec_class = sum(prec_mean)), 
                                   .(prec_class, rel_dataset_agreement)]
@@ -41,7 +47,7 @@ ggplot(prec_class_cum) +
   scale_fill_manual(values = colset_mid_qual[1:5]) +
   theme_light()
 
-ggplot(prec_prec_class) +
+ggplot(prec_class) +
   geom_bar(aes(x = rel_dataset_agreement, y = sum_prec_class, fill = prec_class), stat="identity") +
   xlab('Dataset agreement')  +
   ylab('Total Precipitation')  +
