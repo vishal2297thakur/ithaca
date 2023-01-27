@@ -55,7 +55,7 @@ brick_to_dt <- function(x){
 
 #' Grid area of each cell
 #'
-#' Function to compute area of each cell
+#' Function to compute area of each cell in m2
 #' 
 #' @param x a data.table. dt(lon, lat)
 #' @return a data.table. dt(lon, lat, area)
@@ -69,7 +69,7 @@ grid_area <- function(x){
   dummie <- area(x, na.rm = TRUE)
   dummie <- as.data.frame(dummie, xy = TRUE, long = TRUE, na.rm = TRUE)
   dummie <- as.data.table(dummie)
-  dummie <- dummie[, .(x, y, value)]
+  dummie <- dummie[, .(x, y, value)][, value := value * 1000000]
   setnames(dummie, c("x", "y", "value"), c("lon", "lat", "area"))
   return(dummie)
 }
