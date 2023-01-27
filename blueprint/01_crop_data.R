@@ -9,7 +9,7 @@ foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
                             period_start, period_end, study_area)
   nc_out <- paste0(path_save_blueprint,
                    prec_fnames_short_2000_2019[[dataset_count]],
-                   "_tp_mm_kenya_200006_201912_025_monthly.nc")
+                   "_tp_mm_kenya_200001_201912_025_monthly.nc")
   save_nc(result, nc_out)
 } 
 

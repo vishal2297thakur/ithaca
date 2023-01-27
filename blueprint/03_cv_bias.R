@@ -12,7 +12,7 @@ ghcn_stations <- fread('~/shared/data_review/ghcn_stations_now.csv')[, .(lat, lo
 
 ## Set variables
 quantiles <- seq(0.1, 1, 0.1)
-bias_thres_cv <- 5
+bias_thres_cv <- 0.3
 
 ## Main estimations
 prec_stats_low_bias <- prec_stats[ens_mean_cv <= bias_thres_cv,  .(lon, lat)]
