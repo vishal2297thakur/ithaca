@@ -66,7 +66,7 @@ spatial_weight <- function(x){
   gridded(x) <- TRUE
   x <- raster(x)
   proj4string(x) <- CRS("+proj=longlat +datum=WGS84")
-  dummie <- area(x, na.rm = TRUE, weights = TRUE)
+  dummie <- area(x, na.rm = TRUE)
   dummie <- as.data.frame(dummie, xy = TRUE, long = TRUE, na.rm = TRUE)
   dummie <- as.data.table(dummie)
   dummie <- dummie[, .(x, y, value)]
