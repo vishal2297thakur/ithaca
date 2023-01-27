@@ -15,21 +15,21 @@ prec_stats_month <- readRDS(paste0(path_save_blueprint, "prec_ensemble_stats_mon
 
 ## Masks
 # Bias: Coefficient of Variation
-prec_ens_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5), 
+prec_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5), 
                                          labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
-prec_ens_stats[, rel_dataset_agreement := ordered(quantcut(std_quant_range, 5), 
+prec_stats[, rel_dataset_agreement := ordered(quantcut(std_quant_range, 5), 
                                                   labels = c('high', 'above average', 'average', 'below average', 'low'))]
 
-prec_ens_stats[, abs_dataset_agreement := ordered(1, labels = "very high")]
-prec_ens_stats[std_quant_range > 0.1 & std_quant_range < 0.2, abs_dataset_agreement := ordered(2, labels = "high")]
-prec_ens_stats[std_quant_range > 0.2 & std_quant_range < 0.4, abs_dataset_agreement := ordered(3, labels = "above average")]
-prec_ens_stats[std_quant_range > 0.4 & std_quant_range < 0.6, abs_dataset_agreement := ordered(4, labels = "average")]
-prec_ens_stats[std_quant_range > 0.6 & std_quant_range < 0.8, abs_dataset_agreement := ordered(5, labels = "below average")]
-prec_ens_stats[std_quant_range > 0.8 & std_quant_range < 1, abs_dataset_agreement := ordered(6, labels = "low")]
-prec_ens_stats[std_quant_range > 1, abs_dataset_agreement := ordered(7, labels = "very low")]
+prec_stats[, abs_dataset_agreement := ordered(1, labels = "very high")]
+prec_stats[std_quant_range > 0.1 & std_quant_range < 0.2, abs_dataset_agreement := ordered(2, labels = "high")]
+prec_stats[std_quant_range > 0.2 & std_quant_range < 0.4, abs_dataset_agreement := ordered(3, labels = "above average")]
+prec_stats[std_quant_range > 0.4 & std_quant_range < 0.6, abs_dataset_agreement := ordered(4, labels = "average")]
+prec_stats[std_quant_range > 0.6 & std_quant_range < 0.8, abs_dataset_agreement := ordered(5, labels = "below average")]
+prec_stats[std_quant_range > 0.8 & std_quant_range < 1, abs_dataset_agreement := ordered(6, labels = "low")]
+prec_stats[std_quant_range > 1, abs_dataset_agreement := ordered(7, labels = "very low")]
 
-prec_ens_stats[, outlier_dataset := FALSE]
-prec_ens_stats[ens_mean_mean / ens_mean_median > 1.2 | ens_mean_mean / ens_mean_median < 0.8, outlier_dataset := TRUE]
+prec_stats[, outlier_dataset := FALSE]
+prec_stats[ens_mean_mean / ens_mean_median > 1.2 | ens_mean_mean / ens_mean_median < 0.8, outlier_dataset := TRUE]
 
 ## Masks
 # Precipitation
@@ -48,7 +48,6 @@ colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class')
 shape_mask_df$KG_class <- factor(shape_mask_df$KG_class)
 
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
-prec_stats <- prec_stats[complete.cases(prec_stats)]
 
 # Elevation
 fname <- list.files(path = masks_dir_oro, full.names = TRUE, pattern = "mask_orography_groups_025.nc")
@@ -117,6 +116,7 @@ p00 <- ggplot() +
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = 'Class') +
   scale_x_continuous(expand = c(0.015, 0.015)) +
+  scale_fill_manual(values = rev(colset_mid_qual[1:10])) +
   theme_bw() +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
         panel.grid = element_line(color = "grey")) 
@@ -126,6 +126,7 @@ x_labs <- ggplot_build(p00)$layout$panel_params[[1]]$x$get_labels()
 p01 <- p00 + scale_x_continuous(expand = c(0.015, 0.015), labels = paste0(x_labs, "\u00b0")) +
   scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
 p01
+
 
 
 

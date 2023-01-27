@@ -19,7 +19,7 @@ period_months_dates <- seq(period_start, by = "month", length.out = period_month
 
 ## Main estimations
 prec_mean <- lapply(prec_2000_2019, calc, fun = mean, na.rm = TRUE)
-prec_sd <- lapply(prec_2000_2019, calc, fun = sd)
+prec_sd <- lapply(prec_2000_2019, calc, fun = sd, na.rm = TRUE)
 
 prec_mean_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine = rbind) %dopar% {
   dummy <- data.table(as.data.frame(rasterToPoints(prec_mean[[dataset_count]], spatial = TRUE)))
@@ -93,7 +93,7 @@ prec_grid <- prec_area[prec_ens_stats[, .(lon, lat, prec_mean = ens_mean_mean)],
 prec_mean_datasets[, table(n_datasets)]
 
 plot(mean(prec_2000_2019$cpc))
-plot(mean(prec_2000_2019$gpcp))
+plot(mean(prec_2000_2019$persiann))
 plot(mean(prec_2000_2019$`em-earth`))
 plot(mean(prec_2000_2019$gpcc))
 plot(mean(prec_2000_2019$`gpm-imerg`))
@@ -153,6 +153,27 @@ p00 <- ggplot(to_plot) +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
   labs(x = "", y = "", fill = "CV") +
+  scale_fill_gradient2(low = main_cols[1], 
+                       mid = "white", 
+                       high = main_cols[3], 
+                       midpoint = 0.6) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.grid = element_line(color = "grey"))
+y_labs <- ggplot_build(p00)$layout$panel_params[[1]]$y$get_labels()
+x_labs <- ggplot_build(p00)$layout$panel_params[[1]]$x$get_labels()
+p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b0")) +
+  scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
+p01
+
+to_plot <- prec_ens_stats[, .(value = mean(std_quant_range)), .(lon, lat)]
+p00 <- ggplot(to_plot) +
+  geom_raster(aes(x = lon, y = lat, fill = value)) +
+  borders(colour = "black") +
+  coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
+                  ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
+  labs(x = "", y = "", fill = "Std. 0.25-0.75 quantile range") +
   scale_fill_gradient2(low = main_cols[1], 
                        mid = "white", 
                        high = main_cols[3], 
