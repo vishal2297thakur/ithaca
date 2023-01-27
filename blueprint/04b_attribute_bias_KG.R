@@ -4,7 +4,7 @@ source('source/geo_functions.R')
 
 ## Read data 
 prec_mask <- readRDS(paste0(path_save_blueprint, "prec_masks.rds"))
-prec_mask_month <- readRDS(paste0(path_save_blueprint, "prec_masks_month.rds"))
+prec_mean_datasets <- readRDS(paste0(path_save_blueprint, "prec_mean_datasets.rds"))
 
 ## Variables
 needed_for_cumsum <- expand.grid(prec_mask[, unique(rel_dataset_agreement)], prec_mask[, unique(KG_class)])
@@ -27,6 +27,13 @@ KG_class_cum[, fraction_bias := cumsum_KG_class  / sum(cumsum_KG_class), rel_dat
 
 KG_class_prec <- prec_mask[, .(lon, lat, prec_mean, KG_class, rel_dataset_agreement)]
 
+KG_class_datasets <- merge(prec_mask[, .(lon, lat, KG_class, rel_dataset_agreement)], prec_mean_datasets, by = c("lat", "lon"))
+KG_class_datasets <- KG_class_datasets[, .(sum_KG_class = sum(prec_mean)), .(KG_class, rel_dataset_agreement, dataset)]
+KG_class_datasets <-  merge(KG_class_datasets, needed_for_cumsum, by = c('KG_class', "rel_dataset_agreement"), all.y = TRUE)
+KG_class_datasets <- KG_class_datasets[order(KG_class, rel_dataset_agreement, dataset), ]
+KG_class_datasets_cum <- KG_class_datasets[, .(cumsum_KG_class = cumsum(sum_KG_class), 
+                             rel_dataset_agreement), .(KG_class, dataset)]
+KG_class_datasets_cum[, fraction_bias := cumsum_KG_class  / sum(cumsum_KG_class), .(rel_dataset_agreement, dataset)]
 
 ## Quick validation
 ggplot() +
@@ -61,3 +68,19 @@ ggplot(KG_class_prec) +
   theme(strip.background = element_rect(fill = "black"),
         axis.ticks.x = element_blank(),
         axis.text.x = element_blank())
+
+ggplot(KG_class_datasets_cum[rel_dataset_agreement == 'average']) +
+  geom_bar(aes(x = dataset, y = fraction_bias , fill = KG_class), stat = "identity") +
+  xlab('Cumulative dataset agreement')  +
+  ylab('Precipitation fraction')  +
+  labs(fill = 'KG class')  +
+  scale_fill_manual(values = colset_mid_qual[3:5]) +
+  theme_light()
+
+ggplot(KG_class_datasets_cum[rel_dataset_agreement == 'average']) +
+  geom_bar(aes(x = dataset, y = fraction_bias, fill = dataset), stat = "identity") +
+  xlab('Cumulative dataset agreement')  +
+  ylab('Precipitation fraction')  +
+  facet_wrap(~KG_class, scales = 'free') +
+  labs(fill = 'KG class')  +
+  theme_light()
