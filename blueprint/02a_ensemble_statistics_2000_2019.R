@@ -125,7 +125,7 @@ p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b
   scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
 p01
 
-to_plot <- prec_ens_stats[, .(value = mean(sd)), .(lon, lat)]
+to_plot <- prec_ens_stats[, .(value = mean(ens_sd_mean)), .(lon, lat)]
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +
   borders(colour = "black") +
@@ -146,7 +146,7 @@ p01 <- p00 + scale_x_continuous(expand = c(0, 0), labels = paste0(x_labs, "\u00b
   scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
 p01
 
-to_plot <- prec_ens_stats[, .(value = mean(cv)), .(lon, lat)]
+to_plot <- prec_ens_stats[, .(value = mean(ens_mean_cv)), .(lon, lat)]
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +
   borders(colour = "black") +
