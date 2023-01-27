@@ -53,9 +53,30 @@ brick_to_dt <- function(x){
   return(x_dt)
 }
 
+#' Grid area of each cell
+#'
+#' Function to compute area of each cell
+#' 
+#' @param x a data.table. dt(lon, lat)
+#' @return a data.table. dt(lon, lat, area)
+
+grid_area <- function(x){
+  x$value <- 1
+  coordinates(x) <- ~ lon + lat
+  gridded(x) <- TRUE
+  x <- raster(x)
+  proj4string(x) <- CRS("+proj=longlat +datum=WGS84")
+  dummie <- area(x, na.rm = TRUE)
+  dummie <- as.data.frame(dummie, xy = TRUE, long = TRUE, na.rm = TRUE)
+  dummie <- as.data.table(dummie)
+  dummie <- dummie[, .(x, y, value)]
+  setnames(dummie, c("x", "y", "value"), c("lon", "lat", "area"))
+  return(dummie)
+}
+
 #' Spatial weights
 #'
-#' Function to mask a data set
+#' Function to compute weights of each cell in a given region
 #' 
 #' @param x a data.table. dt(lon, lat)
 #' @return a data.table. dt(lon, lat, weight)
@@ -66,7 +87,7 @@ spatial_weight <- function(x){
   gridded(x) <- TRUE
   x <- raster(x)
   proj4string(x) <- CRS("+proj=longlat +datum=WGS84")
-  dummie <- area(x, na.rm = TRUE)
+  dummie <- area(x, na.rm = TRUE, weights = TRUE)
   dummie <- as.data.frame(dummie, xy = TRUE, long = TRUE, na.rm = TRUE)
   dummie <- as.data.table(dummie)
   dummie <- dummie[, .(x, y, value)]
