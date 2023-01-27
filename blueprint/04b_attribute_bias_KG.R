@@ -1,5 +1,6 @@
 source('source/blueprint.R')
 source('source/graphics.R')
+source('source/geo_functions.R')
 
 ## Read data 
 prec_mask <- readRDS(paste0(path_save_blueprint, "prec_masks.rds"))
@@ -9,8 +10,13 @@ prec_mask_month <- readRDS(paste0(path_save_blueprint, "prec_masks_month.rds"))
 needed_for_cumsum <- expand.grid(prec_mask[, unique(rel_dataset_agreement)], prec_mask[, unique(KG_class)])
 colnames(needed_for_cumsum) <- c("rel_dataset_agreement", 'KG_class')
 
+#Weighted Average
+prec_weights <- prec_mask[, .(lon, lat)] %>% spatial_weight()
+prec_mask <- merge(prec_mask, prec_weights, by = c("lon", "lat"))
+prec_mask <- prec_mask[, prec_weight := prec_mean * weight, by = .(lon, lat)
+                       ][, weight := NULL]
 ## Analysis
-KG_class <- prec_mask[, .(sum_KG_class = sum(prec_mean)), 
+KG_class <- prec_mask[, .(sum_KG_class = sum(prec_weight)), 
                         .(KG_class, rel_dataset_agreement)]
 KG_class <-  merge(KG_class, needed_for_cumsum, by = c('KG_class', "rel_dataset_agreement"), all.y = TRUE)
 KG_class <- KG_class[order(KG_class, rel_dataset_agreement), ]
