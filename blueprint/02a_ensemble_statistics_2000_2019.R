@@ -1,7 +1,5 @@
 ### Estimation of ensemble statistics
-
 install.packages("gtools")
-library(gtools)
 
 source('source/blueprint.R')
 source('source/geo_functions.R')
@@ -10,8 +8,6 @@ source('source/graphics.R')
 ## Read data 
 prec_2000_2019 <- lapply(prec_fnames_2000_2019_kenya, brick)
 names(prec_2000_2019) <- prec_fnames_short_2000_2019_kenya 
-
-#prec_2000_2019 <- prec_2000_2019[c('cru-ts', 'era5', 'em-earth', 'gpcc', 'precl')] #pilot study
 
 ## Set functions
 estimate_q25 <- function(x) {as.numeric(quantile(x, 0.25, na.rm = TRUE))}
@@ -22,26 +18,38 @@ period_months_dates <- seq(period_start, by = "month", length.out = period_month
 
 ## Main estimations
 # Total
-prec_mean <- lapply(prec_2000_2019, calc, fun = mean)
-prec_ens_mean_mean <- calc(stack(prec_mean), fun = mean, na.rm = T)
+prec_mean <- lapply(prec_2000_2019, calc, fun = mean, na.rm = TRUE)
+prec_mean_dt <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine = rbind) %dopar% {
+  dummy <- data.table(as.data.frame(rasterToPoints(prec_mean[[dataset_count]], spatial = TRUE)))
+  colnames(dummy) <- c('prec_mean_00_09', 'lon', 'lat')
+  dummy$dataset <- names(prec_mean[dataset_count])
+  dummy[, lon := round(lon, 3)]
+  dummy[, lat := round(lat, 3)]
+  dummy
+}
+prec_mean_dt[, n_datasets := .N, .(lon, lat)]
+prec_mean_dt[, table(n_datasets)]
+grid_cells_with_10_datasets <- unique(prec_mean_dt[n_datasets >= 10, .(lon, lat, n_datasets)])
+
+prec_ens_mean_mean <- calc(stack(prec_mean), fun = mean, na.rm = TRUE)
 prec_ens_stats <- data.table(rasterToPoints(prec_ens_mean_mean))
 colnames(prec_ens_stats) <- c('lon', 'lat', 'ens_mean_mean')
 prec_ens_stats[, ens_mean_mean := round(ens_mean_mean, 0)]
 
 prec_sd <- lapply(prec_2000_2019, calc, fun = sd)
-prec_ens_sd_mean <- calc(stack(prec_sd), fun = mean, na.rm = T)
+prec_ens_sd_mean <- calc(stack(prec_sd), fun = mean, na.rm = TRUE)
 prec_ens_sd_mean_dt <- data.table(rasterToPoints(prec_ens_sd_mean))
 colnames(prec_ens_sd_mean_dt) <- c('lon', 'lat', 'ens_sd_mean')
 prec_ens_sd_mean_dt[, ens_sd_mean := round(ens_sd_mean, 0)]
 prec_ens_stats <- merge(prec_ens_stats, prec_ens_sd_mean_dt, by = c('lon', 'lat'))
 
-prec_ens_mean_median <- calc(stack(prec_mean), fun = median, na.rm = T)
+prec_ens_mean_median <- calc(stack(prec_mean), fun = median, na.rm = TRUE)
 prec_ens_mean_median_dt <- data.table(rasterToPoints(prec_ens_mean_median))
 colnames(prec_ens_mean_median_dt) <- c('lon', 'lat', 'ens_mean_median')
 prec_ens_mean_median_dt[, ens_mean_median := round(ens_mean_median, 0)]
 prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_median_dt, by = c('lon', 'lat'))
 
-prec_ens_mean_sd <- calc(stack(prec_mean), fun = sd, na.rm = T)
+prec_ens_mean_sd <- calc(stack(prec_mean), fun = sd, na.rm = TRUE)
 prec_ens_mean_sd_dt <- data.table(rasterToPoints(prec_ens_mean_sd))
 colnames(prec_ens_mean_sd_dt) <- c('lon', 'lat', 'ens_mean_sd')
 prec_ens_mean_sd_dt[, ens_mean_sd := round(ens_mean_sd, 0)]
@@ -60,6 +68,7 @@ prec_ens_mean_q75_dt[, ens_mean_q75 := round(ens_mean_q75, 0)]
 prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_q75_dt, by = c('lon', 'lat'))
 prec_ens_mean_q25_dt[, ens_mean := round(ens_mean_q25, 0)]
 
+prec_ens_stats <- prec_ens_stats[grid_cells_with_10_datasets, on = .(lon, lat)]
 prec_ens_stats[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_mean_median, 2)] # Using q75 - q25 as in Sun et al. 2018 paper
 prec_ens_stats[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 prec_ens_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5), 
@@ -77,6 +86,9 @@ prec_ens_stats[std_quant_range > 1, abs_dataset_agreement := ordered(7, labels =
 
 prec_ens_stats[, outlier_dataset := FALSE]
 prec_ens_stats[ens_mean_mean / ens_mean_median > 1.2 | ens_mean_mean / ens_mean_median < 0.8, outlier_dataset := TRUE]
+
+
+
 
 # Monthly - Not sure if needed
 prec_ens_mean_month <- foreach(month_count = 1:period_months, .packages = 'raster') %dopar% {
@@ -124,8 +136,8 @@ prec_ens_stats_month <- merge(prec_ens_stats_month, prec_ens_mean_q25_month_dt, 
 prec_ens_stats_month <- merge(prec_ens_stats_month, prec_ens_mean_q75_month_dt, by = c('lon', 'lat', 'time'))
 
 ## Quick validation
-plot(mean(prec_2000_2019$`cru-ts`))
-plot(mean(prec_2000_2019$era5))
+plot(mean(prec_2000_2019$cpc))
+plot(mean(prec_2000_2019$gpcp))
 plot(mean(prec_2000_2019$`em-earth`))
 plot(mean(prec_2000_2019$gpcc))
 plot(mean(prec_2000_2019$`gpm-imerg`))
