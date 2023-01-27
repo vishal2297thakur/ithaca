@@ -15,8 +15,21 @@ prec_stats_month <- readRDS(paste0(path_save_blueprint, "prec_ensemble_stats_mon
 
 ## Masks
 # Bias: Coefficient of Variation
-prec_stats[, quant_cv := ordered(quantcut(ens_mean_cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
-prec_stats_month[, quant_cv := ordered(quantcut(ens_mean_cv, 5), labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00')), month]
+prec_ens_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5), 
+                                         labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+prec_ens_stats[, rel_dataset_agreement := ordered(quantcut(std_quant_range, 5), 
+                                                  labels = c('high', 'above average', 'average', 'below average', 'low'))]
+
+prec_ens_stats[, abs_dataset_agreement := ordered(1, labels = "very high")]
+prec_ens_stats[std_quant_range > 0.1 & std_quant_range < 0.2, abs_dataset_agreement := ordered(2, labels = "high")]
+prec_ens_stats[std_quant_range > 0.2 & std_quant_range < 0.4, abs_dataset_agreement := ordered(3, labels = "above average")]
+prec_ens_stats[std_quant_range > 0.4 & std_quant_range < 0.6, abs_dataset_agreement := ordered(4, labels = "average")]
+prec_ens_stats[std_quant_range > 0.6 & std_quant_range < 0.8, abs_dataset_agreement := ordered(5, labels = "below average")]
+prec_ens_stats[std_quant_range > 0.8 & std_quant_range < 1, abs_dataset_agreement := ordered(6, labels = "low")]
+prec_ens_stats[std_quant_range > 1, abs_dataset_agreement := ordered(7, labels = "very low")]
+
+prec_ens_stats[, outlier_dataset := FALSE]
+prec_ens_stats[ens_mean_mean / ens_mean_median > 1.2 | ens_mean_mean / ens_mean_median < 0.8, outlier_dataset := TRUE]
 
 ## Masks
 # Precipitation
