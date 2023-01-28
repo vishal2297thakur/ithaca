@@ -77,10 +77,28 @@ ggplot(KG_class_datasets_cum[rel_dataset_agreement == 'average']) +
   scale_fill_manual(values = colset_mid_qual[3:5]) +
   theme_light()
 
-ggplot(KG_class_datasets_cum[rel_dataset_agreement == 'average']) +
+ggplot(KG_class_datasets_cum[rel_dataset_agreement == 'average' & dataset %in% prec_datasets_obs]) +
   geom_bar(aes(x = dataset, y = fraction_bias, fill = dataset), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
   facet_wrap(~KG_class, scales = 'free') +
+  scale_fill_manual(values = colset_mid_qual) +
+  labs(fill = 'KG class')  +
+  theme_light()
+
+ggplot(KG_class_datasets_cum[rel_dataset_agreement == 'average' & dataset %in% prec_datasets_reanal]) +
+  geom_bar(aes(x = dataset, y = fraction_bias , fill = KG_class), stat = "identity") +
+  xlab('Cumulative dataset agreement')  +
+  ylab('Precipitation fraction')  +
+  labs(fill = 'KG class')  +
+  scale_fill_manual(values = colset_mid_qual[3:5]) +
+  theme_light()
+
+ggplot(KG_class_datasets_cum[rel_dataset_agreement == 'average' & dataset %in% prec_datasets_remote]) +
+  geom_bar(aes(x = dataset, y = fraction_bias, fill = dataset), stat = "identity") +
+  xlab('Cumulative dataset agreement')  +
+  ylab('Precipitation fraction')  +
+  facet_wrap(~KG_class, scales = 'free') +
+  scale_fill_manual(values = colset_mid_qual) +
   labs(fill = 'KG class')  +
   theme_light()
