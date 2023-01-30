@@ -5,7 +5,7 @@ source("source/main.R")
 # Paths
 path_save_blueprint <- paste0(path_save, "blueprint/")
 prec_fnames_2000_2019_kenya <-  list.files(path = path_save_blueprint, full.names = TRUE)
-prec_fnames_2000_2019_kenya <-  grep("kenya_200006_201912", prec_fnames_2000_2019_kenya, value = TRUE)
+prec_fnames_2000_2019_kenya <-  grep("kenya_200001_201912", prec_fnames_2000_2019_kenya, value = TRUE)
 prec_fnames_short_2000_2019_kenya <-  prec_fnames_short_2000_2019
 
 prec_fnames_1960_2019_kenya <-  list.files(path = path_save_blueprint, full.names = TRUE)
