@@ -69,7 +69,7 @@ ggplot(KG_class_prec) +
         axis.ticks.x = element_blank(),
         axis.text.x = element_blank())
 
-ggplot(KG_class_datasets_cum[rel_dataset_agreement == 'average']) +
+ggplot(KG_class_datasets_cum[rel_dataset_agreement == 'high']) +
   geom_bar(aes(x = dataset, y = fraction_bias , fill = KG_class), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
