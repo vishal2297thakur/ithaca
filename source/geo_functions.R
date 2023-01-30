@@ -65,18 +65,10 @@ crop_time <- function(dataset, start, end){
   time_filter <- which(getZ(dataset) >= start & 
                          (getZ(dataset) <= end))
   cropped <- subset(dataset, time_filter)
-  if (is(cropped, "RasterStack")) {
-    cropped <- brick(cropped)
-  }
-  if(is.null(getZ(cropped))){
-    dummie_names <- names(cropped)
-    if (!Reduce("|", grepl("^X\\d\\d\\d\\d\\.\\d\\d\\.\\d\\d", 
-                           dummie_names))) {
-      dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
-    }
-    cropped <- setZ(cropped, dummie_Z)
-  }
+  dummie_names <- names(cropped)
+  dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
   cropped[cropped <= -9999] <- NA
+  cropped <- setZ(cropped, dummie_Z)
   return(cropped)
 }
 
@@ -85,18 +77,10 @@ crop_space_time <- function(dataset, start, end, crop_box){
                          (getZ(dataset) <= end))
   filtered <- subset(dataset, time_filter)
   cropped <- crop(filtered, crop_box)
-  if (is(cropped, "RasterStack")) {
-    cropped <- brick(cropped)
-  }
-  if(is.null(getZ(cropped))){
-    dummie_names <- names(cropped)
-    if (!Reduce("|", grepl("^X\\d\\d\\d\\d\\.\\d\\d\\.\\d\\d", 
-                           dummie_names))) {
-      dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
-    }
-    cropped <- setZ(cropped, dummie_Z)
-  }
+  dummie_names <- names(cropped)
+  dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
   cropped[cropped <= -9999] <- NA
+  cropped <- setZ(cropped, dummie_Z)
   return(cropped)
 }
 
