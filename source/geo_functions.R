@@ -149,8 +149,8 @@ spatial_weight <- function(x){
 #' @return No return value, called to save a file
 
 save_nc <- function(dummie_nc, nc_out){
-  lon <- xFromCol(dummie_nc)
-  lat <- yFromRow(dummie_nc)
+  lon <- xFromCol(dummie_nc) %>% round(., 4)
+  lat <- yFromRow(dummie_nc) %>% round(., 4)
   time <- getZ(dummie_nc)
   if (is.character(time) | is.numeric(time)) {
     if (is.numeric(time)) {
