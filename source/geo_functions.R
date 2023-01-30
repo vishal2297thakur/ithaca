@@ -68,13 +68,15 @@ crop_space_time <- function(dataset, start, end, crop_box){
   filtered <- subset(dataset, time_filter)
   cropped <- crop(filtered, crop_box)
   dummie_names <- names(cropped)
+  nc_out <- capture.output(dataset)
+  nc_out <- nc_out[6]
   if (!Reduce("|", grepl("^X\\d\\d\\d\\d\\.\\d\\d\\.\\d\\d", 
                          dummie_names))) {
-    if (grepl("persiann", dataset)) {
+    if (grepl("persiann", nc_out)) {
       dummie_names <- sub("^.", "", dummie_names)
       dummie_names <- as.numeric(dummie_names)
       dummie_Z <- as.Date(dummie_names, origin = "1983-01-01 00:00:00")
-    } else if (grepl("gldas-clsm", dataset)) {
+    } else if (grepl("gldas-clsm", nc_out)) {
       dummie_names <- sub("^.", "", dummie_names)
       dummie_names <- as.numeric(dummie_names)
       dummie_Z <- as.Date(dummie_names, origin = "1948-01-01 00:00:00")
