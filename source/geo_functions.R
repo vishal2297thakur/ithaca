@@ -1,3 +1,47 @@
+#' Slopes
+#'
+#' Function to compute linear slope of each raster grid cell
+#' 
+#' @param x a RasterBrick to be masked
+#' @param annual a character string with the desired aggregation function. Suitable options are:
+#' \itemize{
+#' \item "max"
+#' \item "mean"
+#' \item "median"
+#' \item "min"
+#' \item "sum"
+#' }
+#' @return a RasterLayer with slope values
+
+brick_slopes <- function(dummie_brick, annual = NULL){
+  if(!is.null(annual)){
+    dummie_table <- as.data.frame(dummie_brick, xy = TRUE, long = TRUE,
+                                  na.rm = TRUE) %>% as.data.table()
+    dummie_table <- dummie_table[, value := match.fun(annual)(value),
+                                 by = .(x, y, year(Z))][, Z := year(Z)] %>%
+      unique() %>% split(by = "y")
+  } else {
+    dummie_table <- as.data.frame(dummie_brick, xy = TRUE, long = TRUE,
+                                  na.rm = TRUE) %>% as.data.table() %>% 
+      split(by = "y")
+  }
+  no_cores <- cores_n - 2
+  cluster <- makeCluster(no_cores, type = "PSOCK")
+  clusterEvalQ(cluster, library(data.table))
+  clusterEvalQ(cluster, library(dplyr))
+  dummie_list <- parLapply(cluster, dummie_table, function(dummie_row){
+    dummie_row <- dummie_row[, slope := lm(value ~ Z)$coefficients[[2]], by = x
+                             ][, .(x, y, slope)] %>% unique()
+  })
+  stopCluster(cluster)
+  dummie_list <- rbindlist(dummie_list)
+  coordinates(dummie_list) <- ~ x + y
+  gridded(dummie_list) <- TRUE
+  dummie <- raster(dummie_list)
+  proj4string(dummie) <- CRS("+proj=longlat +datum=WGS84")
+  return(dummie)
+}
+
 #' Lake mask
 #'
 #' Function to mask the lakes in a data set
