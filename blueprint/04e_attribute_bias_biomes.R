@@ -1,15 +1,15 @@
 source('source/blueprint.R')
 source('source/graphics.R')
 
-## Read data 
-prec_stats <- readRDS(paste0(path_save_blueprint, "prec_ensemble_stats.rds"))
-prec_mask_biomes <- readRDS(paste0(path_save_blueprint, "prec_masks_biomes.rds"))
+## Data 
+prec_stats <- readRDS(paste0(PATH_SAVE_BLUEPRINT, "prec_ensemble_stats.rds"))
+prec_mask_biomes <- readRDS(paste0(PATH_SAVE_BLUEPRINT, "prec_masks_biomes.rds"))
 
 ## Variables
 needed_for_cumsum <- expand.grid(prec_mask_biomes[, unique(rel_dataset_agreement)], prec_mask_biomes[, unique(biome_class)])
 colnames(needed_for_cumsum) <- c("rel_dataset_agreement", 'biome_class')
 
-## Mask the data *** DO NOT RUN ***
+## Mask  *** DO NOT RUN ***
 fname_shape <- list.files(path = masks_dir_ecoregions, full.names = TRUE, pattern = "mask_biomes_dinerstein.shp")
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
@@ -33,7 +33,7 @@ biome_class_cum <- biome_class[, .(cumsum_biome_class = cumsum(sum_biome_class),
                              rel_dataset_agreement), .(biome_class)]
 biome_class_cum[, fraction_bias := cumsum_biome_class  / sum(cumsum_biome_class), rel_dataset_agreement]
 
-# Save for further use 
+# Save sata
 saveRDS(prec_mask_biomes, paste0(path_save_blueprint, "prec_masks_biomes.rds"))
 
 ## Quick validation

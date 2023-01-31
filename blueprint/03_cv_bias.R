@@ -1,20 +1,20 @@
-### Determine the regions that have lower observation bias according to the 
-### coefficient of variation of the datasets
+# Determine the regions that have lower observation bias according to the 
+# coefficient of variation of the datasets
 
 source('source/blueprint.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
-## Read data 
-prec_stats <- readRDS(paste0(path_save_blueprint, "prec_ensemble_stats.rds"))
-prec_stats_month <- readRDS(paste0(path_save_blueprint, "prec_ensemble_stats_month.rds"))
+## Data 
+prec_stats <- readRDS(paste0(PATH_SAVE_BLUEPRINT, "prec_ensemble_stats.rds"))
+prec_stats_month <- readRDS(paste0(PATH_SAVE_BLUEPRINT, "prec_ensemble_stats_month.rds"))
 ghcn_stations <- fread('~/shared/data_review/ghcn_stations_now.csv')[, .(lat, lon)]
 
-## Set variables
+## Variables
 quantiles <- seq(0.1, 1, 0.1)
 bias_thres_cv <- 0.3
 
-## Main estimations
+## Analysis
 prec_stats_low_bias <- prec_stats[ens_mean_cv <= bias_thres_cv,  .(lon, lat)]
 
 cv_quantiles <- prec_stats[, quantile(ens_mean_cv, quantiles)]
@@ -25,7 +25,7 @@ cv_values_n <- data.table(quantile = quantiles,
 ghcn_stations_kenya <- ghcn_stations[lat <= PILOT_LAT_MAX & lat >= PILOT_LAT_MIN & 
                                        lon <= PILOT_LON_MAX & lon >= PILOT_LON_MIN]
 
-## Plot results
+## Figures
 to_plot <- cv_values_n
 ggplot(to_plot, aes(y = size, x = cv)) +
   geom_point() +
