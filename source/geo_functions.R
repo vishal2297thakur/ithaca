@@ -66,22 +66,9 @@ crop_time <- function(dataset, start, end){
                          (getZ(dataset) <= end))
   cropped <- subset(dataset, time_filter)
   dummie_names <- names(cropped)
-  if (!Reduce("|", grepl("^X\\d\\d\\d\\d\\.\\d\\d\\.\\d\\d", 
-                         dummie_names))) {
-    if (grepl("persiann", nc_out)) {
-      dummie_names <- sub("^.", "", dummie_names)
-      dummie_names <- as.numeric(dummie_names)
-      dummie_Z <- as.Date(dummie_names, origin = "1983-01-01 00:00:00")
-    } else if (grepl("gldas-clsm", nc_out)) {
-      dummie_names <- sub("^.", "", dummie_names)
-      dummie_names <- as.numeric(dummie_names)
-      dummie_Z <- as.Date(dummie_names, origin = "1948-01-01 00:00:00")
-    }
-  } else {
-    dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
-  }
-  cropped <- setZ(cropped, dummie_Z)
+  dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
   cropped[cropped <= -9999] <- NA
+  cropped <- setZ(cropped, dummie_Z)
   return(cropped)
 }
 
@@ -91,24 +78,9 @@ crop_space_time <- function(dataset, start, end, crop_box){
   filtered <- subset(dataset, time_filter)
   cropped <- crop(filtered, crop_box)
   dummie_names <- names(cropped)
-  nc_out <- capture.output(dataset)
-  nc_out <- nc_out[6]
-  if (!Reduce("|", grepl("^X\\d\\d\\d\\d\\.\\d\\d\\.\\d\\d", 
-                         dummie_names))) {
-    if (grepl("persiann", nc_out)) {
-      dummie_names <- sub("^.", "", dummie_names)
-      dummie_names <- as.numeric(dummie_names)
-      dummie_Z <- as.Date(dummie_names, origin = "1983-01-01 00:00:00")
-    } else if (grepl("gldas-clsm", nc_out)) {
-      dummie_names <- sub("^.", "", dummie_names)
-      dummie_names <- as.numeric(dummie_names)
-      dummie_Z <- as.Date(dummie_names, origin = "1948-01-01 00:00:00")
-    }
-  } else {
-    dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
-  }
-  cropped <- setZ(cropped, dummie_Z)
+  dummie_Z <- as.Date(dummie_names, format = "X%Y.%m.%d")
   cropped[cropped <= -9999] <- NA
+  cropped <- setZ(cropped, dummie_Z)
   return(cropped)
 }
 
@@ -187,13 +159,7 @@ save_nc <- function(dummie_nc, nc_out){
       time <- as.Date(time)
     } else if (!Reduce("|",grepl("-01", time))) {
       time <- as.numeric(time)
-      if (grepl("persiann", nc_out)) {
-        dummie_origin <- "1983-01-01 00:00:00"
-      } else if (grepl("gldas-", nc_out)) {
-        dummie_origin <- "1948-01-01 00:00:00"
-      } else {
-        dummie_origin <- "1970-01-01 00:00:00"
-      }
+      dummie_origin <- "1970-01-01 00:00:00"
       time <- as.Date(time, origin = dummie_origin)
     } else {
       time <- as.Date(time)
