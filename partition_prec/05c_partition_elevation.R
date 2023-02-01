@@ -1,12 +1,12 @@
 # Partition precipitation to Koppen-Geiger classes and quantify their uncertainty
 
-source('source/blueprint.R')
+source('source/partition_prec.R')
 source('source/graphics.R')
 source('source/geo_functions.R')
 
 ## Data 
-prec_mask <- readRDS(paste0(PATH_SAVE_BLUEPRINT, "prec_masks.rds"))
-prec_mean_datasets <- readRDS(paste0(PATH_SAVE_BLUEPRINT, "prec_mean_datasets.rds"))
+prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
+prec_mean_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
 
 ## Variables
 needed_for_cumsum <- expand.grid(prec_mask[, unique(rel_dataset_agreement)], prec_mask[, unique(elev_class)])
@@ -45,7 +45,7 @@ ggplot() +
   geom_point(data = prec_mask[rel_dataset_agreement == 'high', .(lon, lat)],  aes(lon, lat)) +
   scale_fill_manual(values = colset_mid_qual) +
   coord_sf(default_crs = sf::st_crs(3395)) + #Mercator
-  labs(fill = 'Precipitation')  +
+  labs(fill = 'Elevation')  +
   theme_light()
 
 ggplot(prec_mask) +
@@ -58,7 +58,7 @@ ggplot(elev_class_cum) +
   geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias , fill = elev_class), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
-  labs(fill = 'KG class')  +
+  labs(fill = 'Elevation class')  +
   scale_fill_manual(values = colset_mid_qual) +
   theme_light()
 
@@ -77,7 +77,7 @@ ggplot(elev_class_datasets_cum[rel_dataset_agreement == 'high']) +
   geom_bar(aes(x = dataset, y = fraction_bias , fill = elev_class), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
-  labs(fill = 'KG class')  +
+  labs(fill = 'Elevation class')  +
   scale_fill_manual(values = colset_mid_qual) +
   theme_light()
 
@@ -87,14 +87,14 @@ ggplot(elev_class_datasets_cum[rel_dataset_agreement == 'average' & dataset %in%
   ylab('Precipitation fraction')  +
   facet_wrap(~elev_class, scales = 'free') +
   scale_fill_manual(values = colset_mid_qual) +
-  labs(fill = 'KG class')  +
+  labs(fill = 'Elevation class')  +
   theme_light()
 
 ggplot(elev_class_datasets_cum[rel_dataset_agreement == 'average' & dataset %in% PREC_DATASETS_REANAL]) +
   geom_bar(aes(x = dataset, y = fraction_bias , fill = elev_class), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
-  labs(fill = 'KG class')  +
+  labs(fill = 'Elevation class')  +
   scale_fill_manual(values = colset_mid_qual) +
   theme_light()
 
@@ -104,6 +104,6 @@ ggplot(elev_class_datasets_cum[rel_dataset_agreement == 'average' & dataset %in%
   ylab('Precipitation fraction')  +
   facet_wrap(~elev_class, scales = 'free') +
   scale_fill_manual(values = colset_mid_qual) +
-  labs(fill = 'KG class')  +
+  labs(fill = 'Elevation class')  +
   theme_light()
 

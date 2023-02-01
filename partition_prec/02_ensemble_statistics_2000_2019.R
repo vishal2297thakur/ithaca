@@ -19,6 +19,7 @@ estimate_q75 <- function(x) {as.numeric(quantile(x, 0.75, na.rm = TRUE))}
 
 ## Analysis
 #prec_mean <- lapply(prec_2000_2019, calc, fun = mean, na.rm = TRUE)
+#prec_sd <- lapply(prec_2000_2019, calc, fun = sd, na.rm = TRUE)
 prec_mean <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_mean.rds"))
 
 ### Multi-source
@@ -39,43 +40,19 @@ prec_mean_datasets[dataset %in% PREC_DATASETS_REANAL, dataset_type := 'reanalysi
 prec_mean_datasets[dataset %in% PREC_DATASETS_REMOTE, dataset_type := 'remote sensing']
 
 ### Ensemble statistics
-prec_ens_mean_mean <- calc(stack(prec_mean), fun = mean, na.rm = TRUE)
-prec_ens_stats <- data.table(rasterToPoints(prec_ens_mean_mean))
-colnames(prec_ens_stats) <- c('lon', 'lat', 'ens_mean_mean')
-prec_ens_stats[, ens_mean_mean := round(ens_mean_mean, 0)]
+prec_ens_stats <- prec_mean_datasets[, .(ens_mean_mean = round(mean(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
 
-prec_ens_sd_mean <- calc(stack(prec_sd), fun = mean, na.rm = TRUE)
-prec_ens_sd_mean_dt <- data.table(rasterToPoints(prec_ens_sd_mean))
-colnames(prec_ens_sd_mean_dt) <- c('lon', 'lat', 'ens_sd_mean')
-prec_ens_sd_mean_dt[, ens_sd_mean := round(ens_sd_mean, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_sd_mean_dt, by = c('lon', 'lat'))
+#dummy <- prec_mean_datasets[, .(ens_mean_sd = round(sd(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
+#prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
 
-prec_ens_mean_median <- calc(stack(prec_mean), fun = median, na.rm = TRUE)
-prec_ens_mean_median_dt <- data.table(rasterToPoints(prec_ens_mean_median))
-colnames(prec_ens_mean_median_dt) <- c('lon', 'lat', 'ens_mean_median')
-prec_ens_mean_median_dt[, ens_mean_median := round(ens_mean_median, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_median_dt, by = c('lon', 'lat'))
-
-prec_ens_mean_sd <- calc(stack(prec_mean), fun = sd, na.rm = TRUE)
-prec_ens_mean_sd_dt <- data.table(rasterToPoints(prec_ens_mean_sd))
-colnames(prec_ens_mean_sd_dt) <- c('lon', 'lat', 'ens_mean_sd')
-prec_ens_mean_sd_dt[, ens_mean_sd := round(ens_mean_sd, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_sd_dt, by = c('lon', 'lat'))
-
-prec_ens_mean_q25 <- calc(stack(prec_mean), fun = estimate_q25)
-prec_ens_mean_q25_dt <- data.table(rasterToPoints(prec_ens_mean_q25))
-colnames(prec_ens_mean_q25_dt) <- c('lon', 'lat', 'ens_mean_q25')
-prec_ens_mean_q25_dt[, ens_mean_q25 := round(ens_mean_q25, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_q25_dt, by = c('lon', 'lat'))
-
-prec_ens_mean_q75 <- calc(stack(prec_mean), fun = estimate_q75)
-prec_ens_mean_q75_dt <- data.table(rasterToPoints(prec_ens_mean_q75))
-colnames(prec_ens_mean_q75_dt) <- c('lon', 'lat', 'ens_mean_q75')
-prec_ens_mean_q75_dt[, ens_mean_q75 := round(ens_mean_q75, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_q75_dt, by = c('lon', 'lat'))
-prec_ens_mean_q25_dt[, ens_mean := round(ens_mean_q25, 0)]
-
-prec_ens_stats <- prec_ens_stats[grid_cells_with_10_datasets, on = .(lon, lat)]
+dummy <- prec_mean_datasets[, .(ens_mean_median = round(median(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
+prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
+dummy <- prec_mean_datasets[, .(ens_mean_sd = round(sd(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
+prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
+dummy <- prec_mean_datasets[, .(ens_mean_q25 = round(estimate_q25(prec_mean), 0)), .(lat, lon)]
+prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
+dummy <- prec_mean_datasets[, .(ens_mean_q75 = round(estimate_q75(prec_mean), 0)), .(lat, lon)]
+prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
 
 #### Bias measures
 prec_ens_stats[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_mean_median, 2)] # Using q75 - q25 as in Sun et al. 2018 paper
@@ -107,7 +84,7 @@ p00 <- ggplot(to_plot) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
-  labs(x = "", y = "", fill = prec_name_short) +
+  labs(x = "", y = "", fill = PREC_NAME_SHORT) +
   scale_fill_gradient2(low = main_cols[3], 
                        mid = "white", 
                        high = "dark blue", 
@@ -128,7 +105,7 @@ p00 <- ggplot(to_plot) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
-  labs(x = "", y = "", fill = prec_name_short) +
+  labs(x = "", y = "", fill = PREC_NAME_SHORT) +
   scale_fill_gradient2(low = main_cols[3], 
                        mid = "white", 
                        high = "dark blue", 

@@ -1,6 +1,6 @@
 # Add categorical classes to each variable 
 
-source('source/blueprint.R')
+source('source/partition_prec.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 source('source/mask_paths.R')
@@ -9,8 +9,8 @@ source('source/mask_paths.R')
 library("gtools")
 
 ## Data 
-prec_era5_kenya <- brick(paste0(PATH_SAVE_BLUEPRINT_RAW, "era5_tp_mm_kenya_200001_201912_025_monthly.nc"))
-prec_stats <- readRDS(paste0(PATH_SAVE_BLUEPRINT, "prec_ensemble_stats.rds"))
+prec_era5 <- brick(paste0(PATH_SAVE_PARTITION_PREC_RAW, "era5_tp_mm_land_200001_201912_025_monthly.nc"))
+prec_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
 
 ## Masks
 ### Uncertainty - Dataset agreement
@@ -39,8 +39,7 @@ fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern =
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
 
-shape_mask_crop <- st_crop(shape_mask, study_area)
-shape_mask_raster <- rasterize(shape_mask_crop, prec_era5_kenya[[1]])
+shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
 shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_1')
@@ -51,8 +50,7 @@ fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern =
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
 
-shape_mask_crop <- st_crop(shape_mask, study_area)
-shape_mask_raster <- rasterize(shape_mask_crop, prec_era5_kenya[[1]])
+shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
 shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_2')
@@ -63,8 +61,7 @@ fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern =
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
 
-shape_mask_crop <- st_crop(shape_mask, study_area)
-shape_mask_raster <- rasterize(shape_mask_crop, prec_era5_kenya[[1]])
+shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
 shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_3')
@@ -83,8 +80,7 @@ mask_raster_classes <- as.data.frame(sapply(mask_raster_classes,
                          to = c("(0,100]", "(800,1500]", "(1500,3000]", "(3000,Inf]")))
 levels(shape_mask)[[1]] <- mask_raster_classes
 
-shape_mask_crop <- crop(shape_mask, study_area)
-shape_mask_df <- shape_mask_crop %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- shape_mask %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'elev_class')
 shape_mask_df$elev_class <- factor(shape_mask_df$elev_class, 
@@ -103,8 +99,7 @@ mask_fname <- list.files(path = PATH_MASKS_LAND_USE, pattern = "*modis_025_class
 mask_raster_classes <- read.table(paste(mask_fname[1]))
 levels(shape_mask) <- mask_raster_classes
 
-shape_mask_crop <- crop(shape_mask, study_area)
-shape_mask_df <- shape_mask_crop %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- shape_mask %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'land_class')
 shape_mask_df$land_class <- factor(shape_mask_df$land_class)
@@ -114,12 +109,12 @@ prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 prec_masks <- prec_stats[, .(lon, lat, prec_mean = ens_mean_mean, rel_dataset_agreement, 
                              abs_dataset_agreement, outlier_dataset, prec_class, 
                              KG_class_1,  KG_class_2,  KG_class_3, elev_class, land_use_class = land_class)]
-saveRDS(prec_masks, paste0(PATH_SAVE_BLUEPRINT, "prec_masks.rds"))
+saveRDS(prec_masks, paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 
 ## Validation
 to_plot <- prec_stats
 p00 <- ggplot() +
-  geom_raster(data = to_plot, aes(x = lon, y = lat, fill = land_class)) +
+  geom_raster(data = to_plot, aes(x = lon, y = lat, fill = elev_class)) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
