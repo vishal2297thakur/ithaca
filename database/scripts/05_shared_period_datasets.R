@@ -1,5 +1,6 @@
 # Creates subsets that share common time period for each variable
 
+source('source/main.R')
 ##Precipitation
 
 ### 01/2000-12/2019
@@ -20,6 +21,4 @@ PREC_FNAMES_SHORT_1980_2019 <- PREC_FNAMES_SHORT_2000_2019[c(2, 4:8, 11:14)]
 PREC_FNAMES_1960_2019_FULL_RECORD <- PREC_FNAMES_1980_2019_FULL_RECORD[c(3:5, 8:9, 11)]
 PREC_FNAMES_SHORT_1960_2019 <- PREC_FNAMES_SHORT_1980_2019[c(3:5, 8:9, 11)]
 
-save(PREC_FNAMES_2000_2019_FULL_RECORD, PREC_FNAMES_SHORT_2000_2019, 
-     PREC_FNAMES_1980_2019_FULL_RECORD, PREC_FNAMES_SHORT_1980_2019,
-     PREC_FNAMES_1960_2019_FULL_RECORD, PREC_FNAMES_SHORT_1960_2019, file = '~/shared/data_projects/ithaca/misc/common_periods.Rdata')
+save(PREC_FNAMES_2000_2019_FULL_RECORD, PREC_FNAMES_SHORT_2000_2019, file = '~/shared/data_projects/ithaca/misc/prec_common_periods_2000_2019.Rdata')

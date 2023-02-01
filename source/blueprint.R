@@ -5,17 +5,18 @@ packages <- c('gtools')
 install.packages(setdiff(packages, rownames(installed.packages())))
 
 # Paths
+load('~/shared/data_projects/ithaca/misc/prec_common_periods_2000_2019.Rdata') #Created in database/scripts/05_shared period_dataset.R
+
 PATH_SAVE_BLUEPRINT <- paste0(PATH_SAVE, "blueprint/")
 PATH_SAVE_BLUEPRINT_RAW <- paste0(PATH_SAVE, "blueprint/raw/")
 PATH_SAVE_BLUEPRINT_SPATIAL <- paste0(PATH_SAVE, "blueprint/spatial/")
 PATH_SAVE_BLUEPRINT_FIGURES <- paste0(PATH_SAVE, "blueprint/figures/")
 
 PREC_FNAMES_2000_2019_KENYA <-  list.files(path = PATH_SAVE_BLUEPRINT_RAW, full.names = TRUE)
-PREC_FNAMES_2000_2019_KENYA <-  grep("kenya_200001_201912", PREC_FNAMES_2000_2019_KENYA, value = TRUE)
 PREC_FNAMES_SHORT_2000_2019_KENYA <-  PREC_FNAMES_SHORT_2000_2019
 
 # Variables
-n_datasets_2000_2019 <- length(PREC_FNAMES_2000_2019)
+n_datasets_2000_2019 <- length(PREC_FNAMES_2000_2019_KENYA)
 
 # Specify the lat/lon for the region of analysis 
 study_area <- extent(PILOT_LON_MIN, 
