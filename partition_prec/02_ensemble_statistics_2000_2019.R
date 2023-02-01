@@ -18,8 +18,8 @@ estimate_q25 <- function(x) {as.numeric(quantile(x, 0.25, na.rm = TRUE))}
 estimate_q75 <- function(x) {as.numeric(quantile(x, 0.75, na.rm = TRUE))}
 
 ## Analysis
-prec_mean <- lapply(prec_2000_2019, calc, fun = mean, na.rm = TRUE)
-prec_sd <- lapply(prec_2000_2019, calc, fun = sd, na.rm = TRUE)
+#prec_mean <- lapply(prec_2000_2019, calc, fun = mean, na.rm = TRUE)
+prec_mean <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_mean.rds"))
 
 ### Multi-source
 prec_mean_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine = rbind) %dopar% {
@@ -96,9 +96,9 @@ plot(mean(prec_2000_2019$gpcc))
 plot(mean(prec_2000_2019$`gpm-imerg`))
 
 ## Save data 
-saveRDS(prec_ens_stats, paste0(PATH_SAVE_BLUEPRINT, "prec_ensemble_stats.rds"))
-saveRDS(prec_mean_datasets, paste0(PATH_SAVE_BLUEPRINT, "prec_mean_datasets.rds"))
-saveRDS(prec_grid , paste0(PATH_SAVE_BLUEPRINT, "prec_mean_grid.rds"))
+saveRDS(prec_ens_stats, paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
+saveRDS(prec_mean_datasets, paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
+saveRDS(prec_grid , paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_grid.rds"))
 
 ## Figures
 to_plot <- prec_ens_stats[, .(value = mean(ens_mean_mean)), .(lon, lat)]
