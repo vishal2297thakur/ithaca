@@ -59,8 +59,9 @@ prec_ens_stats[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_me
 prec_ens_stats[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 
 ### Grid cell area
-prec_area <- prec_ens_stats[, .(lon, lat)] %>% grid_area()
+prec_area <- prec_ens_stats[, .(lon, lat)] %>% grid_area() # m2
 prec_grid <- prec_area[prec_ens_stats[, .(lon, lat, prec_mean = ens_mean_mean)], on = .(lon, lat)]
+prec_grid[, prec_volume_year := 12 * area * 10 ^ (-9) * prec_mean * 0.001][, prec_mean := NULL] # km3
 
 
 ## Validation

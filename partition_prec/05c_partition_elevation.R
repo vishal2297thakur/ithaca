@@ -7,6 +7,7 @@ source('source/geo_functions.R')
 ## Data 
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 prec_mean_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
+prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_grid.rds"))
 
 ## Variables
 needed_for_cumsum <- expand.grid(prec_mask[, unique(rel_dataset_agreement)], prec_mask[, unique(elev_class)])
@@ -19,11 +20,23 @@ prec_mask <- prec_mask[, prec_weight := prec_mean * weight, by = .(lon, lat)
 ][, weight := NULL]
 
 ## Analysis
+dataset_agreement_elevation <- prec_mask[, .N, .(rel_dataset_agreement, elev_class)]
+dataset_agreement_elevation <- dataset_agreement_elevation[complete.cases(dataset_agreement_elevation)]
+dataset_agreement_elevation <- dataset_agreement_elevation[order(rel_dataset_agreement, elev_class), ]
+dataset_agreement_elevation[, elev_sum := sum(N), elev_class]
+dataset_agreement_elevation[, elev_fraction := N/elev_sum]
+
+
+dataset_agreement_elevation_prec <- prec_mask[, .(prec_sum = sum(prec_mean)), .(rel_dataset_agreement, elev_class)]
+dataset_agreement_elevation_prec <- dataset_agreement_elevation_prec[complete.cases(dataset_agreement_elevation_prec)]
+dataset_agreement_elevation_prec <- dataset_agreement_elevation_prec[order(rel_dataset_agreement, elev_class), ]
+
 elev_class <- prec_mask[, .(sum_elev_class = sum(prec_weight)), 
                       .(elev_class, rel_dataset_agreement)]
 elev_class <-  merge(elev_class, needed_for_cumsum, by = c('elev_class', "rel_dataset_agreement"), all.y = TRUE)
 elev_class <- elev_class[order(elev_class, rel_dataset_agreement), ]
 elev_class[is.na(sum_elev_class), sum_elev_class := 0]
+elev_class <- elev_class[!is.na(rel_dataset_agreement)]
 
 elev_class_cum <- elev_class[, .(cumsum_elev_class = cumsum(sum_elev_class), 
                              rel_dataset_agreement), .(elev_class)]
@@ -53,13 +66,21 @@ ggplot(prec_mask) +
   theme_light()
 
 ## Figures
-### Main: Partition (%) of total precipitation per climatology for different levels of dataset agreement 
+### Main: Partition (%) of total precipitation per elevation for different levels of dataset agreement 
+ggplot(elev_class) +
+  geom_bar(aes(x = elev_class, y = elev_fraction, fill = rel_dataset_agreement), stat = "identity") +
+  xlab('Elevation')  +
+  ylab('Area fraction')  +
+  labs(fill = 'Dataset agreement')  +
+  scale_fill_manual(values = colset_mid[c(10, 9, 6, 3, 1)]) +
+  theme_light()
+
 ggplot(elev_class_cum) +
   geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias , fill = elev_class), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
   labs(fill = 'Elevation class')  +
-  scale_fill_manual(values = colset_mid_qual) +
+  scale_fill_manual(values = colset_mid[rev(c(10, 8, 6, 5, 4, 1))]) +
   theme_light()
 
 ggplot(elev_class_prec) +
