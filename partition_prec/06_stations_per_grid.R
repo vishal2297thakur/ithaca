@@ -18,12 +18,12 @@ p00 <- ggplot(prec_grid) +
   scale_color_viridis_c(option = "H") +
   theme_light() +
   labs(x = "Lon", y = "Lat", color = "No.\nStations") +
-  coord_cartesian(xlim = c(-180, 180), ylim = c(-90,90), expand = FALSE) +
-  theme_opts
-y_labs <- ggplot_build(p00)$layout$panel_params[[1]]$y$get_labels()
-x_labs <- ggplot_build(p00)$layout$panel_params[[1]]$x$get_labels()
-p01 <- p00 + scale_x_continuous(labels = paste0(x_labs, "\u00b0")) +
-  scale_y_continuous(labels = paste0(y_labs, "\u00b0"))
+  coord_sf(expand = FALSE, default_crs = sf::st_crs(4326)) +
+  theme_opts +
+  scale_x_continuous(breaks = seq(-150, 150, 30),
+                     labels = paste0(seq(-150, 150, 30), "\u00b0")) +
+  scale_y_continuous(breaks = seq(-60, 60, 30),
+                     labels = paste0(seq(-60, 60, 30), "\u00b0"))
 
 p00 <- ggplot(prec_grid) +
   borders() +
@@ -31,9 +31,9 @@ p00 <- ggplot(prec_grid) +
   scale_fill_viridis_c(option = "H") +
   theme_light() +
   labs(x = "Lon", y = "Lat", fill = "No.\nStations") +
-  coord_cartesian(xlim = c(-180, 180), ylim = c(-90,90), expand = FALSE) +
-  theme_opts
-y_labs <- ggplot_build(p00)$layout$panel_params[[1]]$y$get_labels()
-x_labs <- ggplot_build(p00)$layout$panel_params[[1]]$x$get_labels()
-p01 <- p00 + scale_x_continuous(labels = paste0(x_labs, "\u00b0")) +
-  scale_y_continuous(labels = paste0(y_labs, "\u00b0"))
+  coord_sf(expand = FALSE, default_crs = sf::st_crs(4326)) +
+  theme_opts +
+  scale_x_continuous(breaks = seq(-150, 150, 30),
+                     labels = paste0(seq(-150, 150, 30), "\u00b0")) +
+  scale_y_continuous(breaks = seq(-60, 60, 30),
+                     labels = paste0(seq(-60, 60, 30), "\u00b0"))
