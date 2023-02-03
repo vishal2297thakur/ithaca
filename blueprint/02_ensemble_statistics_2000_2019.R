@@ -1,26 +1,27 @@
-### Estimation of ensemble statistics
-install.packages("gtools")
-library("gtools")
-
+# Estimation of ensemble statistics
 source('source/blueprint.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
-## Read data 
-prec_2000_2019 <- lapply(prec_fnames_2000_2019_kenya, brick)
-names(prec_2000_2019) <- prec_fnames_short_2000_2019_kenya 
+## Packages
+library("gtools")
 
-## Set functions
+## Data
+prec_2000_2019 <- lapply(PREC_FNAMES_2000_2019_KENYA, brick)
+names(prec_2000_2019) <- PREC_FNAMES_SHORT_2000_2019_KENYA 
+
+## Variables
+period_months_dates <- seq(period_start, by = "month", length.out = period_months)
+
+## Functions
 estimate_q25 <- function(x) {as.numeric(quantile(x, 0.25, na.rm = TRUE))}
 estimate_q75 <- function(x) {as.numeric(quantile(x, 0.75, na.rm = TRUE))}
 
-## Set variables
-period_months_dates <- seq(period_start, by = "month", length.out = period_months)
-
-## Main estimations
+## Analysis
 prec_mean <- lapply(prec_2000_2019, calc, fun = mean, na.rm = TRUE)
 prec_sd <- lapply(prec_2000_2019, calc, fun = sd, na.rm = TRUE)
 
+### Multi-source
 prec_mean_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine = rbind) %dopar% {
   dummy <- data.table(as.data.frame(rasterToPoints(prec_mean[[dataset_count]], spatial = TRUE)))
   colnames(dummy) <- c('prec_mean', 'lon', 'lat')
@@ -33,63 +34,34 @@ prec_mean_datasets[, n_datasets := .N, .(lon, lat)]
 prec_mean_datasets <- prec_mean_datasets[n_datasets >= 10]
 grid_cells_with_10_datasets <- unique(prec_mean_datasets[, .(lon, lat, n_datasets)])
 
-prec_mean_datasets[dataset %in% prec_datasets_obs, dataset_type := 'ground stations']
-prec_mean_datasets[dataset %in% prec_datasets_reanal, dataset_type := 'reanalysis']
-prec_mean_datasets[dataset %in% prec_datasets_remote, dataset_type := 'remote sensing']
+prec_mean_datasets[dataset %in% PREC_DATASETS_OBS, dataset_type := 'ground stations']
+prec_mean_datasets[dataset %in% PREC_DATASETS_REANAL, dataset_type := 'reanalysis']
+prec_mean_datasets[dataset %in% PREC_DATASETS_REMOTE, dataset_type := 'remote sensing']
 
-prec_mean_datasets[dataset_type == 'ground stations', mean(prec_mean)]
-prec_mean_datasets[dataset_type == 'reanalysis', mean(prec_mean)]
-prec_mean_datasets[dataset_type == 'remote sensing', mean(prec_mean)]
+### Ensemble statistics
+prec_ens_stats <- prec_mean_datasets[, .(ens_mean_mean = round(mean(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
 
-#Ensemble statistics
-prec_ens_mean_mean <- calc(stack(prec_mean), fun = mean, na.rm = TRUE)
-prec_ens_stats <- data.table(rasterToPoints(prec_ens_mean_mean))
-colnames(prec_ens_stats) <- c('lon', 'lat', 'ens_mean_mean')
-prec_ens_stats[, ens_mean_mean := round(ens_mean_mean, 0)]
+dummy <- prec_mean_datasets[, .(ens_mean_sd = round(sd(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
+prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
+dummy <- prec_mean_datasets[, .(ens_mean_median = round(median(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
+prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
+dummy <- prec_mean_datasets[, .(ens_mean_sd = round(sd(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
+prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
+dummy <- prec_mean_datasets[, .(ens_mean_q25 = round(estimate_q25(prec_mean), 0)), .(lat, lon)]
+prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
+dummy <- prec_mean_datasets[, .(ens_mean_q75 = round(estimate_q75(prec_mean), 0)), .(lat, lon)]
+prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
 
-prec_ens_sd_mean <- calc(stack(prec_sd), fun = mean, na.rm = TRUE)
-prec_ens_sd_mean_dt <- data.table(rasterToPoints(prec_ens_sd_mean))
-colnames(prec_ens_sd_mean_dt) <- c('lon', 'lat', 'ens_sd_mean')
-prec_ens_sd_mean_dt[, ens_sd_mean := round(ens_sd_mean, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_sd_mean_dt, by = c('lon', 'lat'))
-
-prec_ens_mean_median <- calc(stack(prec_mean), fun = median, na.rm = TRUE)
-prec_ens_mean_median_dt <- data.table(rasterToPoints(prec_ens_mean_median))
-colnames(prec_ens_mean_median_dt) <- c('lon', 'lat', 'ens_mean_median')
-prec_ens_mean_median_dt[, ens_mean_median := round(ens_mean_median, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_median_dt, by = c('lon', 'lat'))
-
-prec_ens_mean_sd <- calc(stack(prec_mean), fun = sd, na.rm = TRUE)
-prec_ens_mean_sd_dt <- data.table(rasterToPoints(prec_ens_mean_sd))
-colnames(prec_ens_mean_sd_dt) <- c('lon', 'lat', 'ens_mean_sd')
-prec_ens_mean_sd_dt[, ens_mean_sd := round(ens_mean_sd, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_sd_dt, by = c('lon', 'lat'))
-
-prec_ens_mean_q25 <- calc(stack(prec_mean), fun = estimate_q25)
-prec_ens_mean_q25_dt <- data.table(rasterToPoints(prec_ens_mean_q25))
-colnames(prec_ens_mean_q25_dt) <- c('lon', 'lat', 'ens_mean_q25')
-prec_ens_mean_q25_dt[, ens_mean_q25 := round(ens_mean_q25, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_q25_dt, by = c('lon', 'lat'))
-
-prec_ens_mean_q75 <- calc(stack(prec_mean), fun = estimate_q75)
-prec_ens_mean_q75_dt <- data.table(rasterToPoints(prec_ens_mean_q75))
-colnames(prec_ens_mean_q75_dt) <- c('lon', 'lat', 'ens_mean_q75')
-prec_ens_mean_q75_dt[, ens_mean_q75 := round(ens_mean_q75, 0)]
-prec_ens_stats <- merge(prec_ens_stats, prec_ens_mean_q75_dt, by = c('lon', 'lat'))
-prec_ens_mean_q25_dt[, ens_mean := round(ens_mean_q25, 0)]
-
-prec_ens_stats <- prec_ens_stats[grid_cells_with_10_datasets, on = .(lon, lat)]
-
-# Bias measures
+#### Bias measures
 prec_ens_stats[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_mean_median, 2)] # Using q75 - q25 as in Sun et al. 2018 paper
 prec_ens_stats[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 
-# Grid cell area
+### Grid cell area
 prec_area <- prec_ens_stats[, .(lon, lat)] %>% grid_area()
 prec_grid <- prec_area[prec_ens_stats[, .(lon, lat, prec_mean = ens_mean_mean)], on = .(lon, lat)]
 
 
-## Quick validation
+## Validation
 prec_mean_datasets[, table(n_datasets)]
 
 plot(mean(prec_2000_2019$cpc))
@@ -98,12 +70,12 @@ plot(mean(prec_2000_2019$`em-earth`))
 plot(mean(prec_2000_2019$gpcc))
 plot(mean(prec_2000_2019$`gpm-imerg`))
 
-## Save data for further use
-saveRDS(prec_ens_stats, paste0(path_save_blueprint, "prec_ensemble_stats.rds"))
-saveRDS(prec_mean_datasets, paste0(path_save_blueprint, "prec_mean_datasets.rds"))
-saveRDS(prec_grid , paste0(path_save_blueprint, "prec_mean_grid.rds"))
+## Save data 
+saveRDS(prec_ens_stats, paste0(PATH_SAVE_BLUEPRINT, "prec_ensemble_stats.rds"))
+saveRDS(prec_mean_datasets, paste0(PATH_SAVE_BLUEPRINT, "prec_mean_datasets.rds"))
+saveRDS(prec_grid , paste0(PATH_SAVE_BLUEPRINT, "prec_mean_grid.rds"))
 
-## Plot results
+## Figures
 to_plot <- prec_ens_stats[, .(value = mean(ens_mean_mean)), .(lon, lat)]
 p00 <- ggplot(to_plot) +
   geom_raster(aes(x = lon, y = lat, fill = value)) +

@@ -1,10 +1,11 @@
+# Partition precipitation to precipitation classes and quantify their uncertainty
+
 source('source/blueprint.R')
 source('source/graphics.R')
 source('source/geo_functions.R')
 
-## Read data 
-prec_mask <- readRDS(paste0(path_save_blueprint, "prec_masks.rds"))
-prec_mask_month <- readRDS(paste0(path_save_blueprint, "prec_masks_month.rds"))
+## Data 
+prec_mask <- readRDS(paste0(PATH_SAVE_BLUEPRINT, "prec_masks.rds"))
 
 prec_weights <- prec_mask[, .(lon, lat)] %>% spatial_weight()
 prec_mask <- merge(prec_mask, prec_weights, by = c("lon", "lat"))
@@ -19,7 +20,7 @@ prec_class_cum <- prec_class[, .(cumsum_prec_class = cumsum(sum_prec_class),
                                            rel_dataset_agreement), .(prec_class)]
 prec_class_cum[, fraction_bias := round(cumsum_prec_class / sum(cumsum_prec_class), 2), rel_dataset_agreement]
 
-## Quick validation
+## Validation
 ggplot() +
   geom_raster(data = prec_mask, aes(lon, lat, fill = prec_class)) +
   geom_point(data = prec_mask[rel_dataset_agreement == 'high' | rel_dataset_agreement == 'above average', .(lon, lat)],  aes(lon, lat)) +
@@ -38,7 +39,7 @@ ggplot(prec_mask) +
   geom_bar(aes(x = prec_class)) + 
   theme_light()
 
-## Plot
+## Figures
 ggplot(prec_class_cum) +
   geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias, fill = prec_class), stat="identity") +
   xlab('Dataset agreement')  +
