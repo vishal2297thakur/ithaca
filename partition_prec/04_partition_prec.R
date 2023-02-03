@@ -13,7 +13,8 @@ elev_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, elev_class)],
 koppen_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, KG_class_1)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 land_use_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, land_use_class)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 prec_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, prec_class)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
-
+biome_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, biome_class)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
+  
 ## Analysis
 ### Climate 
 dataset_agreement_koppen <- koppen_class[, .N, .(rel_dataset_agreement, KG_class_1)]
@@ -59,6 +60,17 @@ dataset_agreement_prec_prec <- prec_class[, .(prec_sum = sum(prec_volume_year)),
 dataset_agreement_prec_prec <- dataset_agreement_prec_prec[complete.cases(dataset_agreement_prec_prec)]
 dataset_agreement_prec_prec <- dataset_agreement_prec_prec[order(rel_dataset_agreement, prec_class), ]
 
+### Biome types
+dataset_agreement_biome <- biome_class[, .N, .(rel_dataset_agreement, biome_class)]
+dataset_agreement_biome <- dataset_agreement_biome[complete.cases(dataset_agreement_biome)]
+dataset_agreement_biome <- dataset_agreement_biome[order(rel_dataset_agreement, biome_class), ]
+dataset_agreement_biome[, biome_sum := sum(N), biome_class]
+dataset_agreement_biome[, biome_fraction := N/biome_sum]
+
+dataset_agreement_biome_prec <- biome_class[, .(prec_sum = sum(prec_volume_year)), .(rel_dataset_agreement, biome_class)]
+dataset_agreement_biome_prec <- dataset_agreement_biome_prec[complete.cases(dataset_agreement_biome_prec)]
+dataset_agreement_biome_prec <- dataset_agreement_biome_prec[order(rel_dataset_agreement, biome_class), ]
+
 ## Figures
 fig_elevation_partition_prec_volume <- ggplot(dataset_agreement_elevation_prec) +
   geom_bar(aes(x = elev_class, y = prec_sum, fill = rel_dataset_agreement), stat = "identity") +
@@ -71,7 +83,7 @@ fig_elevation_partition_prec_volume <- ggplot(dataset_agreement_elevation_prec) 
 fig_elevation_partition_fraction <- ggplot(dataset_agreement_elevation) +
   geom_bar(aes(x = elev_class, y = elev_fraction, fill = rel_dataset_agreement), stat = "identity") +
   xlab('Elevation [m]')  +
-  ylab('Area fraction')  +
+  ylab('Fraction')  +
   labs(fill = 'Dataset agreement')  +
   scale_fill_manual(values = colset_mid[c(10, 9, 6, 3, 1)]) +
   theme_light()
@@ -87,7 +99,7 @@ fig_koppen_partition_prec_volume <- ggplot(dataset_agreement_koppen_prec) +
 fig_koppen_partition_fraction <- ggplot(dataset_agreement_koppen) +
   geom_bar(aes(x = KG_class_1, y = koppen_fraction, fill = rel_dataset_agreement), stat = "identity") +
   xlab('Koppen-Geiger class')  +
-  ylab('Area fraction')  +
+  ylab('Fraction')  +
   labs(fill = 'Dataset agreement')  +
   scale_fill_manual(values = colset_mid[c(10, 9, 6, 3, 1)]) +
   theme_light()
@@ -104,7 +116,7 @@ fig_prec_partition_prec_volume <- ggplot(dataset_agreement_prec_prec) +
 fig_prec_partition_fraction <- ggplot(dataset_agreement_prec) +
   geom_bar(aes(x = prec_class, y = prec_fraction, fill = rel_dataset_agreement), stat = "identity") +
   xlab('Precipitation type')  +
-  ylab('Area fraction')  +
+  ylab('Fraction')  +
   labs(fill = 'Dataset agreement')  +
   scale_fill_manual(values = colset_mid[c(10, 9, 6, 3, 1)]) +
   theme_light() +
@@ -122,7 +134,25 @@ fig_land_use_partition_prec_volume <- ggplot(dataset_agreement_land_use_prec) +
 fig_land_use_partition_fraction <- ggplot(dataset_agreement_land_use) +
   geom_bar(aes(x = land_use_class, y = land_use_fraction, fill = rel_dataset_agreement), stat = "identity") +
   xlab('Land use type')  +
-  ylab('Area fraction')  +
+  ylab('Fraction')  +
+  labs(fill = 'Dataset agreement')  +
+  scale_fill_manual(values = colset_mid[c(10, 9, 6, 3, 1)]) +
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+fig_biome_partition_prec_volume <- ggplot(dataset_agreement_biome_prec) +
+  geom_bar(aes(x = biome_class, y = prec_sum, fill = rel_dataset_agreement), stat = "identity") +
+  xlab('Land use type')  +
+  ylab('Precipitation sum [km3/year]')  +
+  labs(fill = 'Dataset agreement')  +
+  scale_fill_manual(values = colset_mid[c(10, 9, 6, 3, 1)]) +
+  theme_light() + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+fig_biome_partition_fraction <- ggplot(dataset_agreement_biome) +
+  geom_bar(aes(x = biome_class, y = biome_fraction, fill = rel_dataset_agreement), stat = "identity") +
+  xlab('Land use type')  +
+  ylab('Fraction')  +
   labs(fill = 'Dataset agreement')  +
   scale_fill_manual(values = colset_mid[c(10, 9, 6, 3, 1)]) +
   theme_light() +
