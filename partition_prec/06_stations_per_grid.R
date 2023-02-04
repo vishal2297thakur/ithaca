@@ -5,6 +5,7 @@ source('source/geo_functions.R')
 source('source/graphics.R')
 
 # Data
+prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 prec_grid <- raster(paste0(PATH_SAVE_PARTITION_PREC,
                            "prec_station_grid.nc")) %>%
   as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE) %>%
@@ -18,7 +19,7 @@ p00 <- ggplot(prec_grid) +
   scale_color_viridis_c(option = "H") +
   theme_light() +
   labs(x = "Lon", y = "Lat", color = "No.\nStations") +
-  coord_sf(expand = FALSE, default_crs = sf::st_crs(4326)) +
+  coord_sf(expand = FALSE, default_crs = sf::st_crs(54024)) +
   theme_opts +
   scale_x_continuous(breaks = seq(-150, 150, 30),
                      labels = paste0(seq(-150, 150, 30), "\u00b0")) +
