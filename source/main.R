@@ -13,6 +13,8 @@ library(raster)
 library(ncdf4)
 library(sp)
 library(sf)
+library(stars)
+library(rnaturalearth)
 
 # parallel
 library(doParallel)
