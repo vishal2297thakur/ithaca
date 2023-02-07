@@ -1,4 +1,5 @@
-# Plot number of stations per grid cell
+# Plot global map of dataset agreement classses 
+
 install.packages('rnaturalearth')
 
 library(rnaturalearth)
@@ -21,7 +22,7 @@ prec_mask_sf <- prec_mask_sf[, .(lon, lat, value)] %>%
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-#Figure
+# Figures
 
 p00 <- ggplot(prec_grid) +
   geom_sf(data = world_sf, fill = NA) +
