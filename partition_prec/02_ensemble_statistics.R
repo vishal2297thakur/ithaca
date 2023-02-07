@@ -32,8 +32,7 @@ prec_mean_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine =
   dummy
 }
 prec_mean_datasets[, n_datasets := .N, .(lon, lat)]
-prec_mean_datasets <- prec_mean_datasets[n_datasets >= 10]
-grid_cells_with_10_datasets <- unique(prec_mean_datasets[, .(lon, lat, n_datasets)])
+prec_mean_datasets <- prec_mean_datasets[n_datasets >= MIN_N_DATASETS]
 
 prec_mean_datasets[dataset %in% PREC_DATASETS_OBS, dataset_type := 'ground stations']
 prec_mean_datasets[dataset %in% PREC_DATASETS_REANAL, dataset_type := 'reanalysis']
@@ -41,6 +40,7 @@ prec_mean_datasets[dataset %in% PREC_DATASETS_REMOTE, dataset_type := 'remote se
 
 ### Ensemble statistics
 prec_ens_stats <- prec_mean_datasets[, .(ens_mean_mean = round(mean(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
+prec_mean_datasets[, n_datasets := NULL]
 
 #dummy <- prec_mean_datasets[, .(ens_mean_sd = round(sd(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
 #prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
@@ -62,7 +62,6 @@ prec_ens_stats[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 prec_area <- prec_ens_stats[, .(lon, lat)] %>% grid_area() # m2
 prec_grid <- prec_area[prec_ens_stats[, .(lon, lat, prec_mean = ens_mean_mean)], on = .(lon, lat)]
 prec_grid[, prec_volume_year := 12 * area * 10 ^ (-9) * prec_mean * 0.001][, prec_mean := NULL] # km3
-
 
 ## Validation
 prec_mean_datasets[, table(n_datasets)]

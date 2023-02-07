@@ -19,7 +19,9 @@ dummy <- strsplit(dummy, split = '_')
 PREC_FNAMES_SHORT_2000_2019 <- sapply(dummy, "[[", 1)
 
 # Variables
+MIN_N_DATASETS <- 10
 n_datasets_2000_2019 <- length(PREC_FNAMES_SHORT_2000_2019)
+
 
 # Specify start/end for the period of analysis 
 period_start <- as.Date("2000-01-01") 
