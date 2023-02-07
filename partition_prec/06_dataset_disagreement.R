@@ -1,4 +1,6 @@
 # Investigate the reasons of low dataset agreement
+install.packages("kohonen")
+library(kohonen)
 
 source('source/partition_prec.R')
 source('source/geo_functions.R')
@@ -8,7 +10,6 @@ source('source/graphics.R')
 #prec_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
 prec_mean_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
-#prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_grid.rds"))
 
 # Variables
 masks_low_agreement <- prec_mask[rel_dataset_agreement == 'low']
@@ -18,8 +19,18 @@ datasets_low_agreement <- merge(masks_low_agreement[, .(lon, lat, prec_ens_mean 
 datasets_low_agreement[, mean_distance := round(prec_ens_mean - prec_mean, 0)]
 datasets_low_agreement[prec_ens_mean > 0, rel_mean_distance := round((prec_ens_mean - prec_mean)/prec_ens_mean, 2)]
 
+
+## Self-Organizing Map
+sample_size <- nrow(masks_low_agreement)
+grid_size <- ceiling(sample_size ^ (1/2.5))
+som_grid <- somgrid(xdim = grid_size, ydim = grid_size, topo = 'hexagonal', toroidal = T)
+data_for_som <- datasets_low_agreement[, .()]
+
+
 # Analysis
 masks_low_agreement[, .N, outlier_dataset] / prec_mask[, .N, outlier_dataset] # Skewed behavior of disagreement
+
+som_model <- som(data.matrix(sample.rgb), grid = som_grid)
 
 datasets_low_agreement[, round(mean(abs(rel_mean_distance), na.rm = TRUE), 2), dataset]
 dummy <- datasets_low_agreement[, .(rel_abs_diff = round(mean(abs(rel_mean_distance), na.rm = TRUE), 2)), .(dataset, KG_class_1)]

@@ -118,11 +118,44 @@ colnames(shape_mask_df) <- c('lon', 'lat', 'biome_class')
 shape_mask_df$biome_class <- factor(shape_mask_df$biome_class)
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 
-## Save data
 prec_masks <- prec_stats[, .(lon, lat, prec_mean = ens_mean_mean, rel_dataset_agreement, 
                              abs_dataset_agreement, outlier_dataset, prec_class, 
                              KG_class_1,  KG_class_2,  KG_class_3, elev_class, land_use_class = land_class, biome_class)]
+
+### Extra masks
+prec_masks[grepl("Shrub", land_use_class) == TRUE, land_use_short_class := "Shrublands"]
+prec_masks[grepl("Forest", land_use_class) == TRUE, land_use_short_class := "Forests"]
+prec_masks[grepl("Savannas", land_use_class) == TRUE, land_use_short_class := "Savannas"]
+prec_masks[grepl("Cropland", land_use_class) == TRUE, land_use_short_class := "Croplands"]
+prec_masks[grepl("Grasslands", land_use_class) == TRUE, land_use_short_class := "Grasslands"]
+prec_masks[grepl("Urban", land_use_class) == TRUE, land_use_short_class := "Other"]
+prec_masks[grepl("Unclassified", land_use_class) == TRUE, land_use_short_class := "Other"]
+prec_masks[grepl("Ice", land_use_class) == TRUE, land_use_short_class := "Snow/Ice"]
+prec_masks[grepl("Water", land_use_class) == TRUE, land_use_short_class := "Water"]
+prec_masks[grepl("Wetlands", land_use_class) == TRUE, land_use_short_class := "Water"]
+prec_masks[grepl("Barren", land_use_class) == TRUE, land_use_short_class := "Barren"]
+
+prec_masks[grepl("Tundra", biome_class) == TRUE, biome_short_class := "Tundra"]
+prec_masks[grepl("Boreal Forests", biome_class) == TRUE, biome_short_class := "Boreal Forests"]
+prec_masks[grepl("Dry Broadleaf Forests", biome_class) == TRUE, biome_short_class := "(Sub-) Tropical Forests"]
+prec_masks[grepl("Moist Broadleaf Forests", biome_class) == TRUE, biome_short_class := "(Sub-) Tropical Forests"]
+prec_masks[grepl("Subtropical Coniferous Forests", biome_class) == TRUE, biome_short_class := "(Sub-) Tropical Forests"]
+prec_masks[grepl("Temperate Conifer Forests", biome_class) == TRUE, biome_short_class := "Temperate Forests"]
+prec_masks[grepl("Temperate Broadleaf & Mixed Forests", biome_class) == TRUE, biome_short_class := "Temperate Forests"]
+prec_masks[grepl("Temperate Grasslands", biome_class) == TRUE, biome_short_class := "Temperate Grasslands"]
+prec_masks[grepl("Subtropical Grasslands", biome_class) == TRUE, biome_short_class := "Subtropical Grasslands"]
+prec_masks[grepl("Montane Grasslands", biome_class) == TRUE, biome_short_class := "Montane Grasslands"]
+prec_masks[grepl("Flooded", biome_class) == TRUE, biome_short_class := "Flooded & Mangroves"]
+prec_masks[grepl("Mangroves", biome_class) == TRUE, biome_short_class := "Flooded & Mangroves"]
+prec_masks[grepl("Deserts", biome_class) == TRUE, biome_short_class := "Deserts"]
+prec_masks[grepl("Mediterranean", biome_class) == TRUE, biome_short_class := "Mediterranean"]
+prec_masks[grepl("N/A", biome_class) == TRUE, biome_short_class := NA]
+
+prec_masks <- prec_masks[, c(1:12, 14, 13, 15)]
+
+## Save data
 saveRDS(prec_masks, paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
+
 
 ## Validation
 to_plot <- prec_stats
