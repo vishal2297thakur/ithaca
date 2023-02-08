@@ -1,6 +1,6 @@
 # Add categorical classes to each variable 
 
-source('source/blueprint.R')
+source('source/partition_prec.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 source('source/mask_paths.R')
@@ -9,8 +9,8 @@ source('source/mask_paths.R')
 library("gtools")
 
 ## Data 
-prec_era5_kenya <- brick(paste0(PATH_SAVE_BLUEPRINT_RAW, "era5_tp_mm_kenya_200001_201912_025_monthly.nc"))
-prec_stats <- readRDS(paste0(PATH_SAVE_BLUEPRINT, "prec_ensemble_stats.rds"))
+prec_era5 <- brick(paste0(PATH_SAVE_PARTITION_PREC_RAW, "era5_tp_mm_land_200001_201912_025_monthly.nc"))
+prec_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
 
 ## Masks
 ### Uncertainty - Dataset agreement
@@ -31,16 +31,15 @@ prec_stats[, outlier_dataset := FALSE]
 prec_stats[ens_mean_mean / ens_mean_median > 1.2 | ens_mean_mean / ens_mean_median < 0.8, outlier_dataset := TRUE]
 
 ## Masks
-# Precipitation
+### Precipitation
 prec_stats[, prec_class := ordered(quantcut(ens_mean_mean, 5), labels = c('low', 'below average', 'average', 'above average', 'high'))]
 
-# Koppen-Geiger
+### Koppen-Geiger
 fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level3.shp")
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
 
-shape_mask_crop <- st_crop(shape_mask, study_area)
-shape_mask_raster <- rasterize(shape_mask_crop, prec_era5_kenya[[1]])
+shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
 shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_1')
@@ -51,8 +50,7 @@ fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern =
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
 
-shape_mask_crop <- st_crop(shape_mask, study_area)
-shape_mask_raster <- rasterize(shape_mask_crop, prec_era5_kenya[[1]])
+shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
 shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_2')
@@ -63,15 +61,14 @@ fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern =
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
 
-shape_mask_crop <- st_crop(shape_mask, study_area)
-shape_mask_raster <- rasterize(shape_mask_crop, prec_era5_kenya[[1]])
+shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
 shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_3')
 shape_mask_df$KG_class_3 <- factor(shape_mask_df$KG_class_3)
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 
-# Elevation
+### Elevation
 fname <- list.files(path = PATH_MASKS_ELEVATION, full.names = TRUE, pattern = "mask_orography_groups_025.nc")
 shape_mask <- raster(paste0(fname[1]))
 shape_mask <- ratify(shape_mask)
@@ -83,8 +80,7 @@ mask_raster_classes <- as.data.frame(sapply(mask_raster_classes,
                          to = c("(0,100]", "(800,1500]", "(1500,3000]", "(3000,Inf]")))
 levels(shape_mask)[[1]] <- mask_raster_classes
 
-shape_mask_crop <- crop(shape_mask, study_area)
-shape_mask_df <- shape_mask_crop %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- shape_mask %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'elev_class')
 shape_mask_df$elev_class <- factor(shape_mask_df$elev_class, 
@@ -93,7 +89,7 @@ shape_mask_df$elev_class <- factor(shape_mask_df$elev_class,
                                    ordered =TRUE)
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 
-# Land use
+### Land use
 
 fname <- list.files(path = PATH_MASKS_LAND_USE, full.names = TRUE, pattern = "mask_landcover_modis_025.nc")
 shape_mask <- raster(paste0(fname[1]))
@@ -103,23 +99,68 @@ mask_fname <- list.files(path = PATH_MASKS_LAND_USE, pattern = "*modis_025_class
 mask_raster_classes <- read.table(paste(mask_fname[1]))
 levels(shape_mask) <- mask_raster_classes
 
-shape_mask_crop <- crop(shape_mask, study_area)
-shape_mask_df <- shape_mask_crop %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- shape_mask %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'land_class')
 shape_mask_df$land_class <- factor(shape_mask_df$land_class)
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 
-## Save data
+### Biomes
+
+fname_shape <- list.files(path = PATH_MASKS_BIOME, full.names = TRUE, pattern = "mask_biomes_dinerstein.shp")
+shape_mask <- st_read(paste0(fname_shape[1]))
+shape_mask <- st_make_valid(shape_mask)
+
+shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]]) 
+shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'layer_BIOME_NAME'))
+colnames(shape_mask_df) <- c('lon', 'lat', 'biome_class')
+shape_mask_df$biome_class <- factor(shape_mask_df$biome_class)
+prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
+
 prec_masks <- prec_stats[, .(lon, lat, prec_mean = ens_mean_mean, rel_dataset_agreement, 
                              abs_dataset_agreement, outlier_dataset, prec_class, 
-                             KG_class_1,  KG_class_2,  KG_class_3, elev_class, land_use_class = land_class)]
-saveRDS(prec_masks, paste0(PATH_SAVE_BLUEPRINT, "prec_masks.rds"))
+                             KG_class_1,  KG_class_2,  KG_class_3, elev_class, land_use_class = land_class, biome_class)]
+
+### Extra masks
+prec_masks[grepl("Shrub", land_use_class) == TRUE, land_use_short_class := "Shrublands"]
+prec_masks[grepl("Forest", land_use_class) == TRUE, land_use_short_class := "Forests"]
+prec_masks[grepl("Savannas", land_use_class) == TRUE, land_use_short_class := "Savannas"]
+prec_masks[grepl("Cropland", land_use_class) == TRUE, land_use_short_class := "Croplands"]
+prec_masks[grepl("Grasslands", land_use_class) == TRUE, land_use_short_class := "Grasslands"]
+prec_masks[grepl("Urban", land_use_class) == TRUE, land_use_short_class := "Other"]
+prec_masks[grepl("Unclassified", land_use_class) == TRUE, land_use_short_class := "Other"]
+prec_masks[grepl("Ice", land_use_class) == TRUE, land_use_short_class := "Snow/Ice"]
+prec_masks[grepl("Water", land_use_class) == TRUE, land_use_short_class := "Water"]
+prec_masks[grepl("Wetlands", land_use_class) == TRUE, land_use_short_class := "Water"]
+prec_masks[grepl("Barren", land_use_class) == TRUE, land_use_short_class := "Barren"]
+
+prec_masks[grepl("Tundra", biome_class) == TRUE, biome_short_class := "Tundra"]
+prec_masks[grepl("Boreal Forests", biome_class) == TRUE, biome_short_class := "Boreal Forests"]
+prec_masks[grepl("Dry Broadleaf Forests", biome_class) == TRUE, biome_short_class := "(Sub-) Tropical Forests"]
+prec_masks[grepl("Moist Broadleaf Forests", biome_class) == TRUE, biome_short_class := "(Sub-) Tropical Forests"]
+prec_masks[grepl("Subtropical Coniferous Forests", biome_class) == TRUE, biome_short_class := "(Sub-) Tropical Forests"]
+prec_masks[grepl("Temperate Conifer Forests", biome_class) == TRUE, biome_short_class := "Temperate Forests"]
+prec_masks[grepl("Temperate Broadleaf & Mixed Forests", biome_class) == TRUE, biome_short_class := "Temperate Forests"]
+prec_masks[grepl("Temperate Grasslands", biome_class) == TRUE, biome_short_class := "Temperate Grasslands"]
+prec_masks[grepl("Subtropical Grasslands", biome_class) == TRUE, biome_short_class := "Subtropical Grasslands"]
+prec_masks[grepl("Montane Grasslands", biome_class) == TRUE, biome_short_class := "Montane Grasslands"]
+prec_masks[grepl("Flooded", biome_class) == TRUE, biome_short_class := "Flooded & Mangroves"]
+prec_masks[grepl("Mangroves", biome_class) == TRUE, biome_short_class := "Flooded & Mangroves"]
+prec_masks[grepl("Deserts", biome_class) == TRUE, biome_short_class := "Deserts"]
+prec_masks[grepl("Mediterranean", biome_class) == TRUE, biome_short_class := "Mediterranean"]
+prec_masks[grepl("N/A", biome_class) == TRUE, biome_short_class := NA]
+
+prec_masks <- prec_masks[, c(1:12, 14, 13, 15)]
+
+## Save data
+saveRDS(prec_masks, paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
+
 
 ## Validation
 to_plot <- prec_stats
 p00 <- ggplot() +
-  geom_raster(data = to_plot, aes(x = lon, y = lat, fill = land_class)) +
+  geom_raster(data = to_plot, aes(x = lon, y = lat, fill = elev_class)) +
   borders(colour = "black") +
   coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
                   ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
