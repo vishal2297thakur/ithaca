@@ -1,7 +1,4 @@
 # Plot global map of dataset agreement classses 
-
-install.packages('rnaturalearth')
-
 library(rnaturalearth)
 
 source('source/partition_prec.R')
