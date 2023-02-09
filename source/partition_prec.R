@@ -1,7 +1,7 @@
 source("source/main.R")
 
 # Packages 
-packages <- c('gtools', 'rnaturalearth')
+packages <- c('gtools', 'rnaturalearth', 'kohonen', 'ggthemes', 'scales')
 install.packages(setdiff(packages, rownames(installed.packages())))
 
 # Paths

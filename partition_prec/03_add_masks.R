@@ -134,6 +134,7 @@ prec_masks[grepl("Ice", land_use_class) == TRUE, land_use_short_class := "Snow/I
 prec_masks[grepl("Water", land_use_class) == TRUE, land_use_short_class := "Water"]
 prec_masks[grepl("Wetlands", land_use_class) == TRUE, land_use_short_class := "Water"]
 prec_masks[grepl("Barren", land_use_class) == TRUE, land_use_short_class := "Barren"]
+prec_masks[, land_use_short_class := factor(land_use_short_class)    ]
 
 prec_masks[grepl("Tundra", biome_class) == TRUE, biome_short_class := "Tundra"]
 prec_masks[grepl("Boreal Forests", biome_class) == TRUE, biome_short_class := "Boreal Forests"]
@@ -150,8 +151,15 @@ prec_masks[grepl("Mangroves", biome_class) == TRUE, biome_short_class := "Floode
 prec_masks[grepl("Deserts", biome_class) == TRUE, biome_short_class := "Deserts"]
 prec_masks[grepl("Mediterranean", biome_class) == TRUE, biome_short_class := "Mediterranean"]
 prec_masks[grepl("N/A", biome_class) == TRUE, biome_short_class := NA]
+prec_masks[, biome_short_class := factor(biome_short_class)]
 
-prec_masks <- prec_masks[, c(1:12, 14, 13, 15)]
+prec_mask[KG_class_1 == 'A', KG_class_1_name := 'Tropical']
+prec_mask[KG_class_1 == 'B', KG_class_1_name := 'Dry']
+prec_mask[KG_class_1 == 'C', KG_class_1_name := 'Temperate']
+prec_mask[KG_class_1 == 'D', KG_class_1_name := 'Continental']
+prec_mask[KG_class_1 == 'E', KG_class_1_name := 'Polar']
+
+prec_masks <- prec_masks[, c(1:10, 16, 11:12, 14, 13, 15)]
 
 ## Save data
 saveRDS(prec_masks, paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
