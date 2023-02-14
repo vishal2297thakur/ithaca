@@ -1,6 +1,4 @@
 # Plot global map of dataset agreement classses 
-library(rnaturalearth)
-
 source('source/partition_prec.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
@@ -15,37 +13,65 @@ colnames(prec_grid)[1] <- "value"
 st_crs(prec_grid) <- "+proj=longlat +datum=WGS84 +no_defs"
 world_sf <- ne_countries(returnclass = "sf")
 prec_mask_sf <- prec_mask[, .(lon, lat, rel_dataset_agreement)
-][, value := as.numeric(rel_dataset_agreement)]
+                          ][, value := as.numeric(rel_dataset_agreement)]
 prec_mask_sf <- prec_mask_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
+#Labels
+labs_y <- data.frame(lon = -172, lat = seq(60, -60, -30))
+labs_y$label <- ifelse(labs_y$lat == 0, "°", ifelse(labs_y$lat > 0, "°N", "°S"))
+labs_y$label <- paste0(abs(labs_y$lat), labs_y$label)
+labs_y <- st_as_sf(labs_y, coords = c("lon", "lat"),
+                   crs = "+proj=longlat +datum=WGS84 +no_defs")
+
+
+labs_x <- data.frame(lon = seq(120, -120, -60), lat = -82)
+labs_x$label <- ifelse(labs_x$lon == 0, "°", ifelse(labs_x$lon > 0, "°E", "°W"))
+labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
+labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
+                   crs = "+proj=longlat +datum=WGS84 +no_defs")
+
 # Figures
 ggplot(prec_grid) +
-  geom_sf(data = world_sf, fill = NA) +
+  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(color = "dark red") +
   scale_color_viridis_c(option = "H") +
-  labs(x = "", y = "", color = "No.\nStations") +
+  labs(x = NULL, y = NULL, color = "No.\nStations") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color="black", size = 7) +
+  geom_sf_text(data = labs_x, aes(label = label), color="black", size = 7) +
   theme_bw() +
-  theme(panel.border = element_blank(),
-        axis.ticks.length =unit(0, "cm"))+
-  theme(panel.grid.major = element_line(colour="dark grey"))
+  theme(panel.border = element_rect(colour = "black", linewidth = 2),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour="dark grey"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 24), 
+        legend.text = element_text(size = 20), 
+        legend.title = element_text(size = 24))
 
 ggplot(prec_mask_sf) +
-  geom_sf(data = world_sf, fill = NA) +
+  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = factor(value), fill = factor(value))) +
   scale_fill_manual(values = colset_RdBu_5,
                     labels = levels(prec_mask$rel_dataset_agreement)) +
   scale_color_manual(values = colset_RdBu_5,
                      labels = levels(prec_mask$rel_dataset_agreement),
                      guide = "none") +
-  labs(fill = "Dataset\nAgreement") +
+  labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color="black", size = 7) +
+  geom_sf_text(data = labs_x, aes(label = label), color="black", size = 7) +
   theme_bw() +
-  theme_opts +
-  theme(panel.border = element_blank(),
-        axis.ticks.length =unit(0, "cm"))
+  theme(panel.border = element_rect(colour = "black", linewidth = 2),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour="dark grey"),
+        axis.text = element_blank(),
+        axis.title = element_text(size = 24), 
+        legend.text = element_text(size = 20), 
+        legend.title = element_text(size = 24))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "03_partition_volume_climate.png"), width = 12, height = 15)
