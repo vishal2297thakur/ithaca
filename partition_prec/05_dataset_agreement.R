@@ -1,6 +1,4 @@
-# Plot number of stations per grid cell
-install.packages('rnaturalearth')
-
+# Plot global map of dataset agreement classses 
 library(rnaturalearth)
 
 source('source/partition_prec.R')
@@ -9,6 +7,8 @@ source('source/graphics.R')
 
 # Data
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
+levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average", "Below average", "Low")
+
 prec_grid <- read_stars(paste0(PATH_SAVE_PARTITION_PREC,
                                "prec_station_grid.nc")) %>% st_as_sf()
 colnames(prec_grid)[1] <- "value"
@@ -21,32 +21,31 @@ prec_mask_sf <- prec_mask_sf[, .(lon, lat, value)] %>%
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-#Figure
-
-p00 <- ggplot(prec_grid) +
+# Figures
+ggplot(prec_grid) +
   geom_sf(data = world_sf, fill = NA) +
-  geom_sf(aes(color = value)) +
+  geom_sf(color = "dark red") +
   scale_color_viridis_c(option = "H") +
-  labs(x = "Lon", y = "Lat", color = "No.\nStations") +
+  labs(x = "", y = "", color = "No.\nStations") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
-  #scale_y_continuous(breaks = seq(-60, 60, 30)) +
-  #scale_x_continuous(breaks = seq(-150, 150, 30)) +
   theme_bw() +
-  theme_opts +
   theme(panel.border = element_blank(),
-        axis.ticks.length =unit(0, "cm"))
+        axis.ticks.length =unit(0, "cm"))+
+  theme(panel.grid.major = element_line(colour="dark grey"))
 
-p00 <- ggplot(prec_mask_sf) +
+ggplot(prec_mask_sf) +
   geom_sf(data = world_sf, fill = NA) +
   geom_sf(aes(color = factor(value), fill = factor(value))) +
-  scale_fill_manual(values = colset_mid[8:4],
+  scale_fill_manual(values = colset_RdBu_5,
                     labels = levels(prec_mask$rel_dataset_agreement)) +
-  scale_color_manual(values = colset_mid[8:4],
+  scale_color_manual(values = colset_RdBu_5,
                      labels = levels(prec_mask$rel_dataset_agreement),
                      guide = "none") +
-  labs(x = "Lon", y = "Lat", fill = "Dataset\nAgreement") +
+  labs(fill = "Dataset\nAgreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   theme_bw() +
   theme_opts +
   theme(panel.border = element_blank(),
         axis.ticks.length =unit(0, "cm"))
+
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "03_partition_volume_climate.png"), width = 12, height = 15)
