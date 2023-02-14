@@ -15,7 +15,7 @@ prec_grid <- read_stars(paste0(PATH_SAVE_PARTITION_PREC,
                                "prec_station_grid.nc")) %>% st_as_sf()
 colnames(prec_grid)[1] <- "value"
 st_crs(prec_grid) <- "+proj=longlat +datum=WGS84 +no_defs"
-world_sf <- ne_countries(returnclass = "sf")
+
 prec_mask_sf <- prec_mask[, .(lon, lat, rel_dataset_agreement)
 ][, value := as.numeric(rel_dataset_agreement)]
 prec_mask_sf <- prec_mask_sf[, .(lon, lat, value)] %>% 
@@ -23,8 +23,10 @@ prec_mask_sf <- prec_mask_sf[, .(lon, lat, value)] %>%
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
+#World and Land borders
 earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "earth_box.rds")) %>%
   st_as_sf(crs = "+proj=longlat +datum=WGS84 +no_defs")
+world_sf <- ne_countries(returnclass = "sf")
 
 #Labels
 labs_y <- data.frame(lon = -172, lat = seq(60, -60, -30))
