@@ -1,10 +1,10 @@
 # Partition precipitation to different regional properties and quantify their uncertainty
-library(ggthemes)
-library(scales)
-
 source('source/partition_prec.R')
 source('source/graphics.R')
 source('source/geo_functions.R')
+
+library(ggthemes)
+library(scales)
 
 ## Data 
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
@@ -153,7 +153,7 @@ fig_biome_partition_fraction <- ggplot(dataset_agreement_biome) +
 ### Figure 1
 gg_fig_1 <- ggarrange(fig_land_use_partition_prec_volume, fig_biome_partition_prec_volume, 
                       fig_elevation_partition_prec_volume, fig_prec_partition_prec_volume, 
-                    labels = c('a', 'b', 'c', 'd'),
+                    labels = c('a', 'b', 'c', 'd'), align = 'hv',
                     common.legend = T, legend = 'right', 
                     nrow = 2, ncol = 2)
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "01_partition_volume_climate.png"), width = 10, height = 10)
