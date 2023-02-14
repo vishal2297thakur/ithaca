@@ -9,7 +9,7 @@ library(rnaturalearth)
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average", "Below average", "Low")
 
-prec_grid <- read_stars(paste0(PATH_SAVE_PARTITION_PREC,
+prec_grid <- read_stars(paste0(PATH_SAVE_PARTITION_PREC_SPATIAL,
                                "prec_station_grid.nc")) %>% st_as_sf()
 colnames(prec_grid)[1] <- "value"
 st_crs(prec_grid) <- "+proj=longlat +datum=WGS84 +no_defs"
@@ -22,7 +22,7 @@ prec_mask_sf <- prec_mask_sf[, .(lon, lat, value)] %>%
   st_as_stars() %>% st_as_sf()
 
 #World and Land borders
-earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "earth_box.rds")) %>%
+earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_PREC_SPATIAL, "earth_box.rds")) %>%
   st_as_sf(crs = "+proj=longlat +datum=WGS84 +no_defs")
 world_sf <- ne_countries(returnclass = "sf")
 
