@@ -41,7 +41,7 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
 # Figures
-ggplot(prec_grid) +
+fig_stations <- ggplot(prec_grid) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(color = "dark red") +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
@@ -61,7 +61,7 @@ ggplot(prec_grid) +
         legend.text = element_text(size = 20), 
         legend.title = element_text(size = 24))
 
-ggplot(prec_mask_sf) +
+fig_dataset_agreement <- ggplot(prec_mask_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = factor(value), fill = factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
@@ -85,4 +85,9 @@ ggplot(prec_mask_sf) +
         legend.text = element_text(size = 20), 
         legend.title = element_text(size = 24))
 
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "03_partition_volume_climate.png"), width = 12, height = 5)
+gg_fig <- ggarrange(fig_dataset_agreement, fig_stations,
+                      labels = c('a', 'b'), align = 'hv',
+                      common.legend = TRUE, legend = 'right', 
+                      nrow = 2, ncol = 1) + 
+  bgcolor("white")     
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "SI_dataset_agreement_maps.png"), width = 12, height = 10)
