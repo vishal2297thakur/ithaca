@@ -92,7 +92,6 @@ shape_mask_df$elev_class <- factor(shape_mask_df$elev_class,
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 
 ### Land use
-
 fname <- list.files(path = PATH_MASKS_LAND_USE, full.names = TRUE, pattern = "mask_landcover_modis_025.nc")
 shape_mask <- raster(paste0(fname[1]))
 shape_mask <- ratify(shape_mask)
@@ -108,7 +107,6 @@ shape_mask_df$land_class <- factor(shape_mask_df$land_class)
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 
 ### Biomes
-
 fname_shape <- list.files(path = PATH_MASKS_BIOME, full.names = TRUE, pattern = "mask_biomes_dinerstein.shp")
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
