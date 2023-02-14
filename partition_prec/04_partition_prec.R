@@ -32,6 +32,7 @@ dataset_partition_KG[(dataset == 'cmorph' |                       #Remove as the
                         dataset == 'persiann' | 
                         dataset == 'chirps') & 
                        (KG_class_1_name == 'Polar' | KG_class_1_name == 'Continental'), prec_sum := NA]
+#### Mean
 partition_KG_global <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
                                      fun = mean, na.rm = TRUE)
 colnames(partition_KG_global)[1] <- "Source"
@@ -40,9 +41,24 @@ partition_KG_dataset_types <- dcast(dataset_partition_KG, dataset_type ~ KG_clas
 colnames(partition_KG_dataset_types)[1] <- "Source"
 partition_KG <- rbind(partition_KG_global, partition_KG_dataset_types)
 partition_KG$Sum <- apply(partition_KG[, 2:6], 1, sum)
-partition_KG[, Source := c("Global", "Ground Stations", " Reanalysis", "Remote Sensing")]
+partition_KG[, Source := c("Global", "Ground Stations", "Reanalysis", "Remote Sensing")]
 
 partition_KG_datasets <- dcast(dataset_partition_KG, dataset ~ KG_class_1_name, fun = mean, na.rm = TRUE)
+partition_KG_datasets <- merge(prec_datasets[, .(dataset = unique(dataset)), dataset_type], partition_KG_datasets, by = 'dataset')
+colnames(partition_KG_datasets)[1] <- c("Dataset")
+partition_KG_datasets[, Sum := rowSums(.SD), .SDcols = 3:7]
+
+#### St. Dev
+partition_KG_global_sd <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
+                                     fun = sd, na.rm = TRUE)
+colnames(partition_KG_global_sd)[1] <- "Source"
+partition_KG_dataset_types_sd <- dcast(dataset_partition_KG, dataset_type ~ KG_class_1_name, 
+                                           fun = sd, na.rm = TRUE)
+colnames(partition_KG_dataset_types_sd)[1] <- "Source"
+partition_KG_sd <- rbind(partition_KG_global_sd, partition_KG_dataset_types_sd)
+partition_KG_sd[, Source := c("Global", "Ground Stations", "Reanalysis", "Remote Sensing")]
+partition_KG_sd$Sum <- partition_KG_datasets[, sd(Sum, na.rm = TRUE)]
+partition_KG_sd$Sum[2:4] <- partition_KG_datasets[, sd(Sum, na.rm = TRUE), dataset_type]$V1[c(2, 3, 1)]
 
 ### Land use
 dataset_agreement_land_use <- land_use_class[, .N, .(rel_dataset_agreement, land_use_short_class)]
@@ -91,7 +107,8 @@ dataset_agreement_prec_prec <- dataset_agreement_prec_prec[order(KG_class_1_name
 
 ## Save data
 write.csv(partition_KG, paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG.csv"))
-write.csv(partition_KG_datasets, paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_datasets.csv"))
+write.csv(partition_KG_sd, paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_sd.csv"))
+write.csv(partition_KG_datasets[, -2], paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_datasets.csv"))
 
 ## Figures Main
 ### Land Use
