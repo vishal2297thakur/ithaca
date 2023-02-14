@@ -5,6 +5,8 @@ source('source/partition_prec.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
+library(rnaturalearth)
+
 # Data
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average", "Below average", "Low")
@@ -21,10 +23,28 @@ prec_mask_sf <- prec_mask_sf[, .(lon, lat, value)] %>%
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
+earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "earth_box.rds")) %>%
+  st_as_sf(crs = "+proj=longlat +datum=WGS84 +no_defs")
+
+#Labels
+labs_y <- data.frame(lon = -172, lat = seq(60, -60, -30))
+labs_y$label <- ifelse(labs_y$lat == 0, "°", ifelse(labs_y$lat > 0, "°N", "°S"))
+labs_y$label <- paste0(abs(labs_y$lat), labs_y$label)
+labs_y <- st_as_sf(labs_y, coords = c("lon", "lat"),
+                   crs = "+proj=longlat +datum=WGS84 +no_defs")
+
+
+labs_x <- data.frame(lon = seq(120, -120, -60), lat = -82)
+labs_x$label <- ifelse(labs_x$lon == 0, "°", ifelse(labs_x$lon > 0, "°E", "°W"))
+labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
+labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
+                   crs = "+proj=longlat +datum=WGS84 +no_defs")
+
 # Figures
 ggplot(prec_grid) +
   geom_sf(data = world_sf, fill = NA) +
   geom_sf(color = "dark red") +
+  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
   scale_color_viridis_c(option = "H") +
   labs(x = "", y = "", color = "No.\nStations") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -32,10 +52,19 @@ ggplot(prec_grid) +
   theme(panel.border = element_blank(),
         axis.ticks.length =unit(0, "cm"))+
   theme(panel.grid.major = element_line(colour="dark grey"))
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour="gray30"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 24), 
+        legend.text = element_text(size = 20), 
+        legend.title = element_text(size = 24))
 
 ggplot(prec_mask_sf) +
   geom_sf(data = world_sf, fill = NA) +
   geom_sf(aes(color = factor(value), fill = factor(value))) +
+  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
   scale_fill_manual(values = colset_RdBu_5,
                     labels = levels(prec_mask$rel_dataset_agreement)) +
   scale_color_manual(values = colset_RdBu_5,
@@ -47,5 +76,13 @@ ggplot(prec_mask_sf) +
   theme_opts +
   theme(panel.border = element_blank(),
         axis.ticks.length =unit(0, "cm"))
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour="gray30"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 24), 
+        legend.text = element_text(size = 20), 
+        legend.title = element_text(size = 24))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "03_partition_volume_climate.png"), width = 12, height = 15)
