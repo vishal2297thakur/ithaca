@@ -1,4 +1,4 @@
-# Plot global map of dataset agreement classses 
+# Plot global map of dataset agreement classes 
 library(rnaturalearth)
 
 source('source/partition_prec.R')
@@ -51,7 +51,7 @@ ggplot(prec_grid) +
   theme_bw() +
   theme(panel.border = element_blank(),
         axis.ticks.length =unit(0, "cm"))+
-  theme(panel.grid.major = element_line(colour="dark grey"))
+  theme(panel.grid.major = element_line(colour="dark grey")) +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
         panel.border = element_blank(),
         axis.ticks.length = unit(0, "cm"),
@@ -75,7 +75,7 @@ ggplot(prec_mask_sf) +
   theme_bw() +
   theme_opts +
   theme(panel.border = element_blank(),
-        axis.ticks.length =unit(0, "cm"))
+        axis.ticks.length =unit(0, "cm")) +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
         panel.border = element_blank(),
         axis.ticks.length = unit(0, "cm"),
