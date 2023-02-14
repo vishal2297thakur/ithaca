@@ -47,6 +47,7 @@ partition_KG_datasets <- dcast(dataset_partition_KG, dataset ~ KG_class_1_name, 
 partition_KG_datasets <- merge(prec_datasets[, .(dataset = unique(dataset)), dataset_type], partition_KG_datasets, by = 'dataset')
 colnames(partition_KG_datasets)[1] <- c("Dataset")
 partition_KG_datasets[, Sum := rowSums(.SD), .SDcols = 3:7]
+partition_KG <- cbind(partition_KG[, 1], apply(partition_KG[, 2:7], 2, round, 0))
 
 #### St. Dev
 partition_KG_global_sd <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
@@ -59,6 +60,7 @@ partition_KG_sd <- rbind(partition_KG_global_sd, partition_KG_dataset_types_sd)
 partition_KG_sd[, Source := c("Global", "Ground Stations", "Reanalysis", "Remote Sensing")]
 partition_KG_sd$Sum <- partition_KG_datasets[, sd(Sum, na.rm = TRUE)]
 partition_KG_sd$Sum[2:4] <- partition_KG_datasets[, sd(Sum, na.rm = TRUE), dataset_type]$V1[c(2, 3, 1)]
+partition_KG_sd <- cbind(partition_KG_sd[, 1], apply(partition_KG_sd[, 2:7], 2, round, 0))
 
 ### Land use
 dataset_agreement_land_use <- land_use_class[, .N, .(rel_dataset_agreement, land_use_short_class)]
