@@ -1,6 +1,4 @@
-# Plot global map of dataset agreement classes 
-library(rnaturalearth)
-
+# Plot global map of dataset agreement classses 
 source('source/partition_prec.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
@@ -44,16 +42,16 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
 
 # Figures
 ggplot(prec_grid) +
-  geom_sf(data = world_sf, fill = NA) +
+  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(color = "dark red") +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
   scale_color_viridis_c(option = "H") +
-  labs(x = "", y = "", color = "No.\nStations") +
+  labs(x = NULL, y = NULL, color = "No.\nStations") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color="black", size = 7) +
+  geom_sf_text(data = labs_x, aes(label = label), color="black", size = 7) +
   theme_bw() +
-  theme(panel.border = element_blank(),
-        axis.ticks.length =unit(0, "cm"))+
-  theme(panel.grid.major = element_line(colour="dark grey")) +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
         panel.border = element_blank(),
         axis.ticks.length = unit(0, "cm"),
@@ -64,7 +62,7 @@ ggplot(prec_grid) +
         legend.title = element_text(size = 24))
 
 ggplot(prec_mask_sf) +
-  geom_sf(data = world_sf, fill = NA) +
+  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = factor(value), fill = factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
   scale_fill_manual(values = colset_RdBu_5,
@@ -72,12 +70,12 @@ ggplot(prec_mask_sf) +
   scale_color_manual(values = colset_RdBu_5,
                      labels = levels(prec_mask$rel_dataset_agreement),
                      guide = "none") +
-  labs(fill = "Dataset\nAgreement") +
+  labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color="black", size = 7) +
+  geom_sf_text(data = labs_x, aes(label = label), color="black", size = 7) +
   theme_bw() +
-  theme_opts +
-  theme(panel.border = element_blank(),
-        axis.ticks.length =unit(0, "cm")) +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
         panel.border = element_blank(),
         axis.ticks.length = unit(0, "cm"),
@@ -87,4 +85,4 @@ ggplot(prec_mask_sf) +
         legend.text = element_text(size = 20), 
         legend.title = element_text(size = 24))
 
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "03_partition_volume_climate.png"), width = 12, height = 15)
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "03_partition_volume_climate.png"), width = 12, height = 5)
