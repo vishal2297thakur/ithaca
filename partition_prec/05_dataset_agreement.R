@@ -7,22 +7,24 @@ library(rnaturalearth)
 
 # Data
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
-levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average", "Below average", "Low")
+levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
+                                             "Below average", "Low")
 
-prec_grid <- read_stars(paste0(PATH_SAVE_PARTITION_PREC,
+prec_grid <- read_stars(paste0(PATH_SAVE_PARTITION_PREC_SPATIAL,
                                "prec_station_grid.nc")) %>% st_as_sf()
 colnames(prec_grid)[1] <- "value"
 st_crs(prec_grid) <- "+proj=longlat +datum=WGS84 +no_defs"
 
 prec_mask_sf <- prec_mask[, .(lon, lat, rel_dataset_agreement)
-][, value := as.numeric(rel_dataset_agreement)]
+                          ][, value := as.numeric(rel_dataset_agreement)]
 prec_mask_sf <- prec_mask_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
 #World and Land borders
-earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "earth_box.rds")) %>%
+earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_PREC_SPATIAL,
+                            "earth_box.rds")) %>%
   st_as_sf(crs = "+proj=longlat +datum=WGS84 +no_defs")
 world_sf <- ne_countries(returnclass = "sf")
 
@@ -32,7 +34,6 @@ labs_y$label <- ifelse(labs_y$lat == 0, "°", ifelse(labs_y$lat > 0, "°N", "°S
 labs_y$label <- paste0(abs(labs_y$lat), labs_y$label)
 labs_y <- st_as_sf(labs_y, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
-
 
 labs_x <- data.frame(lon = seq(120, -120, -60), lat = -82)
 labs_x$label <- ifelse(labs_x$lon == 0, "°", ifelse(labs_x$lon > 0, "°E", "°W"))
@@ -88,6 +89,8 @@ fig_dataset_agreement <- ggplot(prec_mask_sf) +
 gg_fig <- ggarrange(fig_dataset_agreement, fig_stations,
                       labels = c('a', 'b'), align = 'hv',
                       common.legend = TRUE, legend = 'right', 
-                      nrow = 2, ncol = 1) + 
+                      nrow = 2, ncol = 1) +
   bgcolor("white")     
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "SI_dataset_agreement_maps.png"), width = 12, height = 10)
+
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
+              "SI_dataset_agreement_maps.png"), width = 12, height = 10)
