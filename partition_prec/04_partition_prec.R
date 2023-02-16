@@ -146,8 +146,10 @@ fig_biome_partition_prec_volume <- ggplot(biome_prec) +
   theme_light() + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 
-levels(biome_agreement$biome_short_class) <- c("S/T Forests", "B. Forests", "Deserts", "Flooded", "Mediterranean",
-                                         "M. Grasslands", "S/T Grasslands", "T. Forests", "T. Grasslands", "Tundra", NA)
+biome_agreement$biome_short_class <- factor(biome_agreement$biome_short_class, 
+                                                  levels = c("T/S Forests", "T/S Grasslands", "T. Forests", 
+                                                             "B. Forests", "T. Grasslands", "Deserts", "Tundra", 
+                                                             "Flooded", "M. Grasslands", "Mediterranean", NA))
 fig_biome_partition_fraction <- ggplot(biome_agreement) +
   geom_bar(aes(x = biome_short_class, y = biome_fraction, fill = rel_dataset_agreement), stat = "identity") +
   xlab('Biome class')  +
