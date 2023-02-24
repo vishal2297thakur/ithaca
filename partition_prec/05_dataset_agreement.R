@@ -52,19 +52,19 @@ fig_stations <- ggplot(prec_grid) +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   theme_bw() +
-  geom_sf_text(data = labs_y, aes(label = label), color="gray40", size = 4) +
-  geom_sf_text(data = labs_x, aes(label = label), color="gray40", size = 4) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray40", size = 4) +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
         panel.border = element_blank(),
         axis.ticks.length = unit(0, "cm"),
-        panel.grid.major = element_line(colour="gray60"),
+        panel.grid.major = element_line(colour = "gray60"),
         axis.text = element_blank(), 
         axis.title = element_text(size = 24), 
         legend.text = element_text(size = 20), 
         legend.title = element_text(size = 24))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "SI_station_map.png"), width = 12, height = 8)
+              "supplement/station_map.png"), width = 12, height = 8)
 
 fig_dataset_agreement <- ggplot(prec_mask_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
@@ -78,17 +78,17 @@ fig_dataset_agreement <- ggplot(prec_mask_sf) +
   labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
-  geom_sf_text(data = labs_y, aes(label = label), color="gray40", size = 4) +
-  geom_sf_text(data = labs_x, aes(label = label), color="gray40", size = 4) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray40", size = 4) +
   theme_bw() +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
         panel.border = element_blank(),
         axis.ticks.length = unit(0, "cm"),
-        panel.grid.major = element_line(colour="gray60"),
+        panel.grid.major = element_line(colour = "gray60"),
         axis.text = element_blank(), 
         axis.title = element_text(size = 16), 
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "SI_dataset_agreement_map.png"), width = 12, height = 8)
+              "dataset_agreement_map.png"), width = 12, height = 8)
