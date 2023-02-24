@@ -16,7 +16,7 @@ colnames(prec_grid)[1] <- "value"
 st_crs(prec_grid) <- "+proj=longlat +datum=WGS84 +no_defs"
 
 prec_mask_sf <- prec_mask[, .(lon, lat, rel_dataset_agreement)
-                          ][, value := as.numeric(rel_dataset_agreement)]
+][, value := as.numeric(rel_dataset_agreement)]
 prec_mask_sf <- prec_mask_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
@@ -87,9 +87,9 @@ fig_dataset_agreement <- ggplot(prec_mask_sf) +
         legend.title = element_text(size = 24))
 
 gg_fig <- ggarrange(fig_dataset_agreement, fig_stations,
-                      labels = c('a', 'b'), align = 'hv',
-                      common.legend = TRUE, legend = 'right', 
-                      nrow = 2, ncol = 1) +
+                    labels = c('a', 'b'), align = 'hv',
+                    common.legend = TRUE, legend = 'right', 
+                    nrow = 2, ncol = 1) +
   bgcolor("white")     
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
