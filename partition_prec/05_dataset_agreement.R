@@ -29,9 +29,10 @@ earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_PREC_SPATIAL,
 world_sf <- ne_countries(returnclass = "sf")
 
 #Labels
-labs_y <- data.frame(lon = -172, lat = seq(60, -60, -30))
-labs_y$label <- ifelse(labs_y$lat == 0, "°", ifelse(labs_y$lat > 0, "°N", "°S"))
-labs_y$label <- paste0(abs(labs_y$lat), labs_y$label)
+labs_y <- data.frame(lon = -170, lat = c(55, 25, -5, -35, -65))
+labs_y_labels <- seq(120, -120, -60)
+labs_y$label <- ifelse(labs_y_labels == 0, "°", ifelse(labs_y_labels > 0, "°N", "°S"))
+labs_y$label <- paste0(abs(labs_y_labels), labs_y$label)
 labs_y <- st_as_sf(labs_y, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
@@ -47,16 +48,16 @@ fig_stations <- ggplot(prec_grid) +
   geom_sf(color = "dark red") +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
   scale_color_viridis_c(option = "H") +
-  labs(x = NULL, y = NULL, color = "No.\nStations") +
+  labs(x = NULL, y = NULL) +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
-  geom_sf_text(data = labs_y, aes(label = label), color="black", size = 7) +
-  geom_sf_text(data = labs_x, aes(label = label), color="black", size = 7) +
   theme_bw() +
+  geom_sf_text(data = labs_y, aes(label = label), color="gray40", size = 6) +
+  geom_sf_text(data = labs_x, aes(label = label), color="gray40", size = 6) +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
         panel.border = element_blank(),
         axis.ticks.length = unit(0, "cm"),
-        panel.grid.major = element_line(colour="gray30"),
+        panel.grid.major = element_line(colour="gray60"),
         axis.text = element_blank(), 
         axis.title = element_text(size = 24), 
         legend.text = element_text(size = 20), 
@@ -74,8 +75,8 @@ fig_dataset_agreement <- ggplot(prec_mask_sf) +
   labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
-  geom_sf_text(data = labs_y, aes(label = label), color="black", size = 7) +
-  geom_sf_text(data = labs_x, aes(label = label), color="black", size = 7) +
+  geom_sf_text(data = labs_y, aes(label = label), color="gray40", size = 6) +
+  geom_sf_text(data = labs_x, aes(label = label), color="gray40", size = 6) +
   theme_bw() +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
         panel.border = element_blank(),
