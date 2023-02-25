@@ -92,7 +92,6 @@ shape_mask_df$elev_class <- factor(shape_mask_df$elev_class,
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 
 ### Land use
-
 fname <- list.files(path = PATH_MASKS_LAND_USE, full.names = TRUE, pattern = "mask_landcover_modis_025.nc")
 shape_mask <- raster(paste0(fname[1]))
 shape_mask <- ratify(shape_mask)
@@ -108,7 +107,6 @@ shape_mask_df$land_class <- factor(shape_mask_df$land_class)
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 
 ### Biomes
-
 fname_shape <- list.files(path = PATH_MASKS_BIOME, full.names = TRUE, pattern = "mask_biomes_dinerstein.shp")
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
@@ -139,17 +137,17 @@ prec_masks[grepl("Barren", land_use_class) == TRUE, land_use_short_class := "Bar
 prec_masks[, land_use_short_class := factor(land_use_short_class)    ]
 
 prec_masks[grepl("Tundra", biome_class) == TRUE, biome_short_class := "Tundra"]
-prec_masks[grepl("Boreal Forests", biome_class) == TRUE, biome_short_class := "Boreal Forests"]
-prec_masks[grepl("Dry Broadleaf Forests", biome_class) == TRUE, biome_short_class := "(Sub-) Tropical Forests"]
-prec_masks[grepl("Moist Broadleaf Forests", biome_class) == TRUE, biome_short_class := "(Sub-) Tropical Forests"]
-prec_masks[grepl("Subtropical Coniferous Forests", biome_class) == TRUE, biome_short_class := "(Sub-) Tropical Forests"]
-prec_masks[grepl("Temperate Conifer Forests", biome_class) == TRUE, biome_short_class := "Temperate Forests"]
-prec_masks[grepl("Temperate Broadleaf & Mixed Forests", biome_class) == TRUE, biome_short_class := "Temperate Forests"]
-prec_masks[grepl("Temperate Grasslands", biome_class) == TRUE, biome_short_class := "Temperate Grasslands"]
-prec_masks[grepl("Subtropical Grasslands", biome_class) == TRUE, biome_short_class := "(Sub-) Tropical Grasslands"]
-prec_masks[grepl("Montane Grasslands", biome_class) == TRUE, biome_short_class := "Montane Grasslands"]
-prec_masks[grepl("Flooded", biome_class) == TRUE, biome_short_class := "Flooded & Mangroves"]
-prec_masks[grepl("Mangroves", biome_class) == TRUE, biome_short_class := "Flooded & Mangroves"]
+prec_masks[grepl("Boreal Forests", biome_class) == TRUE, biome_short_class := "B. Forests"]
+prec_masks[grepl("Dry Broadleaf Forests", biome_class) == TRUE, biome_short_class := "T/S Forests"]
+prec_masks[grepl("Moist Broadleaf Forests", biome_class) == TRUE, biome_short_class := "T/S Forests"]
+prec_masks[grepl("Subtropical Coniferous Forests", biome_class) == TRUE, biome_short_class := "T/S Forests"]
+prec_masks[grepl("Temperate Conifer Forests", biome_class) == TRUE, biome_short_class := "T. Forests"]
+prec_masks[grepl("Temperate Broadleaf & Mixed Forests", biome_class) == TRUE, biome_short_class := "T. Forests"]
+prec_masks[grepl("Temperate Grasslands", biome_class) == TRUE, biome_short_class := "T. Grasslands"]
+prec_masks[grepl("Subtropical Grasslands", biome_class) == TRUE, biome_short_class := "T/S Grasslands"]
+prec_masks[grepl("Montane Grasslands", biome_class) == TRUE, biome_short_class := "M. Grasslands"]
+prec_masks[grepl("Flooded", biome_class) == TRUE, biome_short_class := "Flooded"]
+prec_masks[grepl("Mangroves", biome_class) == TRUE, biome_short_class := "Flooded"]
 prec_masks[grepl("Deserts", biome_class) == TRUE, biome_short_class := "Deserts"]
 prec_masks[grepl("Mediterranean", biome_class) == TRUE, biome_short_class := "Mediterranean"]
 prec_masks[grepl("N/A", biome_class) == TRUE, biome_short_class := NA]
