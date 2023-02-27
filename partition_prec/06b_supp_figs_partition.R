@@ -21,7 +21,7 @@ land_use_short_class_prec <- land_use_short_class_prec[, .(prec_median = median(
                                                        .(land_use_short_class, rel_dataset_agreement)]
 
 land_use_agreement_cum <- land_use_agreement[, .(cumsum_land_use = cumsum(prec_sum), 
-                                 rel_dataset_agreement), .(land_use_short_class)]
+                                                 rel_dataset_agreement), .(land_use_short_class)]
 land_use_agreement_cum[, fraction_bias := cumsum_land_use  / sum(cumsum_land_use), rel_dataset_agreement]
 land_use_agreement_cum <- land_use_agreement_cum[complete.cases(land_use_agreement_cum)]
 
@@ -29,12 +29,12 @@ land_use_agreement_cum <- land_use_agreement_cum[complete.cases(land_use_agreeme
 biome_short_class_prec <- prec_mask[, .(lon, lat, prec_mean, biome_short_class, rel_dataset_agreement)]
 biome_short_class_prec <- biome_short_class_prec[complete.cases(biome_short_class_prec)]
 biome_short_class_prec <- biome_short_class_prec[, .(prec_median = median(prec_mean), 
-                                                           prec_q25 = quantile(prec_mean, 0.25),
-                                                           prec_q75 = quantile(prec_mean, 0.75)), 
-                                                       .(biome_short_class, rel_dataset_agreement)]
+                                                     prec_q25 = quantile(prec_mean, 0.25),
+                                                     prec_q75 = quantile(prec_mean, 0.75)), 
+                                                 .(biome_short_class, rel_dataset_agreement)]
 
 biome_agreement_cum <- biome_agreement[, .(cumsum_biome = cumsum(prec_sum), 
-                                                 rel_dataset_agreement), .(biome_short_class)]
+                                           rel_dataset_agreement), .(biome_short_class)]
 biome_agreement_cum[, fraction_bias := cumsum_biome  / sum(cumsum_biome), rel_dataset_agreement]
 biome_agreement_cum <- biome_agreement_cum[complete.cases(biome_agreement_cum)]
 
@@ -42,12 +42,12 @@ biome_agreement_cum <- biome_agreement_cum[complete.cases(biome_agreement_cum)]
 elev_class_prec <- prec_mask[, .(lon, lat, prec_mean, elev_class, rel_dataset_agreement)]
 elev_class_prec <- elev_class_prec[complete.cases(elev_class_prec)]
 elev_class_prec <- elev_class_prec[, .(prec_median = median(prec_mean), 
-                                                     prec_q25 = quantile(prec_mean, 0.25),
-                                                     prec_q75 = quantile(prec_mean, 0.75)), 
-                                                 .(elev_class, rel_dataset_agreement)]
+                                       prec_q25 = quantile(prec_mean, 0.25),
+                                       prec_q75 = quantile(prec_mean, 0.75)), 
+                                   .(elev_class, rel_dataset_agreement)]
 
 elev_agreement_cum <- elevation_agreement[, .(cumsum_elev = cumsum(prec_sum), 
-                                           rel_dataset_agreement), .(elev_class)]
+                                              rel_dataset_agreement), .(elev_class)]
 elev_agreement_cum[, fraction_bias := cumsum_elev  / sum(cumsum_elev), rel_dataset_agreement]
 elev_agreement_cum <- elev_agreement_cum[complete.cases(elev_agreement_cum)]
 
@@ -55,12 +55,12 @@ elev_agreement_cum <- elev_agreement_cum[complete.cases(elev_agreement_cum)]
 prec_quant_class_prec <- prec_mask[, .(lon, lat, prec_mean, prec_quant, rel_dataset_agreement)]
 prec_quant_class_prec <- prec_quant_class_prec[complete.cases(prec_quant_class_prec)]
 prec_quant_class_prec <- prec_quant_class_prec[, .(prec_median = median(prec_mean), 
-                                       prec_q25 = quantile(prec_mean, 0.25),
-                                       prec_q75 = quantile(prec_mean, 0.75)), 
-                                   .(prec_quant, rel_dataset_agreement)]
+                                                   prec_q25 = quantile(prec_mean, 0.25),
+                                                   prec_q75 = quantile(prec_mean, 0.75)), 
+                                               .(prec_quant, rel_dataset_agreement)]
 
 prec_agreement_cum <- prec_quant_agreement[, .(cumsum_prec = cumsum(prec_sum), 
-                                              rel_dataset_agreement), .(prec_quant)]
+                                               rel_dataset_agreement), .(prec_quant)]
 prec_agreement_cum[, fraction_bias := cumsum_prec  / sum(cumsum_prec), rel_dataset_agreement]
 prec_agreement_cum <- prec_agreement_cum[complete.cases(prec_agreement_cum)]
 
