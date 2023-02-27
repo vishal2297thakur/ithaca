@@ -40,21 +40,22 @@ prec_mean_datasets <- prec_mean_datasets[n_datasets >= MIN_N_DATASETS]
 prec_mean_datasets[dataset %in% PREC_DATASETS_OBS, dataset_type := 'ground stations']
 prec_mean_datasets[dataset %in% PREC_DATASETS_REANAL, dataset_type := 'reanalysis']
 prec_mean_datasets[dataset %in% PREC_DATASETS_REMOTE, dataset_type := 'remote sensing']
+prec_mean_datasets[, prec_mean := round(prec_mean, 2)]
 
 ### Ensemble statistics
-prec_ens_stats <- prec_mean_datasets[, .(ens_mean_mean = round(mean(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
+prec_ens_stats <- prec_mean_datasets[, .(ens_mean_mean = round(mean(prec_mean, na.rm = TRUE), 2)), .(lat, lon)]
 prec_mean_datasets[, n_datasets := NULL]
 
 #dummy <- prec_mean_datasets[, .(ens_mean_sd = round(sd(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
 #prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
 
-dummy <- prec_mean_datasets[, .(ens_mean_median = round(median(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
+dummy <- prec_mean_datasets[, .(ens_mean_median = round(median(prec_mean, na.rm = TRUE), 2)), .(lat, lon)]
 prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
-dummy <- prec_mean_datasets[, .(ens_mean_sd = round(sd(prec_mean, na.rm = TRUE), 0)), .(lat, lon)]
+dummy <- prec_mean_datasets[, .(ens_mean_sd = round(sd(prec_mean, na.rm = TRUE), 2)), .(lat, lon)]
 prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
-dummy <- prec_mean_datasets[, .(ens_mean_q25 = round(estimate_q25(prec_mean), 0)), .(lat, lon)]
+dummy <- prec_mean_datasets[, .(ens_mean_q25 = round(estimate_q25(prec_mean), 2)), .(lat, lon)]
 prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
-dummy <- prec_mean_datasets[, .(ens_mean_q75 = round(estimate_q75(prec_mean), 0)), .(lat, lon)]
+dummy <- prec_mean_datasets[, .(ens_mean_q75 = round(estimate_q75(prec_mean), 2)), .(lat, lon)]
 prec_ens_stats <- merge(prec_ens_stats, dummy, by = c('lon', 'lat'))
 
 #### Bias measures
