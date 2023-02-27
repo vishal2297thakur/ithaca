@@ -83,7 +83,7 @@ fig_land_use_short_class <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "land_use_short_map.png"), width = 12, height = 8)
+              "supplement\land_cover_map.png"), width = 12, height = 8)
 
 
 #biome
@@ -143,7 +143,7 @@ fig_biome_short_class <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "biome_short_map.png"), width = 12, height = 8)
+              "supplement\biome_map.png"), width = 12, height = 8)
 
 #elavation
 levels(prec_mask$elev_class) <- c("0-100", "100-400", "400-800", "800-1500", "1500-3000", "3000+")
@@ -192,7 +192,7 @@ fig_elev_class <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "elev_map.png"), width = 12, height = 8)
+              "supplement\elev_map.png"), width = 12, height = 8)
 
 
 #prec_quantile
@@ -249,4 +249,4 @@ fig_prec_quant_class <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "prec_quant_map.png"), width = 12, height = 8)
+              "supplement\prec_quant_map.png"), width = 12, height = 8)
