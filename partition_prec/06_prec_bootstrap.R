@@ -8,13 +8,12 @@ prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_grid.rds"))
 prec_mask <- merge(prec_mask, prec_grid, by = c("lon", "lat"))
 
 ## Variables
-sample_high_agreement <- prec_mask[rel_dataset_agreement == 'High' | rel_dataset_agreement == 'Above average', .(prec_volume_year, KG_class_3, elev_class, land_use_class, biome_class)] #Biome class is not
+sample_high_agreement <- prec_mask[rel_dataset_agreement == 'high' | rel_dataset_agreement == 'above average', .(prec_volume_year, KG_class_3, elev_class, land_use_class, biome_class)] #Biome class is not
 sample_summary <- sample_high_agreement[, .(n_size = .N), .(KG_class_3, elev_class, land_use_class, biome_class)]
 sample_summary[, range(n_size)]
 prec_mask <- prec_mask[complete.cases(prec_mask)]
 n_grid_cells <- nrow(prec_mask)
 
-prec_mean_sampled_mc <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, 'bootstrap_temp.rds'))
 ## Analysis
 registerDoParallel(cores = N_CORES - 1)
 prec_mean_sampled <- foreach(grid_cell_count = 1:n_grid_cells, .combine = rbind, .verbose = T) %dopar% {

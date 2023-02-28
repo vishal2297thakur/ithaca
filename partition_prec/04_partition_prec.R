@@ -205,7 +205,7 @@ gg_fig_1 <- ggarrange(fig_land_use_partition_prec_volume, fig_biome_partition_pr
                     labels = c('a', 'b', 'c', 'd'), align = 'hv',
                     common.legend = T, legend = 'right', 
                     nrow = 2, ncol = 2)
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "01_partition_volume_climate.png"), width = 10, height = 10)
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "partition_volume_climate.png"), width = 10, height = 10)
 
 ### Figure 2
 gg_fig_2 <- ggarrange(fig_land_use_partition_fraction,fig_biome_partition_fraction,
@@ -213,5 +213,5 @@ gg_fig_2 <- ggarrange(fig_land_use_partition_fraction,fig_biome_partition_fracti
                     labels = c('a', 'b', 'c', 'd'), align = 'hv',
                     common.legend = T, legend = 'right', 
                     nrow = 2, ncol = 2)
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "02_partition_fraction_agreement.png"), width = 10, height = 10)
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "partition_fraction_agreement.png"), width = 10, height = 10)
 

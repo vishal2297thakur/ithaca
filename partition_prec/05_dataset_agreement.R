@@ -10,6 +10,8 @@ library(dplyr)
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
+levels(prec_mask$abs_dataset_agreement) <- c("High", "Above average", "Average",
+                                             "Below average", "Low")
 
 station_grid <- read_stars(paste0(PATH_SAVE_PARTITION_PREC_SPATIAL,
                                "prec_station_grid.nc")) %>% st_as_sf()
@@ -67,26 +69,14 @@ to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>%
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-to_plot_sf <- to_plot_sf %>% mutate(rel_dataset_agreement = 
-                                      case_when(to_plot_sf$value == 1 ~ "High", 
-                                                to_plot_sf$value == 2 ~ "Above average", 
-                                                to_plot_sf$value == 3 ~ "Average", 
-                                                to_plot_sf$value == 4 ~ "Below average", 
-                                                to_plot_sf$value == 5 ~ "Low"))
-
-to_plot_sf$rel_dataset_agreement <- factor(to_plot_sf$rel_dataset_agreement, 
-                                           levels = c("High", "Above average", 
-                                                      "Average", "Below average", 
-                                                      "Low"), ordered = TRUE)
-
-fig_dataset_agreement <- ggplot(to_plot_sf) +
+fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(color = rel_dataset_agreement, fill = rel_dataset_agreement)) +
+  geom_sf(aes(color = factor(value), fill = factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = colset_RdBu_5) + 
-                    #labels = levels(to_plot_sf$rel_dataset_agreement)) +
+  scale_fill_manual(values = colset_RdBu_5, 
+                    labels = levels(prec_mask$rel_dataset_agreement)) +
   scale_color_manual(values = colset_RdBu_5,
-                     #labels = levels(to_plot_sf$rel_dataset_agreement),
+                     labels = levels(prec_mask$rel_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -104,7 +94,7 @@ fig_dataset_agreement <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "dataset_agreement_map.png"), width = 12, height = 8)
+              "rel_dataset_agreement_map.png"), width = 12, height = 8)
 
 to_plot_sf <- prec_mask[, .(lon, lat, abs_dataset_agreement)
 ][, value := as.numeric(abs_dataset_agreement)]
@@ -113,27 +103,14 @@ to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>%
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-to_plot_sf <- to_plot_sf %>% mutate(abs_dataset_agreement = 
-                                      case_when(to_plot_sf$value == 1 ~ "Very high", 
-                                                to_plot_sf$value == 2 ~ "High", 
-                                                to_plot_sf$value == 3 ~ "Above average", 
-                                                to_plot_sf$value == 4 ~ "Average", 
-                                                to_plot_sf$value == 5 ~ "Below average", 
-                                                to_plot_sf$value == 6 ~ "Low", 
-                                                to_plot_sf$value == 7 ~ "Very low"))
-
-to_plot_sf$abs_dataset_agreement <- factor(to_plot_sf$abs_dataset_agreement, 
-                                           levels = c("Very high", "High", "Above average", 
-                                                      "Average", "Below average", 
-                                                      "Low", "Very low"), ordered = TRUE)
-fig_dataset_agreement <- ggplot(to_plot_sf) +
+fig_abs_dataset_agreement <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(color = abs_dataset_agreement, fill = abs_dataset_agreement)) +
+  geom_sf(aes(color = factor(value), fill = factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = c('dark red', colset_RdBu_5, 'dark blue')) + 
-                    #labels = levels(to_plot_sf$rel_dataset_agreement)) +
-  scale_color_manual(values = c('dark red', colset_RdBu_5, 'dark blue'),
-                     #labels = levels(to_plot_sf$rel_dataset_agreement),
+  scale_fill_manual(values = colset_RdBu_5,
+                    labels = levels(prec_mask$abs_dataset_agreement)) +
+  scale_color_manual(values = colset_RdBu_5,
+                     labels = levels(prec_mask$abs_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -151,4 +128,4 @@ fig_dataset_agreement <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "abs_dataset_agreement_map.png"), width = 12, height = 8)
+              "supplement/abs_dataset_agreement_map.png"), width = 12, height = 8)
