@@ -113,7 +113,7 @@ ggplot(biome_agreement_cum) +
   geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias , fill = biome_short_class), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
-  labs(fill = 'Biome class')  +
+  labs(fill = 'Biome category')  +
   scale_fill_manual(values = colset_biome_short[c(2, 8, 10, 9, 6, 1, 7, 5, 4, 3)]) +
   theme_light()
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/biome_agreement_cum.png"), width = 8, height = 6)
@@ -138,8 +138,8 @@ ggplot(elev_agreement_cum) +
   geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias , fill = elev_class), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
-  labs(fill = 'Elevation class')  +
-  scale_fill_manual(values = colset_elev[c(6, 1, 5, 8, 3, 4)]) +
+  labs(fill = 'Elevation zone')  +
+  scale_fill_manual(values = rev(c("dark red", colset_RdBu_5))) +
   theme_light()
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/elev_agreement_cum.png"), width = 8, height = 6)
 
@@ -163,7 +163,7 @@ ggplot(prec_agreement_cum) +
   geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias , fill = prec_quant), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
-  labs(fill = 'Precipitation quantile class')  +
-  scale_fill_manual(values = colset_prec_quant[c(4, 9, 6, 10, 8, 3, 2, 5, 7, 1)]) +
+  labs(fill = 'Prec. quantile')  +
+  scale_fill_manual(values = colset_prec_quant) +
   theme_light()
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/prec_agreement_cum.png"), width = 8, height = 6)

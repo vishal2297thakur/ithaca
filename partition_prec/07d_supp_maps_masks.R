@@ -83,7 +83,7 @@ fig_land_use_short_class <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "supplement\land_cover_map.png"), width = 12, height = 8)
+              "supplement/land_cover_map.png"), width = 12, height = 8)
 
 
 #biome
@@ -143,7 +143,7 @@ fig_biome_short_class <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "supplement\biome_map.png"), width = 12, height = 8)
+              "supplement/biome_map.png"), width = 12, height = 8)
 
 #elavation
 levels(prec_mask$elev_class) <- c("0-100", "100-400", "400-800", "800-1500", "1500-3000", "3000+")
@@ -176,7 +176,7 @@ fig_elev_class <- ggplot(to_plot_sf) +
   scale_color_manual(values = c('dark red', colset_elev, 'dark blue'),
                      #labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Biome") +
+  labs(x = NULL, y = NULL, fill = "Elevation") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
@@ -192,7 +192,7 @@ fig_elev_class <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "supplement\elev_map.png"), width = 12, height = 8)
+              "supplement/elev_map.png"), width = 12, height = 8)
 
 
 #prec_quantile
@@ -249,4 +249,4 @@ fig_prec_quant_class <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "supplement\prec_quant_map.png"), width = 12, height = 8)
+              "supplement/prec_quant_map.png"), width = 12, height = 8)
