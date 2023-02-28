@@ -122,9 +122,9 @@ fig_biome_short_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = biome_short_class, fill = biome_short_class)) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = c('dark red', colset_biome_short, 'dark blue')) + 
+  scale_fill_manual(values = colset_biome_short[c(2, 8, 10, 9, 6, 1, 7, 5, 4, 3)]) + 
   #labels = levels(to_plot_sf$rel_dataset_agreement)) +
-  scale_color_manual(values = c('dark red', colset_biome_short, 'dark blue'),
+  scale_color_manual(values = colset_biome_short[c(2, 8, 10, 9, 6, 1, 7, 5, 4, 3)],
                      #labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Biome") +
@@ -145,7 +145,7 @@ fig_biome_short_class <- ggplot(to_plot_sf) +
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
               "supplement/biome_map.png"), width = 12, height = 8)
 
-#elavation
+#elevation
 levels(prec_mask$elev_class) <- c("0-100", "100-400", "400-800", "800-1500", "1500-3000", "3000+")
 
 
@@ -171,9 +171,9 @@ fig_elev_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = elev_class, fill = elev_class)) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = c('dark red', colset_elev, 'dark blue')) + 
+  scale_fill_manual(values = rev(c("dark red", colset_RdBu_5))) + 
   #labels = levels(to_plot_sf$rel_dataset_agreement)) +
-  scale_color_manual(values = c('dark red', colset_elev, 'dark blue'),
+  scale_color_manual(values = rev(c("dark red", colset_RdBu_5)),
                      #labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Elevation") +
