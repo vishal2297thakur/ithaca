@@ -60,4 +60,4 @@ EVAP_NAME_SHORT <- "e"
 
 ## Parallelization
 N_CORES <- detectCores()
-registerDoParallel(cores = N_CORES - 1)
+
