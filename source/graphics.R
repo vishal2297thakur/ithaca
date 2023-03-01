@@ -15,6 +15,7 @@ colset_agreement <- colset_mid_qual[c(1, 4, 3, 2, 5)]
 colset_land_use_short <- colset_mid_qual[c(12, 8, 3, 11, 13, 6, 9, 5, 10)] #[Bar, Crop, For, Grass, Other, Sava, Shrub, Snow, Water]
 colset_biome_short <- colset_mid_qual[c(3, 13, 10, 11, 8, 4, 12, 9, 7, 5)] #[B.Forest, Desert, Flooded, M.Grassland, Mediterranean, T.Forests, T.Grassland, T/S Forests, T/S Grassland, Tundra]
 colset_elev <- colset_mid[c(3, 12, 10, 11, 8, 4)]
+colset_elev_mono <- rev(sequential_hcl(n = 8, "YlOrBr"))[3:8]
 colset_prec_quant <- rev(sequential_hcl(n = 14, "Blues"))[3:12]
 
 colset_KG_1_names <- colset_mid[c(2, 3, 7, 5, 4)] #Polar, Continental, Dry, Temperate, Tropical
