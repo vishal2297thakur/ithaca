@@ -171,9 +171,15 @@ fig_elev_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = elev_class, fill = elev_class)) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
+<<<<<<< HEAD
   scale_fill_manual(values = rev(c("dark red", colset_elev_mono))) + 
   #labels = levels(to_plot_sf$rel_dataset_agreement)) +
   scale_color_manual(values = rev(c("dark red", colset_elev_mono)),
+=======
+  scale_fill_manual(values = colset_elev_mono) + 
+  #labels = levels(to_plot_sf$rel_dataset_agreement)) +
+  scale_color_manual(values = colset_elev_mono,
+>>>>>>> c0ab7e0460411516c8f8882234c913c9d2125aad
                      #labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Elevation") +

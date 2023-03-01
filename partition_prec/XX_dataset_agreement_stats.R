@@ -42,3 +42,8 @@ dataset_agreement_summary[, within_interquantile := round(within_interquantile /
 dataset_agreement_summary[, underestimates := round(underestimates / sample_size, 2)]
 dataset_agreement_summary[, sample_size := NULL]
 dataset_agreement_summary <- dataset_agreement_summary[order(-within_interquantile)]
+
+dataset_sd_comparison <- merge(prec_ens_stats[, .(lon, lat, ens_mean_median, ens_mean_sd)], prec_mean_datasets, by = c('lon', 'lat'))
+dataset_sd_comparison[, mean(prec_sd), dataset]
+dataset_sd_comparison[, mean(ens_mean_sd)]
+
