@@ -88,7 +88,7 @@ ggplot(land_use_agreement_cum) +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
   labs(fill = 'Land cover class')  +
-  scale_fill_manual(values = colset_land_use_short[c(3, 6, 2, 7, 4, 9, 1, 8, 5)]) +
+  scale_fill_manual(values = colset_land_use_short) +
   theme_light()
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/land_cover_agreement_cum.png"), width = 8, height = 6)
 
