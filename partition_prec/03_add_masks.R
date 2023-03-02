@@ -13,9 +13,14 @@ prec_era5 <- brick(paste0(PATH_SAVE_PARTITION_PREC_RAW, "era5_tp_mm_land_200001_
 prec_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
 
 ## Masks
+### Precipitation
+prec_stats[, prec_quant := ordered(quantcut(ens_mean_mean, 10), labels = c('0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-0.5',
+                                                                           '0.5-0.6', '0.6-0.7', '0.7-0.8', '0.8-0.9', '0.9-1'))]
+prec_stats[, prec_class := ordered(quantcut(ens_mean_mean, 5), labels = c('low', 'below average', 'average', 'above average', 'high'))]
+
 ### Uncertainty - Dataset agreement
 prec_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5), 
-                                         labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00'))]
+                                         labels = c('0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.00')), prec_quant]
 
 prec_stats[std_quant_range <= 0.11, rel_dataset_agreement := ordered(1, labels = "high")] 
 prec_stats[std_quant_range > 0.11 & std_quant_range <= 0.18, rel_dataset_agreement := ordered(3, labels = "above average")]
@@ -29,11 +34,8 @@ prec_stats[std_quant_range > 0.25 & std_quant_range <= 0.5, abs_dataset_agreemen
 prec_stats[std_quant_range > 0.5 & std_quant_range <= 1, abs_dataset_agreement := ordered(5, labels = "below average")]
 prec_stats[std_quant_range > 1, abs_dataset_agreement := ordered(7, labels = "low")]
 
-## Masks
-### Precipitation
-prec_stats[, prec_quant := ordered(quantcut(ens_mean_mean, 10), labels = c('0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-0.5',
-                                                                           '0.5-0.6', '0.6-0.7', '0.7-0.8', '0.8-0.9', '0.9-1'))]
-prec_stats[, prec_class := ordered(quantcut(ens_mean_mean, 5), labels = c('low', 'below average', 'average', 'above average', 'high'))]
+prec_stats_temp[, prec_quant_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
+                                                          labels = c('high', 'above average', 'average', 'below average', 'low')), prec_quant]
 
 ### Koppen-Geiger
 fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level3.shp")
@@ -118,7 +120,7 @@ shape_mask_df$biome_class <- factor(shape_mask_df$biome_class)
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 
 prec_masks <- prec_masks[, .(lon, lat, prec_mean = ens_mean_mean, prec_quant, prec_class, 
-                             rel_dataset_agreement, abs_dataset_agreement, 
+                             rel_dataset_agreement, abs_dataset_agreement, prec_quant_dataset_agreement,
                              KG_class_1,  KG_class_2,  KG_class_3, elev_class, 
                              land_use_class = land_class, biome_class)]
 
@@ -159,7 +161,7 @@ prec_masks[KG_class_1 == 'C', KG_class_1_name := 'Temperate']
 prec_masks[KG_class_1 == 'D', KG_class_1_name := 'Continental']
 prec_masks[KG_class_1 == 'E', KG_class_1_name := 'Polar']
 
-prec_masks <- prec_masks[, c(1:10, 16, 11:12, 14, 13, 15)]
+prec_masks <- prec_masks[, c(1:11, 17, 12:13, 15, 14, 16)]
 
 ## Save data
 saveRDS(prec_masks, paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
