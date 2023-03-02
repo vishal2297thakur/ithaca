@@ -13,9 +13,12 @@ dummy[, sum_annual := sum(mean_monthly), year(time)]
 dummy_annual <- dummy[, unique(sum_annual)]
 obs_mean_diff <-  mean(dummy_annual[11:20]) -  mean(dummy_annual[1:10])
 
-mc_sample <- replicate(10000, sample(dummy_annual, 20, replace = TRUE))
+sample_size <- 10000
+mc_sample <- replicate(sample_size, sample(dummy_annual, 20, replace = TRUE))
 mc_sample_means <- data.table(annual_diff = apply(mc_sample[1:10, ], 2, mean) - 
                                 apply(mc_sample[11:20, ], 2, mean))
+
+prob_exceedence <- nrow(mc_sample_means[annual_diff > obs_mean_diff]) / sample_size
 
 ggplot(mc_sample_means) +
   geom_density(aes(annual_diff)) +
