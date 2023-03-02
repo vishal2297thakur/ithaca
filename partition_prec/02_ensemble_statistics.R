@@ -22,7 +22,7 @@ cores <- N_CORES - 3
 cl <- makeCluster(cores, type = "FORK")
 prec_mean <- parLapply(cl, prec_2000_2019, calc, fun = mean, na.rm = TRUE)
 stopCluster(cl)
-prec_sd <- lapply(prec_2000_2019, calc, fun = function(x) {sd(x, na.rm = TRUE)})
+prec_sd <- lapply(prec_2000_2019, calc, fun = function(x) {sd(x, na.rm = TRUE)}) #sd doesn't work with calc in parallel 
 
 ### Multi-source
 registerDoParallel(cores = N_CORES - 1)
@@ -54,6 +54,22 @@ prec_mean_datasets[, prec_mean := round(prec_mean, 2)]
 prec_datasets <- merge(prec_datasets, prec_sd_datasets, by = c("lon", "lat", "dataset"))
 prec_datasets <- prec_datasets[, .(lon, lat, dataset, dataset_type, prec_mean, prec_sd = round(prec_sd, 2))]
 
+### Annual sums         ### NOT SPATIALLY WEIGHTED - JUST FOR PLAYING ###
+prec_annual <- foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
+  dummy_raster <- prec_2000_2019[[dataset_count]]
+  dummy <- data.table(time = as.Date(sub('.', '', names(dummy_raster)), format = "%Y.%m.%d"))
+  
+  dummy[, mean_monthly := cellStats(dummy_raster, "mean")]
+  dummy[, sum_annual := sum(mean_monthly), year(time)]
+  dummy_annual <- dummy[, unique(sum_annual)]
+}
+names(prec_annual) <- names(prec_2000_2019)
+prec_annual$`gpm-imerg`[1] <- NA
+setDT(prec_annual)
+prec_annual[, year := 2000:2019]
+prec_annual <- melt(prec_annual, id.vars = 'year')
+colnames(prec_annual)[2:3] <- c("dataset", "prec_mean")
+
 ### Ensemble statistics
 prec_ens_stats <- prec_mean_datasets[, .(ens_mean_mean = round(mean(prec_mean, na.rm = TRUE), 2)), .(lat, lon)]
 prec_mean_datasets[, n_datasets := NULL]
@@ -81,5 +97,6 @@ prec_grid[, prec_volume_year := 12 * area * 10 ^ (-9) * prec_mean * 0.001][, pre
 
 ## Save data 
 saveRDS(prec_ens_stats, paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
+saveRDS(prec_annual, paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_datasets.rds"))
 saveRDS(prec_datasets, paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
 saveRDS(prec_grid , paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_grid.rds"))
