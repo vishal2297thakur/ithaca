@@ -8,7 +8,7 @@ library(dplyr)
 
 # Data
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
-levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
+levels(prec_mask$prec_quant_dataset_agreement ) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
 levels(prec_mask$abs_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
@@ -62,21 +62,21 @@ fig_stations <- ggplot(station_grid) +
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
               "supplement/station_map.png"), width = 12, height = 8)
 
-to_plot_sf <- prec_mask[, .(lon, lat, rel_dataset_agreement)
-][, value := as.numeric(rel_dataset_agreement)]
+to_plot_sf <- prec_mask[, .(lon, lat, prec_quant_dataset_agreement )
+][, value := as.numeric(prec_quant_dataset_agreement )]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
+fig_prec_quant_dataset_agreement  <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = factor(value), fill = factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
   scale_fill_manual(values = colset_RdBu_5, 
-                    labels = levels(prec_mask$rel_dataset_agreement)) +
+                    labels = levels(prec_mask$prec_quant_dataset_agreement )) +
   scale_color_manual(values = colset_RdBu_5,
-                     labels = levels(prec_mask$rel_dataset_agreement),
+                     labels = levels(prec_mask$prec_quant_dataset_agreement ),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -94,7 +94,7 @@ fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "rel_dataset_agreement_map.png"), width = 12, height = 8)
+              "prec_quant_dataset_agreement _map.png"), width = 12, height = 8)
 
 to_plot_sf <- prec_mask[, .(lon, lat, abs_dataset_agreement)
 ][, value := as.numeric(abs_dataset_agreement)]
