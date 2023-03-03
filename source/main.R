@@ -28,6 +28,10 @@ PATH_EVAP_SIM <- paste0(PATH_DATA, "sim/evap/raw/")
 PATH_EVAP_OBS <- paste0(PATH_DATA, "obs/evap/raw/")
 
 ## Datasets
+PREC_GLOBAL_DATASETS <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", "udel", 
+                          "20cr", "era20c", "era5", "jra55", "merra2", "ncep-doe", "ncep-ncar", 
+                          "cmap", "gpcp", "gpm-imerg", "mswep",  
+                          "gldas-clsm", "gldas-noah", "gldas-vic", "terraclimate")
 
 # Types
 PREC_DATASETS_OBS <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", "udel")
