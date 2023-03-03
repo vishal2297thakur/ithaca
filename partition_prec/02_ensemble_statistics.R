@@ -56,12 +56,17 @@ prec_datasets <- prec_datasets[, .(lon, lat, dataset, dataset_type, prec_mean, p
 
 ### Annual sums         ### NOT SPATIALLY WEIGHTED - JUST FOR PLAYING ###
 prec_annual <- foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
-  dummy_raster <- prec_2000_2019[[dataset_count]]
-  dummy <- data.table(time = as.Date(sub('.', '', names(dummy_raster)), format = "%Y.%m.%d"))
-  
-  dummy[, mean_monthly := cellStats(dummy_raster, "mean")]
-  dummy[, sum_annual := sum(mean_monthly), year(time)]
-  dummy_annual <- dummy[, unique(sum_annual)]
+  dummie_raster <- prec_2000_2019[[dataset_count]]
+  dummie_weights <- area(dummie_raster, na.rm = TRUE, weights = TRUE)
+  dummie_table <- dummie_raster*dummie_weights
+  dummie_table <- cellStats(dummie_table, 'sum')
+  dummie_table <- data.table(getZ(dummie_raster), dummie_table)
+  setnames(dummie_table, c("date", "wavg_monthly"))
+  dummie_table <- unique(dummie_table[, year := year(date)
+                                      ][, sum_annual := sum(wavg_monthly),
+                                        by = year
+                                        ][, .(year, sum_annual)])
+  dummie_table[, sum_annual]
 }
 names(prec_annual) <- names(prec_2000_2019)
 prec_annual$`gpm-imerg`[1] <- NA
