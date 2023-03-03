@@ -25,7 +25,7 @@ brick_slopes <- function(dummie_brick, annual = NULL){
                                   na.rm = TRUE) %>% as.data.table() %>% 
       split(by = "y")
   }
-  no_cores <- cores_n - 2
+  no_cores <- N_CORES - 2
   cluster <- makeCluster(no_cores, type = "PSOCK")
   clusterEvalQ(cluster, library(data.table))
   clusterEvalQ(cluster, library(dplyr))

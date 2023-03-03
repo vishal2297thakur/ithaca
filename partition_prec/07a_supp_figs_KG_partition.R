@@ -25,6 +25,9 @@ dataset_agreement_koppen_prec <- dataset_agreement_koppen_prec[complete.cases(da
 dataset_agreement_koppen_prec <- dataset_agreement_koppen_prec[order(land_use_short_class, KG_class_1_name), ]
 
 ## Figures Supplementary
+levels(dataset_agreement_koppen$rel_dataset_agreement) <- c("High", "Above average", "Average",
+                                             "Below average", "Low")
+
 fig_koppen_partition_prec_volume <- ggplot(dataset_agreement_koppen_prec) +
   geom_bar(aes(x = reorder(KG_class_1_name, -(prec_sum)), y = prec_sum, fill = land_use_short_class), stat = "identity") +
   scale_y_continuous(label = axis_scientific) +
@@ -46,9 +49,13 @@ fig_koppen_partition_fraction <- ggplot(dataset_agreement_koppen) +
   theme_light()
 
 ### Figure 1
-gg_fig_KG <- ggarrange(land_use_agreement_cum, fig_koppen_partition_fraction, 
+gg_fig_KG <- ggarrange(fig_koppen_partition_prec_volume, fig_koppen_partition_fraction, 
                       labels = c('a', 'b'),
                       legend = 'right', 
                       nrow = 1, ncol = 2)
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "\supplement\KG_partition.png"), width = 12, height = 15)
+
+jpeg(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/KG_partition.png"), 
+     width = 12, height = 6, units = 'in', res = 300)
+gg_fig_KG
+dev.off()
 
