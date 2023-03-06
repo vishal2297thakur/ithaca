@@ -21,7 +21,7 @@ dataset_count <- 1
 dummy <- brick_slopes(prec_2000_2019[[dataset_count]], annual = 'sum')
 dummy_dt <- data.table(as.data.frame(dummy, xy = TRUE))
 dummy_dt <- dummy_dt[complete.cases(dummy_dt)]
-
+prec_slopes <- dummy_dt[, .(lon = x, lat = y, slope, dataset = names(prec_2000_2019)[dataset_count])]
 prec_slopes <-  readRDS(paste0(PATH_SAVE_PARTITION_PREC, "test_slopes.rds"))
 
 makeCluster(N_CORES - 2, type = "PSOCK")
