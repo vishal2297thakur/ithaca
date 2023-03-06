@@ -171,9 +171,9 @@ fig_elev_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = elev_class, fill = elev_class)) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = colset_elev_mono) + 
+  scale_fill_manual(values = rev(c(colset_elev_mono))) + 
   #labels = levels(to_plot_sf$rel_dataset_agreement)) +
-  scale_color_manual(values = colset_elev_mono,
+  scale_color_manual(values = rev(c(colset_elev_mono)), 
                      #labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Elevation") +
@@ -228,11 +228,11 @@ fig_prec_quant_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = prec_quant, fill = prec_quant)) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = c('dark red', colset_prec_quant, 'dark blue')) + 
+  scale_fill_manual(values = c(colset_prec_quant)) + 
   #labels = levels(to_plot_sf$rel_dataset_agreement)) +
-  scale_color_manual(values = c('dark red', colset_prec_quant, 'dark blue'),
+  scale_color_manual(values = c(colset_prec_quant), 
                      #labels = levels(to_plot_sf$rel_dataset_agreement),
-                     guide = "none") +
+                     guide = "none") + 
   labs(x = NULL, y = NULL, fill = "Precipitataion\nquantile") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
