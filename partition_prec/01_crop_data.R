@@ -8,6 +8,6 @@ foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
                             period_start, period_end)
   nc_out <- paste0(PATH_SAVE_PARTITION_PREC_RAW,
                    PREC_FNAMES_SHORT_2000_2019[[dataset_count]],
-                   "_tp_mm_land_200001_201912_025_monthly.nc")
+                   "_tp_mm_land_200001_201912_025_yearly.nc")
   save_nc(result, nc_out)
 } 

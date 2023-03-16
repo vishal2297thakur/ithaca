@@ -15,29 +15,48 @@ prec_slopes <- foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
                    dataset = names(prec_2000_2019)[dataset_count])]
 }
 prec_slopes <- rbindlist(prec_slopes)
+prec_slopes <- prec_slopes[lat >= -70]
+prec_slopes[slope < 0, slope_sign := factor('neg')]
+prec_slopes[slope > 0, slope_sign := factor('pos')]
+
+prec_slopes[slope_sign == 'neg', .N, dataset]
+prec_slopes[slope_sign == 'pos', .N, dataset]
+prec_slopes[, .N, .(dataset)]
+
+slope_median <- prec_slopes[, .(slope = median(slope)), .(lon, lat)]
+slope_agreement <- prec_slopes[slope > 2 | slope < -2, .N, .(slope_sign, lon, lat)] 
+
+prec_slopes_neg <- reshape2::acast(prec_slopes[slope_sign == 'neg'], dataset~lon+lat, fun.aggregate = length)
+prec_slopes_pos <- reshape2::acast(prec_slopes[slope_sign == 'pos'], dataset~lon+lat, fun.aggregate = length)
+
+pos_slope_agreement <- replace(m <- crossprod(as.matrix(t(prec_slopes_pos))), lower.tri(m, diag = TRUE), NA)
+neg_slope_agreement <- replace(m <- crossprod(as.matrix(t(prec_slopes_neg))), lower.tri(m, diag = TRUE), NA)
 
 
-dataset_count <- 1
-dummy <- brick_slopes(prec_2000_2019[[dataset_count]], annual = 'sum')
-dummy_dt <- data.table(as.data.frame(dummy, xy = TRUE))
-dummy_dt <- dummy_dt[complete.cases(dummy_dt)]
-prec_slopes <- dummy_dt[, .(lon = x, lat = y, slope, dataset = names(prec_2000_2019)[dataset_count])]
-prec_slopes <-  readRDS(paste0(PATH_SAVE_PARTITION_PREC, "test_slopes.rds"))
+ggplot(prec_slopes[dataset == 'gpm-imerg' ]) +
+  geom_point(aes(lon, lat, col = slope_sign)) +
+  theme_bw()
 
-makeCluster(N_CORES - 2, type = "PSOCK")
-cluster <- makeCluster(N_CORES - 2, type = "PSOCK")
-dataset_count <- 3
-dummy <- brick_slopes(prec_2000_2019[[dataset_count]], annual = 'sum')
-dummy_dt <- data.table(as.data.frame(dummy, xy = TRUE))
-dummy_dt <- dummy_dt[complete.cases(dummy_dt)]
+ggplot(prec_slopes[slope > 5 | slope < -5]) +
+  geom_point(aes(lon, lat, col = slope)) +
+  theme_bw()
 
-test <- rbind(prec_slopes, 
-                     dummy_dt[, .(lon = x, lat = y, slope, dataset = names(prec_2000_2019)[dataset_count])])
+to_plot <- prec_slopes[slope > -50 & slope < 50]
+to_plot[slope_sign == 'neg', neg_slope_rev := -slope]s
+to_plot[slope_sign == 'pos', pos_slope := slope]
 
-dummy_dt[slope < 0, slope_sign := factor('neg')]
-dummy_dt[slope > 0, slope_sign := factor('pos')]
-ggplot(dummy_dt[slope > 5 | slope < -5]) +
-  geom_point(aes(x, y, col = slope_sign))
+ggplot(to_plot) +
+  geom_density(aes(pos_slope))+
+  geom_density(aes(neg_slope_rev), col = 'red')+
+  theme_bw()
+
+ggplot(slope_agreement[slope_sign == 'neg' & N > 10]) +
+  geom_point(aes(lon, lat, col = N)) +
+  theme_bw()
+
+ggplot(slope_agreement[slope_sign == 'pos' & N > 10]) +
+  geom_point(aes(lon, lat, col = N)) +
+  theme_bw()
 
 saveRDS(prec_slopes, paste0(PATH_SAVE_PARTITION_PREC, "test_slopes.rds"))
 

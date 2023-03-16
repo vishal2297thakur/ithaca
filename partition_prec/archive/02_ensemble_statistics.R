@@ -10,9 +10,6 @@ library("gtools")
 prec_2000_2019 <- lapply(PREC_FNAMES_2000_2019, brick)
 names(prec_2000_2019) <- PREC_FNAMES_SHORT_2000_2019 
 
-## Variables
-period_months_dates <- seq(period_start, by = "month", length.out = period_months)
-
 ## Functions
 estimate_q25 <- function(x) {as.numeric(quantile(x, 0.25, na.rm = TRUE))}
 estimate_q75 <- function(x) {as.numeric(quantile(x, 0.75, na.rm = TRUE))}
@@ -51,29 +48,23 @@ prec_mean_datasets[dataset %in% PREC_DATASETS_REANAL, dataset_type := 'reanalysi
 prec_mean_datasets[dataset %in% PREC_DATASETS_REMOTE, dataset_type := 'remote sensing']
 prec_mean_datasets[, prec_mean := round(prec_mean, 2)]
 
-prec_datasets <- merge(prec_datasets, prec_sd_datasets, by = c("lon", "lat", "dataset"))
+prec_datasets <- merge(prec_mean_datasets, prec_sd_datasets, by = c("lon", "lat", "dataset"))
 prec_datasets <- prec_datasets[, .(lon, lat, dataset, dataset_type, prec_mean, prec_sd = round(prec_sd, 2))]
 
-### Annual sums         ### NOT SPATIALLY WEIGHTED - JUST FOR PLAYING ###
+### Annual sums   
 prec_annual <- foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
   dummie_raster <- prec_2000_2019[[dataset_count]]
   dummie_weights <- area(dummie_raster, na.rm = TRUE, weights = TRUE)
-  dummie_table <- dummie_raster*dummie_weights
+  dummie_table <- dummie_raster * dummie_weights
   dummie_table <- cellStats(dummie_table, 'sum')
   dummie_table <- data.table(getZ(dummie_raster), dummie_table)
-  setnames(dummie_table, c("date", "wavg_monthly"))
-  dummie_table <- unique(dummie_table[, year := year(date)
-                                      ][, sum_annual := sum(wavg_monthly),
-                                        by = year
-                                        ][, .(year, sum_annual)])
-  dummie_table[, sum_annual]
+  setnames(dummie_table, c("date", "wavg_yearly"))
+  dummie_table <- dummie_table[, .(year = year(date), prec_mean =  wavg_yearly)]
 }
 names(prec_annual) <- names(prec_2000_2019)
 prec_annual$`gpm-imerg`[1] <- NA
-setDT(prec_annual)
-prec_annual[, year := 2000:2019]
-prec_annual <- melt(prec_annual, id.vars = 'year')
-colnames(prec_annual)[2:3] <- c("dataset", "prec_mean")
+prec_annual <- bind_rows(prec_annual, .id = "column_label")
+colnames(prec_annual)[1] <- "dataset"
 
 ### Ensemble statistics
 prec_ens_stats <- prec_mean_datasets[, .(ens_mean_mean = round(mean(prec_mean, na.rm = TRUE), 2)), .(lat, lon)]
@@ -98,7 +89,7 @@ prec_ens_stats[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 ### Grid cell area
 prec_area <- prec_ens_stats[, .(lon, lat)] %>% grid_area() # m2
 prec_grid <- prec_area[prec_ens_stats[, .(lon, lat, prec_mean = ens_mean_mean)], on = .(lon, lat)]
-prec_grid[, prec_volume_year := 12 * area * 10 ^ (-9) * prec_mean * 0.001][, prec_mean := NULL] # km3
+prec_grid[, prec_volume_year := area * 10 ^ (-9) * prec_mean * 0.001][, prec_mean := NULL] # km3
 
 ## Save data 
 saveRDS(prec_ens_stats, paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
