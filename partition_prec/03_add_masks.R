@@ -9,7 +9,7 @@ source('source/mask_paths.R')
 library("gtools")
 
 ## Data 
-prec_era5 <- brick(paste0(PATH_SAVE_PARTITION_PREC_RAW, "era5_tp_mm_land_200001_201912_025_monthly.nc"))
+prec_era5 <- brick(paste0(PATH_SAVE_PARTITION_PREC_RAW, "era5_tp_mm_land_200001_201912_025_yearly.nc"))
 prec_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
 
 ## Masks

@@ -9,7 +9,7 @@ library(scales)
 ## Data 
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 prec_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
-prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_grid.rds"))
+prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
 
 ## Variables
 prec_mask[, KG_class_1_name := relevel(factor(KG_class_1_name), "Polar")]
@@ -17,7 +17,7 @@ levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
 
 climate_KG <- merge(prec_mask[, .(lat, lon, KG_class_1_name)], prec_grid[, .(lon, lat, area)], by = c("lon", "lat"))
 datasets_KG <- merge(climate_KG, prec_datasets, by = c("lon", "lat"))
-datasets_KG[, prec_volume_year := 12 * area * 10 ^ (-9) * prec_mean * 0.001][, prec_mean := NULL] # km3
+datasets_KG[, prec_volume_year := area * 10 ^ (-9) * prec_mean * 0.001][, prec_mean := NULL] # km3
 
 land_use_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, land_use_short_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 biome_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, biome_short_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))

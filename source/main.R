@@ -66,3 +66,7 @@ EVAP_NAME_SHORT <- "e"
 ## Parallelization
 N_CORES <- detectCores()
 
+## Other
+M2_TO_KM2 <- 10 ^ (-9)
+MM_TO_M <- 0.001
+
