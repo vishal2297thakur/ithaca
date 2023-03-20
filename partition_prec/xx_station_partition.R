@@ -47,6 +47,12 @@ prec_mask <- prec_mask[stn_count >= 1, stn_log := TRUE
                                            ][, n_quant := nrow(.SD), by = prec_quant
                                              ][, prec_quant_frac := sum(stn_log)/n_quant, by = .(prec_quant, rel_dataset_agreement)
                                                ][stn_log == FALSE, prec_quant_frac := sum(!stn_log)/n_quant, by = .(prec_quant, rel_dataset_agreement)]
+
+prec_mask[stn_log == TRUE, table(land_use_short_class)] / prec_mask[stn_log == FALSE, table(land_use_short_class)]
+
+prec_mask[stn_log == TRUE, table(rel_dataset_agreement)]/nrow(prec_mask[stn_log == TRUE])
+prec_mask[stn_log == FALSE, table(rel_dataset_agreement)]/nrow(prec_mask[stn_log == FALSE])
+
 ## Figures
 p01 <- ggplot(unique(prec_mask[land_use_short_class != "Other", .(land_use_short_class, land_use_frac, stn_log, rel_dataset_agreement)])) +
   geom_bar_pattern(aes(x = land_use_short_class, y = land_use_frac, fill = rel_dataset_agreement, pattern = stn_log),
