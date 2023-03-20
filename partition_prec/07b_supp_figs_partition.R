@@ -140,7 +140,7 @@ ggplot(land_use_short_class_prec) +
   facet_wrap(~ land_use_short_class, scales = 'free') +
   labs(col = 'Dataset agreement')  +
   xlab('Dataset agreement')  +
-  ylab('Mean monthly precipitation')  +
+  ylab('Mean annual precipitation')  +
   scale_color_manual(values = colset_agreement) +
   theme_light() +
   theme(strip.background = element_rect(fill = "black"),
@@ -166,7 +166,7 @@ ggplot(biome_short_class_prec) +
   facet_wrap(~ biome_short_class, scales = 'free') +
   labs(col = 'Dataset agreement')  +
   xlab('Dataset agreement')  +
-  ylab('Mean monthly precipitation')  +
+  ylab('Mean annual precipitation')  +
   scale_color_manual(values = colset_agreement) +
   theme_light() +
   theme(strip.background = element_rect(fill = "black"),
@@ -191,7 +191,7 @@ ggplot(elev_class_prec) +
   facet_wrap(~ elev_class, scales = 'free') +
   labs(col = 'Dataset agreement')  +
   xlab('Dataset agreement')  +
-  ylab('Mean monthly precipitation')  +
+  ylab('Mean annual precipitation')  +
   scale_color_manual(values = colset_agreement) +
   theme_light() +
   theme(strip.background = element_rect(fill = "black"),
@@ -216,7 +216,7 @@ ggplot(prec_quant_class_prec) +
   facet_wrap(~ prec_quant, scales = 'free') +
   labs(col = 'Dataset agreement')  +
   xlab('Dataset agreement')  +
-  ylab('Mean monthly precipitation')  +
+  ylab('Mean annual precipitation')  +
   scale_color_manual(values = colset_agreement) +
   theme_light() +
   theme(strip.background = element_rect(fill = "black"),
