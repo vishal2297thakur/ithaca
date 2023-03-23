@@ -17,7 +17,7 @@ levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
 
 climate_KG <- merge(prec_mask[, .(lat, lon, KG_class_1_name)], prec_grid[, .(lon, lat, area)], by = c("lon", "lat"))
 datasets_KG <- merge(climate_KG, prec_datasets, by = c("lon", "lat"))
-datasets_KG[, prec_volume_year := area * 10 ^ (-9) * prec_mean * 0.001][, prec_mean := NULL] # km3
+datasets_KG[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_M][, prec_mean := NULL] # km3
 
 land_use_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, land_use_short_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 biome_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, biome_short_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
@@ -27,7 +27,8 @@ prec_quant <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, prec_quant, K
 ## Analysis
 ### Climate
 datasets_KG[, .(area = round(sum(area), 2)), .(dataset, dataset_type)] #Antarctica 13.66 million km2
-dataset_partition_KG <- datasets_KG[, .(prec_sum = round(sum(prec_volume_year), 0)), .(KG_class_1_name, dataset, dataset_type)]
+dataset_partition_KG <- datasets_KG[, .(prec_sum = round(sum(prec_volume_year), 0)), 
+                                    .(KG_class_1_name, dataset, dataset_type)]
 dataset_partition_KG[(dataset == 'cmorph' |                       #Remove as they do not cover the whole planet
                         dataset == 'persiann' | 
                         dataset == 'chirps') & 

@@ -7,7 +7,7 @@ prec_2000_2019 <- lapply(PREC_FNAMES_2000_2019, brick)
 names(prec_2000_2019) <- PREC_FNAMES_SHORT_2000_2019 
 
 ## Analysis
-cores <- N_CORES - 3
+cores <- N_CORES - 1
 cl <- makeCluster(cores, type = "FORK")
 prec_mean <- parLapply(cl, prec_2000_2019, calc, fun = mean, na.rm = TRUE)
 stopCluster(cl)
