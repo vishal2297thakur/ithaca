@@ -39,3 +39,5 @@ writeRaster(prec_era5_kenya, paste0(path_save_kenya, "prec_era5.nc"))
 writeRaster(prec_terra_kenya, paste0(path_save_kenya, "prec_terra.nc"))
 writeRaster(evap_era5_kenya, paste0(path_save_kenya, "evap_era5.nc"))
 writeRaster(evap_terra_kenya, paste0(path_save_kenya, "evap_terra.nc"))
+
+#testing the example 
