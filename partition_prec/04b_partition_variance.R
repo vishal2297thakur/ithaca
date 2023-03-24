@@ -1,5 +1,3 @@
-source('source/partition_prec.R')
-
 # Partition precipitation to different regional properties and quantify their uncertainty
 source('source/partition_prec.R')
 
@@ -9,7 +7,8 @@ prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds
 
 ## Variables
 GLOBAL_AREA <- 1.330793e+14
-prec_annual_vol <- prec_annual[, prec_volume_year := GLOBAL_AREA * M2_TO_KM2 * prec_mean * MM_TO_M
+prec_annual_vol <- copy(prec_annual)
+prec_annual_vol <-   prec_annual_vol[, prec_volume_year := GLOBAL_AREA * M2_TO_KM2 * prec_mean * MM_TO_KM
 ][, prec_mean := NULL] # km3
 
 prec_annual_vol_mean <- prec_annual_vol[dataset %in% PREC_GLOBAL_DATASETS, .(prec_volume = mean(prec_volume_year, na.rm = TRUE)), dataset]
