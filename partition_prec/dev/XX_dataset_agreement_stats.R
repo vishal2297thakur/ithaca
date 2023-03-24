@@ -1,9 +1,6 @@
-# Plot global map of dataset agreement classses 
 source('source/partition_prec.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
-
-library(rnaturalearth)
 
 # Data
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))

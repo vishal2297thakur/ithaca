@@ -9,7 +9,7 @@ source('source/mask_paths.R')
 library("gtools")
 
 ## Data 
-prec_era5 <- brick(paste0(PATH_SAVE_PARTITION_PREC_RAW, "era5_tp_mm_land_200001_201912_025_monthly.nc"))
+prec_era5 <- brick(paste0(PATH_SAVE_PARTITION_PREC_RAW, "era5_tp_mm_land_200001_201912_025_yearly.nc"))
 prec_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
 
 ## Masks
@@ -34,7 +34,7 @@ prec_stats[std_quant_range > 0.25 & std_quant_range <= 0.5, abs_dataset_agreemen
 prec_stats[std_quant_range > 0.5 & std_quant_range <= 1, abs_dataset_agreement := ordered(5, labels = "below average")]
 prec_stats[std_quant_range > 1, abs_dataset_agreement := ordered(7, labels = "low")]
 
-prec_stats_temp[, prec_quant_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
+prec_stats[, prec_quant_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
                                                           labels = c('high', 'above average', 'average', 'below average', 'low')), prec_quant]
 
 ### Koppen-Geiger
@@ -119,7 +119,7 @@ colnames(shape_mask_df) <- c('lon', 'lat', 'biome_class')
 shape_mask_df$biome_class <- factor(shape_mask_df$biome_class)
 prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
 
-prec_masks <- prec_masks[, .(lon, lat, prec_mean = ens_mean_mean, prec_quant, prec_class, 
+prec_masks <- prec_stats[, .(lon, lat, prec_mean = ens_mean_mean, prec_quant, prec_class, 
                              rel_dataset_agreement, abs_dataset_agreement, prec_quant_dataset_agreement,
                              KG_class_1,  KG_class_2,  KG_class_3, elev_class, 
                              land_use_class = land_class, biome_class)]
@@ -165,29 +165,3 @@ prec_masks <- prec_masks[, c(1:11, 17, 12:13, 15, 14, 16)]
 
 ## Save data
 saveRDS(prec_masks, paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
-
-
-## Validation
-to_plot <- prec_stats
-p00 <- ggplot() +
-  geom_raster(data = to_plot, aes(x = lon, y = lat, fill = elev_class)) +
-  borders(colour = "black") +
-  coord_cartesian(xlim = c(min(to_plot$lon), max(to_plot$lon)), 
-                  ylim = c(min(to_plot$lat), max(to_plot$lat))) +  
-  labs(x = "", y = "", fill = 'Class') +
-  scale_x_continuous(expand = c(0.015, 0.015)) +
-  scale_fill_manual(values = rev(colset_mid_qual[1:10])) +
-  theme_bw() +
-  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
-        panel.grid = element_line(color = "grey")) 
-
-y_labs <- ggplot_build(p00)$layout$panel_params[[1]]$y$get_labels()
-x_labs <- ggplot_build(p00)$layout$panel_params[[1]]$x$get_labels()
-p01 <- p00 + scale_x_continuous(expand = c(0.015, 0.015), labels = paste0(x_labs, "\u00b0")) +
-  scale_y_continuous(expand = c(0.0125, 0.0125),  labels = paste0(y_labs, "\u00b0"))
-p01
-
-
-
-
-

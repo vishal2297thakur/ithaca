@@ -4,7 +4,6 @@ source('source/geo_functions.R')
 source('source/graphics.R')
 
 library(rnaturalearth)
-library(dplyr)
 
 ## Data
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))

@@ -55,4 +55,4 @@ prec_sum_mc[, quantile(prec_sum, 0.01)]
 prec_sum_mc[, quantile(prec_sum, 0.99)]
 
 
-test <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, 'bootstrap_prec.rds'))
+prec_mean_sampled_mc <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, 'bootstrap_prec.rds'))
