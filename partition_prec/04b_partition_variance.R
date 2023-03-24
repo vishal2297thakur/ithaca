@@ -5,17 +5,24 @@ source('source/partition_prec.R')
 
 ## Data 
 prec_annual <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_mean.rds"))
+prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
 
-prec_annual_sd <- prec_annual[dataset %in% PREC_GLOBAL_DATASETS, .( prec_sd = sd(prec_mean, na.rm = TRUE)), dataset]
+## Variables
+GLOBAL_AREA <- 1.330793e+14
+prec_annual_vol <- prec_annual[, prec_volume_year := GLOBAL_AREA * M2_TO_KM2 * prec_mean * MM_TO_M
+][, prec_mean := NULL] # km3
+
+prec_annual_vol_mean <- prec_annual_vol[dataset %in% PREC_GLOBAL_DATASETS, .(prec_volume = mean(prec_volume_year, na.rm = TRUE)), dataset]
+
+prec_dataset_sd <- prec_annual[dataset %in% PREC_GLOBAL_DATASETS, .(prec_sd = sd(prec_mean, na.rm = TRUE)), dataset]
+prec_dataset_sd[, range(prec_sd)]
+prec_dataset_sd[, median(prec_sd)]
+
+prec_annual_sd <- prec_annual[dataset %in% PREC_GLOBAL_DATASETS, .(prec_sd = sd(prec_mean, na.rm = TRUE)), year]
+prec_annual_sd <- prec_annual_sd[complete.cases(prec_annual_sd)]
 prec_annual_sd[, range(prec_sd)]
 prec_annual_sd[, median(prec_sd)]
 
-
-prec_annual[dataset %in% PREC_GLOBAL_DATASETS, sd(prec_mean, na.rm = TRUE), year]
-year_sd <- prec_annual[dataset %in% PREC_GLOBAL_DATASETS, sd(prec_mean, na.rm = TRUE), year]$V1
-year_sd <- year_sd[complete.cases(year_sd)]
-range(year_sd)
-mean(year_sd)
 
 prec_annual[dataset %in% PREC_GLOBAL_DATASETS, sd(prec_mean, na.rm = TRUE) / 
               mean(prec_mean, na.rm = TRUE), year]
@@ -24,10 +31,3 @@ prec_annual[dataset %in% PREC_GLOBAL_DATASETS, sd(prec_mean, na.rm = TRUE) /
 
 prec_annual[dataset %in% PREC_GLOBAL_DATASETS, sd(prec_mean, na.rm = TRUE) / 
               mean(prec_mean, na.rm = TRUE), year]
-
-data_for_cor <- dcast(prec_annual, year ~ dataset)
-colnames(data_for_cor)[c(6, 7, 11, 15, 16)] <- c("cru", "em_earth", "gpm", "doe", "ncar")
-
-cor_mat <- correlate(data_for_cor[, -1])
-
-network_plot(cor_mat, min_cor = 0, legend = 'full')
