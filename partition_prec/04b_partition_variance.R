@@ -1,11 +1,15 @@
 source('source/partition_prec.R')
 
+# Partition precipitation to different regional properties and quantify their uncertainty
+source('source/partition_prec.R')
+
+## Data 
 prec_annual <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_mean.rds"))
 
-prec_annual[dataset %in% PREC_GLOBAL_DATASETS, sd(prec_mean, na.rm = TRUE), dataset]
-dataset_sd <- prec_annual[dataset %in% PREC_GLOBAL_DATASETS, sd(prec_mean, na.rm = TRUE), dataset]$V1
-range(dataset_sd)
-mean(dataset_sd)
+prec_annual_sd <- prec_annual[dataset %in% PREC_GLOBAL_DATASETS, .( prec_sd = sd(prec_mean, na.rm = TRUE)), dataset]
+prec_annual_sd[, range(prec_sd)]
+prec_annual_sd[, median(prec_sd)]
+
 
 prec_annual[dataset %in% PREC_GLOBAL_DATASETS, sd(prec_mean, na.rm = TRUE), year]
 year_sd <- prec_annual[dataset %in% PREC_GLOBAL_DATASETS, sd(prec_mean, na.rm = TRUE), year]$V1

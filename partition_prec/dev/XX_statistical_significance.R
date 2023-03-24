@@ -7,7 +7,7 @@ names(prec_2000_2019) <- PREC_FNAMES_SHORT_2000_2019
 
 dummy_raster <- prec_2000_2019[[1]]
 
-dummy <- data.table(time = seq(ymd("2000-01-01"), ymd("2019-12-01"), by = 'month'))
+dummy <- data.table(time = seq(ymd("2000-01-01"), ymd("2019-12-01"), by = 'year'))
 dummy[, mean_monthly := cellStats(dummy_raster, "mean")]
 dummy[, sum_annual := sum(mean_monthly), year(time)]
 dummy_annual <- dummy[, unique(sum_annual)]

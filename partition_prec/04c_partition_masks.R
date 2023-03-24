@@ -15,54 +15,12 @@ prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds
 prec_mask[, KG_class_1_name := relevel(factor(KG_class_1_name), "Polar")]
 levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average", "Below average", "Low")
 
-climate_KG <- merge(prec_mask[, .(lat, lon, KG_class_1_name)], prec_grid[, .(lon, lat, area)], by = c("lon", "lat"))
-datasets_KG <- merge(climate_KG, prec_datasets, by = c("lon", "lat"))
-datasets_KG[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_M][, prec_mean := NULL] # km3
-
 land_use_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, land_use_short_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 biome_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, biome_short_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 elevation_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, elev_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 prec_quant <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, prec_quant, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 
 ## Analysis
-### Climate
-datasets_KG[, .(area = round(sum(area), 2)), .(dataset, dataset_type)] #Antarctica 13.66 million km2
-dataset_partition_KG <- datasets_KG[, .(prec_sum = round(sum(prec_volume_year), 0)), 
-                                    .(KG_class_1_name, dataset, dataset_type)]
-dataset_partition_KG[(dataset == 'cmorph' |                       #Remove as they do not cover the whole planet
-                        dataset == 'persiann' | 
-                        dataset == 'chirps') & 
-                       (KG_class_1_name == 'Polar' | KG_class_1_name == 'Continental'), prec_sum := NA]
-#### Mean
-partition_KG_global <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
-                                     fun = mean, na.rm = TRUE)
-colnames(partition_KG_global)[1] <- "Source"
-partition_KG_dataset_types <- dcast(dataset_partition_KG, dataset_type ~ KG_class_1_name, 
-                                           fun = mean, na.rm = TRUE)
-colnames(partition_KG_dataset_types)[1] <- "Source"
-partition_KG <- rbind(partition_KG_global, partition_KG_dataset_types)
-partition_KG$Sum <- apply(partition_KG[, 2:6], 1, sum)
-partition_KG[, Source := c("Global", "Ground Stations", "Reanalysis", "Remote Sensing")]
-
-partition_KG_datasets <- dcast(dataset_partition_KG, dataset ~ KG_class_1_name, fun = mean, na.rm = TRUE)
-partition_KG_datasets <- merge(prec_datasets[, .(dataset = unique(dataset)), dataset_type], partition_KG_datasets, by = 'dataset')
-colnames(partition_KG_datasets)[1] <- c("Dataset")
-partition_KG_datasets[, Sum := rowSums(.SD), .SDcols = 3:7]
-partition_KG <- cbind(partition_KG[, 1], apply(partition_KG[, 2:7], 2, round, 0))
-
-#### St. Dev
-partition_KG_global_sd <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
-                                     fun = sd, na.rm = TRUE)
-colnames(partition_KG_global_sd)[1] <- "Source"
-partition_KG_dataset_types_sd <- dcast(dataset_partition_KG, dataset_type ~ KG_class_1_name, 
-                                           fun = sd, na.rm = TRUE)
-colnames(partition_KG_dataset_types_sd)[1] <- "Source"
-partition_KG_sd <- rbind(partition_KG_global_sd, partition_KG_dataset_types_sd)
-partition_KG_sd[, Source := c("Global", "Ground Stations", "Reanalysis", "Remote Sensing")]
-partition_KG_sd$Sum <- partition_KG_datasets[, sd(Sum, na.rm = TRUE)]
-partition_KG_sd$Sum[2:4] <- partition_KG_datasets[, sd(Sum, na.rm = TRUE), dataset_type]$V1[c(2, 3, 1)]
-partition_KG_sd <- cbind(partition_KG_sd[, 1], apply(partition_KG_sd[, 2:7], 2, round, 0))
-
 ### Land use
 land_use_prec <- land_use_class[, .(prec_sum = sum(prec_volume_year)), .(KG_class_1_name, land_use_short_class)]
 land_use_prec <- land_use_prec[complete.cases(land_use_prec)]
@@ -108,9 +66,6 @@ prec_quant_agreement[, prec_quant_sum := sum(prec_sum), prec_quant]
 prec_quant_agreement[, prec_quant_fraction := prec_sum / prec_quant_sum]
 
 ## Save data
-write.csv(partition_KG, paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG.csv"))
-write.csv(partition_KG_sd, paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_sd.csv"))
-write.csv(partition_KG_datasets[, -2], paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_datasets.csv"))
 save(land_use_prec, land_use_agreement, biome_prec, biome_agreement, elevation_prec, elevation_agreement, prec_quant_prec, prec_quant_agreement, file = paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
 
 ## Figures Main
