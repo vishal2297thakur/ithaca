@@ -39,7 +39,7 @@ prec_stats[, prec_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 
 ### Koppen-Geiger
 kg_mask <- fread(paste0(PATH_MASKS_KOPPEN, '/climate_rubel.csv'))
-prec_stats <- merge(prec_stats, kg_mask, by = c('lon', 'lat'))
+prec_stats <- merge(prec_stats, kg_mask, by = c('lon', 'lat'), all.x = TRUE)
 
 ### Elevation
 fname <- list.files(path = PATH_MASKS_ELEVATION, full.names = TRUE, pattern = "mask_orography_groups_025.nc")
@@ -60,7 +60,7 @@ shape_mask_df$elev_class <- factor(shape_mask_df$elev_class,
                                    levels = c("(0,100]", "(100,400]", "(400,800]", "(800,1500]", "(1500,3000]", "(3000,Inf]"), 
                                    labels = c("0-100", "100-400", "400-800", "800-1500", "1500-3000", "3000+"), 
                                    ordered =TRUE)
-prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
+prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'), all.x = TRUE)
 
 ### Land use
 fname <- list.files(path = PATH_MASKS_LAND_USE, full.names = TRUE, pattern = "mask_landcover_modis_025.nc")
@@ -75,7 +75,7 @@ shape_mask_df <- shape_mask %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TR
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'land_class')
 shape_mask_df$land_class <- factor(shape_mask_df$land_class)
-prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
+prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'), all.x = TRUE)
 
 ### Biomes
 fname_shape <- list.files(path = PATH_MASKS_BIOME, full.names = TRUE, pattern = "mask_biomes_dinerstein.shp")
@@ -87,11 +87,11 @@ shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'layer_BIOME_NAME'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'biome_class')
 shape_mask_df$biome_class <- factor(shape_mask_df$biome_class)
-prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
+prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'), all.x = TRUE)
 
 prec_masks <- prec_stats[, .(lon, lat, prec_mean = ens_mean_mean, prec_quant, prec_class, 
                              rel_dataset_agreement, abs_dataset_agreement, prec_quant_dataset_agreement,
-                             KG_class_1,  KG_class_2,  KG_class_3, elev_class, 
+                             KG_class_1,  KG_class_2,  KG_class_3, KG_class_1_name, elev_class, 
                              land_use_class = land_class, biome_class)]
 
 ### Extra masks
@@ -106,7 +106,7 @@ prec_masks[grepl("Ice", land_use_class) == TRUE, land_use_short_class := "Snow/I
 prec_masks[grepl("Water", land_use_class) == TRUE, land_use_short_class := "Water"]
 prec_masks[grepl("Wetlands", land_use_class) == TRUE, land_use_short_class := "Water"]
 prec_masks[grepl("Barren", land_use_class) == TRUE, land_use_short_class := "Barren"]
-prec_masks[, land_use_short_class := factor(land_use_short_class)    ]
+prec_masks[, land_use_short_class := factor(land_use_short_class)]
 
 prec_masks[grepl("Tundra", biome_class) == TRUE, biome_short_class := "Tundra"]
 prec_masks[grepl("Boreal Forests", biome_class) == TRUE, biome_short_class := "B. Forests"]
