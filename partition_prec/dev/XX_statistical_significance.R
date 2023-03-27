@@ -8,8 +8,7 @@ names(prec_2000_2019) <- PREC_FNAMES_SHORT_2000_2019
 dummy_raster <- prec_2000_2019[[1]]
 
 dummy <- data.table(time = seq(ymd("2000-01-01"), ymd("2019-12-01"), by = 'year'))
-dummy[, mean_monthly := cellStats(dummy_raster, "mean")]
-dummy[, sum_annual := sum(mean_monthly), year(time)]
+dummy[, sum_annual := cellStats(dummy_raster, "mean")]
 dummy_annual <- dummy[, unique(sum_annual)]
 obs_mean_diff <-  mean(dummy_annual[11:20]) -  mean(dummy_annual[1:10])
 
@@ -24,3 +23,5 @@ ggplot(mc_sample_means) +
   geom_density(aes(annual_diff)) +
   geom_vline(aes(xintercept = obs_mean_diff), col = 'red') +
   theme_bw()
+
+
