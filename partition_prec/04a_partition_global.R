@@ -10,13 +10,13 @@ prec_annual <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_mean
 
 ## Variables
 climate_KG <- merge(prec_mask[, .(lat, lon, KG_class_1_name)], 
-                    prec_grid[, .(lon, lat, area)], by = c("lon", "lat"))
+                    prec_grid[, .(lon, lat, area)], by = c("lon", "lat"), all = TRUE) #WATCH OUT! There are several gridcells without KG class
 datasets_KG <- merge(climate_KG, prec_datasets, by = c("lon", "lat"))
-datasets_KG[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_M
+datasets_KG[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_KM
             ][, prec_mean := NULL] # km3
 
 ## Analysis
-datasets_KG[, .(area = round(sum(area), 2)), .(dataset, dataset_type)] #Antarctica 13.66 million km2
+datasets_KG[, .(area = sum(area)), .(dataset, dataset_type)] #Antarctica 13.66 million km2
 dataset_partition_KG <- datasets_KG[, .(prec_sum = round(sum(prec_volume_year), 0)), 
                                     .(KG_class_1_name, dataset, dataset_type)]
 dataset_partition_KG[(dataset == 'cmorph' |                       #Remove as they do not cover the whole planet

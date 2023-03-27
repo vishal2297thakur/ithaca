@@ -67,6 +67,7 @@ EVAP_NAME_SHORT <- "e"
 N_CORES <- detectCores()
 
 ## Other
-M2_TO_KM2 <- 10 ^ (-9)
-MM_TO_M <- 0.001
+M2_TO_KM2 <- 10 ^ (-6)
+MM_TO_M <- 10 ^ (-3)
+MM_TO_KM <- 10 ^ (-6)
 
