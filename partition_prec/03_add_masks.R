@@ -38,38 +38,8 @@ prec_stats[, prec_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
                                                           labels = c('high', 'above average', 'average', 'below average', 'low')), prec_quant]
 
 ### Koppen-Geiger
-fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level3.shp")
-shape_mask <- st_read(paste0(fname_shape[1]))
-shape_mask <- st_make_valid(shape_mask)
-
-shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
-shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
-shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
-colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_1')
-shape_mask_df$KG_class_1 <- factor(shape_mask_df$KG_class_1)
-prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
-
-fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level2.shp")
-shape_mask <- st_read(paste0(fname_shape[1]))
-shape_mask <- st_make_valid(shape_mask)
-
-shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
-shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
-shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
-colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_2')
-shape_mask_df$KG_class_2 <- factor(shape_mask_df$KG_class_2)
-prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
-
-fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level1.shp")
-shape_mask <- st_read(paste0(fname_shape[1]))
-shape_mask <- st_make_valid(shape_mask)
-
-shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
-shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
-shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
-colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_3')
-shape_mask_df$KG_class_3 <- factor(shape_mask_df$KG_class_3)
-prec_stats <- merge(prec_stats, shape_mask_df, by = c('lon', 'lat'))
+kg_mask <- fread(paste0(PATH_MASKS_KOPPEN, '/climate_rubel.csv'))
+prec_stats <- merge(prec_stats, kg_mask, by = c('lon', 'lat'))
 
 ### Elevation
 fname <- list.files(path = PATH_MASKS_ELEVATION, full.names = TRUE, pattern = "mask_orography_groups_025.nc")
@@ -155,13 +125,7 @@ prec_masks[grepl("Mediterranean", biome_class) == TRUE, biome_short_class := "Me
 prec_masks[grepl("N/A", biome_class) == TRUE, biome_short_class := NA]
 prec_masks[, biome_short_class := factor(biome_short_class)]
 
-prec_masks[KG_class_1 == 'A', KG_class_1_name := 'Tropical']
-prec_masks[KG_class_1 == 'B', KG_class_1_name := 'Dry']
-prec_masks[KG_class_1 == 'C', KG_class_1_name := 'Temperate']
-prec_masks[KG_class_1 == 'D', KG_class_1_name := 'Continental']
-prec_masks[KG_class_1 == 'E', KG_class_1_name := 'Polar']
-
-prec_masks <- prec_masks[, c(1:11, 17, 12:13, 15, 14, 16)]
+prec_masks <- prec_masks[, c(1:14, 16, 15, 17)]
 
 ## Save data
 saveRDS(prec_masks, paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
