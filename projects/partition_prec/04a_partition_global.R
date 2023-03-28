@@ -14,6 +14,7 @@ climate_KG <- merge(prec_mask[, .(lat, lon, KG_class_1_name)],
 datasets_KG <- merge(climate_KG, prec_datasets, by = c("lon", "lat"))
 datasets_KG[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_KM
             ][, prec_mean := NULL] # km3
+datasets_KG <- datasets_KG[complete.cases(datasets_KG)]
 
 ## Analysis
 datasets_KG[, .(area = sum(area)), .(dataset, dataset_type)] #Antarctica 13.66 million km2
