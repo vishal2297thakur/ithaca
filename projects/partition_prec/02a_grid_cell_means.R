@@ -8,53 +8,30 @@ names(prec_2000_2019) <- PREC_FNAMES_SHORT_2000_2019
 
 ## Analysis
 registerDoParallel(cores = N_CORES - 1)
-prec_mean <- foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
-  dummie <- prec_2000_2019[[dataset_count]]
-  dummie <- calc(dummie, fun = mean, na.rm = TRUE)
-  dummie
+prec_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine = rbind) %dopar% {
+  dummie_brick <- prec_2000_2019[[dataset_count]]
+  dummie_mean <- calc(dummie_brick, fun = mean, na.rm = TRUE) %>%
+    as.data.frame(xy = TRUE, na.rm = TRUE) %>% as.data.table()
+  dummie_sd <- calc(dummie_brick, fun = sd, na.rm = TRUE) %>%
+    as.data.frame(xy = TRUE, na.rm = TRUE) %>% as.data.table()
+  dummie_table <- merge(dummie_mean, dummie_sd, by = c('x', 'y'))
+  setnames(dummie_table, c('lon', 'lat', 'prec_mean', 'prec_sd'))
+  dummie_table$dataset <- names(prec_2000_2019[dataset_count])
+  return(dummie_table)
 }
-names(prec_mean) <- PREC_FNAMES_SHORT_2000_2019
-
-prec_sd <- foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
-  dummie <- prec_2000_2019[[dataset_count]]
-  dummie <- calc(dummie, fun = sd, na.rm = TRUE)
-  dummie
-}
-names(prec_sd) <- PREC_FNAMES_SHORT_2000_2019
-
-prec_mean_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine = rbind) %dopar% {
-  dummy <- as.data.table(as.data.frame(prec_mean[[dataset_count]], xy = TRUE, na.rm = TRUE))
-  colnames(dummy) <- c('lon', 'lat', 'prec_mean')
-  dummy$dataset <- names(prec_mean[dataset_count])
-  dummy[, lon := round(lon, 3)]
-  dummy[, lat := round(lat, 3)]
-  dummy
-}
-
-prec_sd_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine = rbind) %dopar% {
-  dummy <- as.data.table(as.data.frame(prec_sd[[dataset_count]], xy = TRUE, na.rm = TRUE))
-  colnames(dummy) <- c('lon', 'lat', 'prec_sd')
-  dummy$dataset <- names(prec_sd[dataset_count])
-  dummy[, lon := round(lon, 3)]
-  dummy[, lat := round(lat, 3)]
-  dummy
-}
-
-prec_mean_datasets[, n_datasets := .N, .(lon, lat)]
-prec_mean_datasets <- prec_mean_datasets[n_datasets >= MIN_N_DATASETS]
-
-prec_mean_datasets[dataset %in% PREC_DATASETS_OBS, dataset_type := 'ground stations']
-prec_mean_datasets[dataset %in% PREC_DATASETS_REANAL, dataset_type := 'reanalysis']
-prec_mean_datasets[dataset %in% PREC_DATASETS_REMOTE, dataset_type := 'remote sensing']
-prec_mean_datasets[, prec_mean := round(prec_mean, 2)]
-
-prec_datasets <- merge(prec_mean_datasets, prec_sd_datasets, by = c("lon", "lat", "dataset"))
-prec_datasets <- prec_datasets[, .(lon, lat, dataset, dataset_type, prec_mean, prec_sd = round(prec_sd, 2))]
+setkeyv(prec_datasets, c("lon", "lat", "dataset"))
+prec_datasets[, n_datasets := .N, .(lon, lat)]
+prec_datasets <- prec_datasets[n_datasets >= MIN_N_DATASETS]
+prec_datasets[dataset %in% PREC_DATASETS_OBS, dataset_type := 'ground stations'
+              ][dataset %in% PREC_DATASETS_REANAL, dataset_type := 'reanalysis'
+                ][dataset %in% PREC_DATASETS_REMOTE, dataset_type := 'remote sensing']
+prec_datasets <- prec_datasets[, .(lon, lat, dataset, dataset_type, prec_mean, prec_sd)]
 
 ### Precipitation volumes 
-grid_cell_area <- prec_datasets[, .(lon, lat)] %>% grid_area() # m2
-prec_volume <- grid_cell_area[prec_datasets[, .(prec_mean = mean(prec_mean)), .(lon, lat)], on = .(lon, lat)]
-prec_volume[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_KM][, prec_mean := NULL] # km3
+grid_cell_area <- unique(prec_datasets[, .(lon, lat)]) %>% grid_area() # m2
+prec_volume <- grid_cell_area[prec_datasets[, .(prec_volume_year = mean(prec_mean)), .(lon, lat)], on = .(lon, lat)]
+prec_volume[, prec_volume_year := area * M2_TO_KM2 * prec_volume_year * MM_TO_KM] # km3
+prec_datasets[, prec_mean := round(prec_mean, 2)][, prec_sd := round(prec_sd, 2)]
 
 ## Save data 
 saveRDS(prec_datasets, paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
