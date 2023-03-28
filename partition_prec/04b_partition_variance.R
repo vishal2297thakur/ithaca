@@ -6,7 +6,7 @@ prec_annual <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_mean
 prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
 
 ## Variables
-GLOBAL_AREA <- 1.330793e+14
+GLOBAL_AREA <- 1.345883e+14
 prec_annual_vol <- copy(prec_annual)
 prec_annual_vol <-   prec_annual_vol[, prec_volume_year := GLOBAL_AREA * M2_TO_KM2 * prec_mean * MM_TO_KM
 ][, prec_mean := NULL] # km3

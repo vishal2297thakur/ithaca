@@ -10,7 +10,7 @@ prec_annual <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_mean
 
 ## Variables
 climate_KG <- merge(prec_mask[, .(lat, lon, KG_class_1_name)], 
-                    prec_grid[, .(lon, lat, area)], by = c("lon", "lat"), all = TRUE) #WATCH OUT! There are several gridcells without KG class
+                    prec_grid[, .(lon, lat, area)], by = c("lon", "lat"), all = TRUE)
 datasets_KG <- merge(climate_KG, prec_datasets, by = c("lon", "lat"))
 datasets_KG[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_KM
             ][, prec_mean := NULL] # km3
