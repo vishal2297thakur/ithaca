@@ -25,12 +25,14 @@ prec_datasets <- prec_datasets[n_datasets >= MIN_N_DATASETS]
 prec_datasets[dataset %in% PREC_DATASETS_OBS, dataset_type := 'ground stations'
               ][dataset %in% PREC_DATASETS_REANAL, dataset_type := 'reanalysis'
                 ][dataset %in% PREC_DATASETS_REMOTE, dataset_type := 'remote sensing']
-prec_datasets <- prec_datasets[, .(lon, lat, dataset, dataset_type, prec_mean, prec_sd)]
 
 ### Precipitation volumes 
 grid_cell_area <- unique(prec_datasets[, .(lon, lat)]) %>% grid_area() # m2
-prec_volume <- grid_cell_area[prec_datasets[, .(prec_volume_year = mean(prec_mean)), .(lon, lat)], on = .(lon, lat)]
-prec_volume[, prec_volume_year := area * M2_TO_KM2 * prec_volume_year * MM_TO_KM] # km3
+prec_mean_datasets <- prec_datasets[, .(prec_mean = mean(prec_mean)), .(lon, lat, n_datasets)]
+prec_volume <- grid_cell_area[prec_mean_datasets, on = .(lon, lat)]
+prec_volume[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_KM][, prec_mean := NULL] # km3
+
+prec_datasets <- prec_datasets[, .(lon, lat, dataset, dataset_type, prec_mean, prec_sd)]
 prec_datasets[, prec_mean := round(prec_mean, 2)][, prec_sd := round(prec_sd, 2)]
 
 ## Save data 
