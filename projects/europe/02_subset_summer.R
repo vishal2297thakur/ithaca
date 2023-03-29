@@ -1,3 +1,5 @@
+# Data post-processing: Subsetting data for summer months and estimation of precipitation
+
 source('source/europe.R')
 
 ## Load data

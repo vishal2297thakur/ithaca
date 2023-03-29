@@ -5,8 +5,6 @@ source('source/main.R')
 FNAME_PREC_MSWEP <- "/home/rstudio/shared/data/obs/precip/raw/mswep_tp_mm_land_197902_202206_025_monthly.nc"
 FNAME_PREC_GPCC <- "/home/rstudio/shared/data/obs/precip/raw/gpcc_tp_mm_land_189101_201912_025_monthly.nc"
 FNAME_PREC_GPCP <- "/home/rstudio/shared/data/obs/precip/raw/gpcp_tp_mm_land_197901_202205_025_monthly.nc"
-FNAME_SPEI_PHYDA <- "/home/rstudio/shared/data_downloads/paleo_data/PHYDA_spei_mn_global_1_2000_025_yearly.nc"
-FNAME_TEMP_PHYDA <- "/home/rstudio/shared/data_downloads/paleo_data/PHYDA/PHYDA_tas_mn_global_1_2000_025_yearly.nc"
 
 ### Output
 PATH_SAVE_EUROPE <- paste0(PATH_SAVE, "europe/")

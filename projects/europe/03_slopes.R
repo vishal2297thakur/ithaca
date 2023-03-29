@@ -1,3 +1,5 @@
+# Estimation and plotting of slopes 
+
 source('source/europe.R')
 source('source/graphics.R')
 
