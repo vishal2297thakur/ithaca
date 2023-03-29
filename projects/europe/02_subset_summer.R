@@ -1,6 +1,7 @@
 # Data post-processing: Subsetting data for summer months and estimation of precipitation
 
 source('source/europe.R')
+source('source/geo_functions.R')
 
 ## Load data
 prec_mswep <- brick(paste0(PATH_SAVE_EUROPE_RAW, "/mswep_tp_mm_europe_198001_201912_025_monthly.nc"))
@@ -20,11 +21,11 @@ colnames(prec_dt)[1:2] <- c("lon", "lat")
 ## Analysis
 prec_summer <- prec_dt[month(time) %in% SUMMER_MONTHS]
 prec_summer[, year := year(time)]
-prec_summer[, prec_sum := sum(value), .(lon, lat, year, dataset)][, value := NULL][, time := NULL]
+prec_summer <- prec_summer[, .(prec_sum = sum(value)), .(lon, lat, year, dataset)]
 
 prec_warm_season <- prec_dt[month(time) %in% WARM_MONTHS]
 prec_warm_season[, year := year(time)]
-prec_warm_season[, prec_sum := sum(value), .(lon, lat, year, dataset)][, value := NULL][, time := NULL]
+prec_warm_season <- prec_warm_season[, .(prec_sum = sum(value)), .(lon, lat, year, dataset)]
 
 ## Save data
 saveRDS(prec_summer, paste0(PATH_SAVE_EUROPE, "prec_summer.rds"))
