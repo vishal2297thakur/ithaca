@@ -3,7 +3,7 @@ source('source/europe.R')
 source('source/geo_functions.R')
 
 prec_mswep <- brick(FNAME_PREC_MSWEP)
-prec_gpcc <- brick(FNAME_PREC_GPCC)
+prec_gpcp <- brick(FNAME_PREC_GPCP)
 spei_phyda <- brick(FNAME_SPEI_PHYDA)
 temp_phyda <- brick(FNAME_TEMP_PHYDA)
 
@@ -13,11 +13,17 @@ prec_case_study <- crop_space_time(prec_mswep,
 name_nc <- paste0(PATH_SAVE_EUROPE_RAW, "/mswep_tp_mm_europe_198001_201912_025_monthly.nc")
 save_nc(prec_case_study, name_nc)
 
-prec_case_study <- crop_space_time(prec_gpcc,
+prec_case_study <- crop_space_time(prec_gpcp,
                                    period_start, period_end, 
                                    study_area)
-name_nc <- paste0(PATH_SAVE_EUROPE_RAW, "/gpcc_tp_mm_europe_198001_201912_025_monthly.nc")
+name_nc <- paste0(PATH_SAVE_EUROPE_RAW, "/gpcp_tp_mm_europe_198001_201912_025_monthly.nc")
 save_nc(prec_case_study, name_nc)
+
+
+
+
+
+
 
 
 spei_case_study <- crop(spei_phyda, study_area)

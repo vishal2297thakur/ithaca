@@ -1,33 +1,30 @@
 source('source/europe.R')
 
+## Load data
 prec_mswep <- brick(paste0(PATH_SAVE_EUROPE_RAW, "/mswep_tp_mm_europe_198001_201912_025_monthly.nc"))
-prec_gpcc <- brick(paste0(PATH_SAVE_EUROPE_RAW, "/gpcc_tp_mm_europe_198001_201912_025_monthly.nc"))
+prec_gpcp <- brick(paste0(PATH_SAVE_EUROPE_RAW, "/gpcp_tp_mm_europe_198001_201912_025_monthly.nc"))
+
+## Constants
 SUMMER_MONTHS <- c(6, 7, 8)
 WARM_MONTHS <- c(4, 5, 6, 7, 8, 9)
 
+## Variables
 prec_mswep_dt <- brick_to_dt(prec_mswep)
-prec_mswep_summer <- prec_mswep_dt[month(time) %in% SUMMER_MONTHS]
-prec_mswep_summer[, year := year(time)]
-prec_mswep_summer[, grid_cell := as.factor(paste(x, y, sep = "_"))]
-prec_mswep_summer[, summer_sum := sum(value), .(grid_cell, year)][, value := NULL][, time := NULL]
+prec_gpcp_dt <- brick_to_dt(prec_gpcp)
+prec_dt <- rbind(cbind(prec_mswep_dt, dataset = factor('mswep')), 
+                     cbind(prec_gpcp_dt, dataset = factor('gpcp')))
+colnames(prec_dt)[1:2] <- c("lon", "lat")
 
-my_slopes <- prec_mswep_summer[, {model <- lm(summer_sum ~ year); coef(model)[2]}, by = .(x, y)]
+## Analysis
+prec_summer <- prec_dt[month(time) %in% SUMMER_MONTHS]
+prec_summer[, year := year(time)]
+prec_summer[, prec_sum := sum(value), .(lon, lat, year, dataset)][, value := NULL][, time := NULL]
 
-ggplot(my_slopes)+
-  geom_point(aes(x, y, col = V1)) +
-  scale_color_gradient2(low =  'tomato', mid = 'grey', high = 'steelblue')+
-  theme_bw()
+prec_warm_season <- prec_dt[month(time) %in% WARM_MONTHS]
+prec_warm_season[, year := year(time)]
+prec_warm_season[, prec_sum := sum(value), .(lon, lat, year, dataset)][, value := NULL][, time := NULL]
 
-prec_gpcc_dt <- brick_to_dt(prec_gpcc)
-prec_gpcc_summer <- prec_gpcc_dt[month(time) %in% SUMMER_MONTHS]
-prec_gpcc_summer[, year := year(time)]
-prec_gpcc_summer[, grid_cell := as.factor(paste(x, y, sep = "_"))]
-prec_gpcc_summer[, summer_sum := sum(value), .(grid_cell, year)][, value := NULL][, time := NULL]
+## Save data
+saveRDS(prec_summer, paste0(PATH_SAVE_EUROPE, "prec_summer.rds"))
+saveRDS(prec_warm_season, paste0(PATH_SAVE_EUROPE, "prec_warm_season.rds"))
 
-my_slopes <- prec_gpcc_summer[, {model <- lm(summer_sum ~ year); coef(model)[2]}, by = .(x, y)]
-
-ggplot(my_slopes)+
-  geom_point(aes(x, y, col = V1)) +
-  scale_color_gradient2(low =  'tomato', mid = 'grey', high = 'steelblue')+
-  theme_bw()
-  
