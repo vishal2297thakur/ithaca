@@ -3,8 +3,6 @@
 source('source/europe.R')
 source('source/graphics.R')
 
-library(rnaturalearth)
-
 ## Load data
 prec_summer <- readRDS(paste0(PATH_SAVE_EUROPE, "prec_summer.rds"))
 prec_warm <- readRDS(paste0(PATH_SAVE_EUROPE, "prec_warm_season.rds"))
