@@ -14,7 +14,7 @@
 source('./source/main.R')
 
 landmask <- function(x, keep_land = TRUE){
-  lsmask <- raster("~/shared/data_projects/ithaca/misc/landmask.nc")
+  lsmask <- raster("~/shared/data/geodata/masks/final/land_ocean/mask_land_ocean_025.nc")
   inv_mask <- !keep_land
   mask_ext <- extent(lsmask)
   x_ext <- extent(x)
