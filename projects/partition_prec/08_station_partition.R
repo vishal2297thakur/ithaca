@@ -16,7 +16,7 @@ levels(prec_mask$prec_quant_dataset_agreement) <- c("High", "Above average",
                                                     "Low")
 levels(prec_mask$abs_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
-levels(prec_mask$land_use_short_class) <- c("Forests", "Savannas", "Croplands",
+levels(prec_mask$land_cover_short_class) <- c("Forests", "Savannas", "Croplands",
                                            "Shrublands", "Grasslands", "Water",
                                            "Barren", "Snow/Ice", "Other")
 levels(prec_mask$biome_short_class) <- c("T/S Forests", "T/S Grasslands",
@@ -35,9 +35,9 @@ prec_mask <- merge(prec_mask, stations, by = c("lon", "lat"),
 
 prec_mask <- prec_mask[stn_count >= 1, stn_log := TRUE
                        ][is.na(stn_count), stn_log := FALSE
-                         ][, n_land_use := nrow(.SD), by = land_use_short_class
-                           ][, land_use_frac := sum(stn_log)/n_land_use, by = .(land_use_short_class, rel_dataset_agreement)
-                             ][stn_log == FALSE, land_use_frac := sum(!stn_log)/n_land_use, by = .(land_use_short_class, rel_dataset_agreement)
+                         ][, n_land_cover := nrow(.SD), by = land_cover_short_class
+                           ][, land_cover_frac := sum(stn_log)/n_land_cover, by = .(land_cover_short_class, rel_dataset_agreement)
+                             ][stn_log == FALSE, land_cover_frac := sum(!stn_log)/n_land_cover, by = .(land_cover_short_class, rel_dataset_agreement)
                                ][, n_biome := nrow(.SD), by = biome_short_class
                                  ][, biome_frac := sum(stn_log)/n_biome, by = .(biome_short_class, rel_dataset_agreement)
                                    ][stn_log == FALSE, biome_frac := sum(!stn_log)/n_biome, by = .(biome_short_class, rel_dataset_agreement)
@@ -48,14 +48,14 @@ prec_mask <- prec_mask[stn_count >= 1, stn_log := TRUE
                                              ][, prec_quant_frac := sum(stn_log)/n_quant, by = .(prec_quant, rel_dataset_agreement)
                                                ][stn_log == FALSE, prec_quant_frac := sum(!stn_log)/n_quant, by = .(prec_quant, rel_dataset_agreement)]
 
-prec_mask[stn_log == TRUE, table(land_use_short_class)] / prec_mask[stn_log == FALSE, table(land_use_short_class)]
+prec_mask[stn_log == TRUE, table(land_cover_short_class)] / prec_mask[stn_log == FALSE, table(land_cover_short_class)]
 
 prec_mask[stn_log == TRUE, table(rel_dataset_agreement)]/nrow(prec_mask[stn_log == TRUE])
 prec_mask[stn_log == FALSE, table(rel_dataset_agreement)]/nrow(prec_mask[stn_log == FALSE])
 
 ## Figures
-p01 <- ggplot(unique(prec_mask[land_use_short_class != "Other", .(land_use_short_class, land_use_frac, stn_log, rel_dataset_agreement)])) +
-  geom_bar_pattern(aes(x = land_use_short_class, y = land_use_frac, fill = rel_dataset_agreement, pattern = stn_log),
+p01 <- ggplot(unique(prec_mask[land_cover_short_class != "Other", .(land_cover_short_class, land_cover_frac, stn_log, rel_dataset_agreement)])) +
+  geom_bar_pattern(aes(x = land_cover_short_class, y = land_cover_frac, fill = rel_dataset_agreement, pattern = stn_log),
                    color = "black",
                    stat = "identity", 
                    pattern_fill = "black",

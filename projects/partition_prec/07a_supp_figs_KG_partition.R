@@ -11,7 +11,7 @@ prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_grid.rds"))
 
 ## Variables
-koppen_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, KG_class_1_name, land_use_short_class)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
+koppen_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, KG_class_1_name, land_cover_short_class)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 
 ## Analysis
 dataset_agreement_koppen <- koppen_class[, .N, .(rel_dataset_agreement, KG_class_1_name)]
@@ -20,21 +20,21 @@ dataset_agreement_koppen <- dataset_agreement_koppen[order(rel_dataset_agreement
 dataset_agreement_koppen[, koppen_sum := sum(N), KG_class_1_name]
 dataset_agreement_koppen[, koppen_fraction := N/koppen_sum]
 
-dataset_agreement_koppen_prec <- koppen_class[, .(prec_sum = sum(prec_volume_year)), .(land_use_short_class, KG_class_1_name)]
+dataset_agreement_koppen_prec <- koppen_class[, .(prec_sum = sum(prec_volume_year)), .(land_cover_short_class, KG_class_1_name)]
 dataset_agreement_koppen_prec <- dataset_agreement_koppen_prec[complete.cases(dataset_agreement_koppen_prec)]
-dataset_agreement_koppen_prec <- dataset_agreement_koppen_prec[order(land_use_short_class, KG_class_1_name), ]
+dataset_agreement_koppen_prec <- dataset_agreement_koppen_prec[order(land_cover_short_class, KG_class_1_name), ]
 
 ## Figures Supplementary
 levels(dataset_agreement_koppen$rel_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
 
 fig_koppen_partition_prec_volume <- ggplot(dataset_agreement_koppen_prec) +
-  geom_bar(aes(x = reorder(KG_class_1_name, -(prec_sum)), y = prec_sum, fill = land_use_short_class), stat = "identity") +
+  geom_bar(aes(x = reorder(KG_class_1_name, -(prec_sum)), y = prec_sum, fill = land_cover_short_class), stat = "identity") +
   scale_y_continuous(label = axis_scientific) +
   xlab('Koppen-Geiger climate type')  +
   ylab(bquote('Precipitation sum ['~km^3~year^-1~']'))  +
   labs(fill = 'Dataset agreement')  +
-  scale_fill_manual(values = colset_land_use_short) +
+  scale_fill_manual(values = colset_land_cover_short) +
   theme_light()
 
 dataset_agreement_koppen$KG_class_1_name <- factor(dataset_agreement_koppen$KG_class_1_name, 

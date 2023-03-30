@@ -6,41 +6,44 @@ source('source/geo_functions.R')
 
 ## Data 
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
+prec_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
 load(paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
 
 ## Variables
+prec_mask <- prec_mask[prec_stats[, .(lon, lat, prec_mean = ens_mean_mean)], on = .(lon, lat)]
+prec_mask <- prec_mask[complete.cases(prec_mask)]
 levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average", "Below average", "Low")
 
 ## Analysis
 ### Land cover
-land_use_short_class_prec <- prec_mask[, .(lon, lat, prec_mean,
-                                           land_use_short_class, rel_dataset_agreement)]
-land_use_short_class_prec <- land_use_short_class_prec[complete.cases(land_use_short_class_prec)]
-dummie_area <- grid_area(land_use_short_class_prec[, .(lon, lat)])
-land_use_short_class_prec <- merge(land_use_short_class_prec, dummie_area,
+land_cover_short_class_prec <- prec_mask[, .(lon, lat, prec_mean,
+                                           land_cover_short_class, rel_dataset_agreement)]
+land_cover_short_class_prec <- land_cover_short_class_prec[complete.cases(land_cover_short_class_prec)]
+dummie_area <- grid_area(land_cover_short_class_prec[, .(lon, lat)])
+land_cover_short_class_prec <- merge(land_cover_short_class_prec, dummie_area,
                                    by = c("lon", "lat"))
-land_use_short_class_prec[, rel_area := sum(area),
-                          by = .(land_use_short_class, rel_dataset_agreement)
-][, wprec_mean := prec_mean*area/rel_area
+land_cover_short_class_prec[, rel_area := sum(area),
+                          by = .(land_cover_short_class, rel_dataset_agreement)
+][, wprec_mean := prec_mean * area / rel_area
 ][, prec_wavg := sum(wprec_mean),
-  by = .(land_use_short_class, rel_dataset_agreement)
+  by = .(land_cover_short_class, rel_dataset_agreement)
 ][, prec_dif := prec_mean - prec_wavg
 ][, prec_n := nrow(.SD),
-  by = .(land_use_short_class, rel_dataset_agreement)
+  by = .(land_cover_short_class, rel_dataset_agreement)
 ][, prec_sd := sqrt(sum(prec_dif^2)/(prec_n -1)),
-  by = .(land_use_short_class, rel_dataset_agreement)]
+  by = .(land_cover_short_class, rel_dataset_agreement)]
 
-land_use_short_class_prec <- land_use_short_class_prec[, .(prec_wavg, prec_sd,
+land_cover_short_class_prec <- land_cover_short_class_prec[, .(prec_wavg, prec_sd,
                                                            prec_median = median(prec_mean),
                                                            prec_q25 = quantile(prec_mean, 0.25),
                                                            prec_q75 = quantile(prec_mean, 0.75)), 
-                                                       .(land_use_short_class, rel_dataset_agreement)]
-land_use_short_class_prec <- unique(land_use_short_class_prec)
+                                                       .(land_cover_short_class, rel_dataset_agreement)]
+land_cover_short_class_prec <- unique(land_cover_short_class_prec)
 
-land_use_agreement_cum <- land_use_agreement[, .(cumsum_land_use = cumsum(prec_sum), 
-                                                 rel_dataset_agreement), .(land_use_short_class)]
-land_use_agreement_cum[, fraction_bias := cumsum_land_use  / sum(cumsum_land_use), rel_dataset_agreement]
-land_use_agreement_cum <- land_use_agreement_cum[complete.cases(land_use_agreement_cum)]
+land_cover_agreement_cum <- land_cover_agreement[, .(cumsum_land_cover = cumsum(prec_sum), 
+                                                 rel_dataset_agreement), .(land_cover_short_class)]
+land_cover_agreement_cum[, fraction_bias := cumsum_land_cover  / sum(cumsum_land_cover), rel_dataset_agreement]
+land_cover_agreement_cum <- land_cover_agreement_cum[complete.cases(land_cover_agreement_cum)]
 
 ### Biomes
 biome_short_class_prec <- prec_mask[, .(lon, lat, prec_mean, biome_short_class, rel_dataset_agreement)]
@@ -132,12 +135,12 @@ prec_agreement_cum <- prec_agreement_cum[complete.cases(prec_agreement_cum)]
 
 ## Figures
 
-#land_use
-ggplot(land_use_short_class_prec) + 
+#land_cover
+ggplot(land_cover_short_class_prec) + 
   geom_errorbar(aes(x = rel_dataset_agreement, ymin = prec_wavg - prec_sd, ymax = prec_wavg + prec_sd, col = rel_dataset_agreement), 
                 position = "dodge", width = 0.25) +
   geom_point(aes(x = rel_dataset_agreement, y = prec_wavg, col = rel_dataset_agreement)) +
-  facet_wrap(~ land_use_short_class, scales = 'free') +
+  facet_wrap(~ land_cover_short_class, scales = 'free') +
   labs(col = 'Dataset agreement')  +
   xlab('Dataset agreement')  +
   ylab('Mean annual precipitation')  +
@@ -148,12 +151,12 @@ ggplot(land_use_short_class_prec) +
         axis.text.x = element_blank())
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/land_cover_median_prec.png"), width = 8, height = 6)
 
-ggplot(land_use_agreement_cum) +
-  geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias , fill = land_use_short_class), stat = "identity") +
+ggplot(land_cover_agreement_cum) +
+  geom_bar(aes(x = rel_dataset_agreement, y = fraction_bias , fill = land_cover_short_class), stat = "identity") +
   xlab('Cumulative dataset agreement')  +
   ylab('Precipitation fraction')  +
   labs(fill = 'Land cover class')  +
-  scale_fill_manual(values = colset_land_use_short) +
+  scale_fill_manual(values = colset_land_cover_short) +
   theme_light()
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/land_cover_agreement_cum.png"), width = 8, height = 6)
 

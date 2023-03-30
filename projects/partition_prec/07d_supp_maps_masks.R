@@ -8,7 +8,7 @@ library(dplyr)
 
 # Data
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
-levels(prec_mask$land_use_short_class) <- c("Barren", "Croplands", "Forests", "Grasslands", "Other", "Savannas", 
+levels(prec_mask$land_cover_short_class) <- c("Barren", "Croplands", "Forests", "Grasslands", "Other", "Savannas", 
                                             "Shrublands", "Snow/Ice", "Water" )
 
 #World and Land borders
@@ -33,14 +33,14 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
 
 # Figures
 #land use
-to_plot_sf <- prec_mask[, .(lon, lat, land_use_short_class)
-][, value := as.numeric(land_use_short_class)]
+to_plot_sf <- prec_mask[, .(lon, lat, land_cover_short_class)
+][, value := as.numeric(land_cover_short_class)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-to_plot_sf <- to_plot_sf %>% mutate(land_use_short_class = 
+to_plot_sf <- to_plot_sf %>% mutate(land_cover_short_class = 
                                       case_when(to_plot_sf$value == 1 ~ "Barren", 
                                                 to_plot_sf$value == 2 ~ "Croplands", 
                                                 to_plot_sf$value == 3 ~ "Forests", 
@@ -52,19 +52,19 @@ to_plot_sf <- to_plot_sf %>% mutate(land_use_short_class =
                                                 to_plot_sf$value == 9 ~ "Water"
                                                 ))
 
-to_plot_sf$land_use_short_class <- factor(to_plot_sf$land_use_short_class, 
+to_plot_sf$land_cover_short_class <- factor(to_plot_sf$land_cover_short_class, 
                                            levels = c("Barren", "Croplands", "Forests", 
                                                       "Grasslands", "Other", "Savannas", 
                                                       "Shrublands", "Snow/Ice", "Water"), 
                                            ordered = TRUE)
 
-fig_land_use_short_class <- ggplot(to_plot_sf) +
+fig_land_cover_short_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(color = land_use_short_class, fill = land_use_short_class)) +
+  geom_sf(aes(color = land_cover_short_class, fill = land_cover_short_class)) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = colset_land_use_short) + 
+  scale_fill_manual(values = colset_land_cover_short) + 
   #labels = levels(to_plot_sf$rel_dataset_agreement)) +
-  scale_color_manual(values = colset_land_use_short,
+  scale_color_manual(values = colset_land_cover_short,
                      #labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Land use") +
