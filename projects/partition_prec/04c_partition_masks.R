@@ -8,7 +8,6 @@ library(scales)
 
 ## Data 
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
-prec_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
 prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
 
 ## Variables
@@ -66,7 +65,9 @@ prec_quant_agreement[, prec_quant_sum := sum(prec_sum), prec_quant]
 prec_quant_agreement[, prec_quant_fraction := prec_sum / prec_quant_sum]
 
 ## Save data
-save(land_cover_prec, land_cover_agreement, biome_prec, biome_agreement, elevation_prec, elevation_agreement, prec_quant_prec, prec_quant_agreement, file = paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
+save(land_cover_prec, land_cover_agreement, biome_prec, biome_agreement, 
+     elevation_prec, elevation_agreement, prec_quant_prec, prec_quant_agreement, 
+     file = paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
 
 ## Figures Main
 ### Land Use
