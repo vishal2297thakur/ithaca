@@ -46,7 +46,6 @@ prec_class_global <- prec_class[, .(prec_volume = sum(prec_volume)),
                                      .(dataset, prec_quant, year)]
 
 ## Plots
-### Land use
 ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = prec_volume )) +
   geom_violin(fill = NA) +
   geom_boxplot(width = .2, alpha = .7, fatten = NULL, show.legend = FALSE) +
@@ -58,6 +57,8 @@ ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = prec_volume 
   facet_wrap(~land_cover_short_class, scales = 'free') +
   theme_minimal() +
   theme(axis.text.x = element_blank()) 
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "prec_datasets_land_cover_annual.png"), 
+       width = 8, height = 5)
 
 ggplot(biome_class_global, aes(x = biome_short_class, y = prec_volume )) +
   geom_violin(fill = NA) +
@@ -70,6 +71,8 @@ ggplot(biome_class_global, aes(x = biome_short_class, y = prec_volume )) +
   facet_wrap(~biome_short_class, scales = 'free') +
   theme_minimal() +
   theme(axis.text.x = element_blank()) 
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/prec_datasets_biome_annual.png"), 
+       width = 8, height = 5)
 
 ggplot(elev_class_global, aes(x = elev_class, y = prec_volume )) +
   geom_violin(fill = NA) +
@@ -82,6 +85,8 @@ ggplot(elev_class_global, aes(x = elev_class, y = prec_volume )) +
   facet_wrap(~elev_class, scales = 'free') +
   theme_minimal() +
   theme(axis.text.x = element_blank()) 
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/prec_datasets_elev_annual.png"), 
+       width = 8, height = 5)
 
 ggplot(prec_class_global, aes(x = prec_quant, y = prec_volume )) +
   geom_violin(fill = NA) +
@@ -94,3 +99,7 @@ ggplot(prec_class_global, aes(x = prec_quant, y = prec_volume )) +
   facet_wrap(~prec_quant, scales = 'free') +
   theme_minimal() +
   theme(axis.text.x = element_blank()) 
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/prec_datasets_prec_annual.png"), 
+       width = 8, height = 5)
+
+

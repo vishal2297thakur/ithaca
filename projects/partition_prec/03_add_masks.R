@@ -9,8 +9,9 @@ source('source/mask_paths.R')
 library("gtools")
 
 ## Data 
-masks_land <- readRDS(paste0(PATH_SAVE, "/misc/masks_land.rds"))
+masks_global <- readRDS(paste0(PATH_SAVE, "/misc/masks_global.rds"))
 prec_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
+
 
 ## Masks
 ### Precipitation
@@ -37,7 +38,7 @@ prec_stats[std_quant_range > 1, abs_dataset_agreement := ordered(7, labels = "lo
 prec_stats[, prec_quant_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
                                                           labels = c('high', 'above average', 'average', 'below average', 'low')), prec_quant]
 
-prec_masks <- merge(masks_land, prec_stats[, .(lon, lat, prec_quant, rel_dataset_agreement, #Merges only complete cases
+prec_masks <- merge(masks_global, prec_stats[, .(lon, lat, prec_quant, rel_dataset_agreement, #Merges only complete cases
                                abs_dataset_agreement, 
                                prec_quant_dataset_agreement)], by = c("lon", "lat"))
 

@@ -7,6 +7,35 @@ source('source/mask_paths.R')
 prec_era5 <- brick(paste0(PATH_PREC_SIM, "era5_tp_mm_land_195901_202112_025_yearly.nc"))
 
 ## Masks at 0.25 resolution
+### Koppen-Geiger
+fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level3.shp")
+shape_mask <- st_read(paste0(fname_shape[1]))
+shape_mask <- st_make_valid(shape_mask)
+shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
+shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
+colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_1')
+shape_mask_df$KG_class_1 <- factor(shape_mask_df$KG_class_1)
+shape_mask_dt  <- data.table(shape_mask_df)
+
+fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level2.shp")
+shape_mask <- st_read(paste0(fname_shape[1]))
+shape_mask <- st_make_valid(shape_mask)
+shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
+colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_2')
+shape_mask_df$KG_class_2 <- factor(shape_mask_df$KG_class_2)
+shape_mask_dt <- merge(shape_mask_dt, shape_mask_df, by = c('lon', 'lat'), all = TRUE)
+
+fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level1.shp")
+shape_mask <- st_read(paste0(fname_shape[1]))
+shape_mask <- st_make_valid(shape_mask)
+shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
+shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
+colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_3')
+shape_mask_df$KG_class_3 <- factor(shape_mask_df$KG_class_3)
+shape_mask_dt <- merge(shape_mask_dt, shape_mask_df, by = c('lon', 'lat'), all = TRUE)
+
 ### Land use
 fname <- list.files(path = PATH_MASKS_LAND_USE, full.names = TRUE, pattern = "mask_landcover_modis_025.nc")
 shape_mask <- raster(paste0(fname[1]))
@@ -33,37 +62,6 @@ shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'layer_BIOME_NAME'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'biome_class')
 shape_mask_df$biome_class <- factor(shape_mask_df$biome_class)
 shape_mask_dt <- merge(shape_mask_dt, shape_mask_df, by = c('lon', 'lat'), all = TRUE)
-
-### Koppen-Geiger
-fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level3.shp")
-shape_mask <- st_read(paste0(fname_shape[1]))
-shape_mask <- st_make_valid(shape_mask)
-shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
-shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
-shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
-colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_1')
-shape_mask_df$KG_class_1 <- factor(shape_mask_df$KG_class_1)
-shape_mask_dt  <- data.table(shape_mask_df)
-
-fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level2.shp")
-shape_mask <- st_read(paste0(fname_shape[1]))
-shape_mask <- st_make_valid(shape_mask)
-shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
-shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
-shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
-colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_2')
-shape_mask_df$KG_class_2 <- factor(shape_mask_df$KG_class_2)
-shape_mask_dt <- merge(shape_mask_dt, shape_mask_df, by = c('lon', 'lat'), all.x = TRUE)
-
-fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level1.shp")
-shape_mask <- st_read(paste0(fname_shape[1]))
-shape_mask <- st_make_valid(shape_mask)
-shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
-shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
-shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
-colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_3')
-shape_mask_df$KG_class_3 <- factor(shape_mask_df$KG_class_3)
-shape_mask_dt <- merge(shape_mask_dt, shape_mask_df, by = c('lon', 'lat'))
 
 ### Elevation
 fname <- list.files(path = PATH_MASKS_ELEVATION, full.names = TRUE, pattern = "mask_orography_groups_025.nc")
@@ -122,8 +120,6 @@ shape_mask_dt[grepl("Deserts", biome_class) == TRUE, biome_short_class := "Deser
 shape_mask_dt[grepl("Mediterranean", biome_class) == TRUE, biome_short_class := "Mediterranean"]
 shape_mask_dt[grepl("N/A", biome_class) == TRUE, biome_short_class := NA]
 shape_mask_dt[, biome_short_class := factor(biome_short_class)]
-
-shape_mask_dt <- shape_mask_dt[, c(1:14, 16, 15, 17)]
 
 shape_mask_dt <- shape_mask_dt[, .(lon, lat, elev_class, KG_class_1,  KG_class_2,  KG_class_3, KG_class_1_name, 
                              land_cover_class = land_class, land_cover_short_class = land_use_short_class, biome_class, biome_short_class)]

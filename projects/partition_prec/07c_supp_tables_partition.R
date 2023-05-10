@@ -3,7 +3,11 @@ source('source/partition_prec.R')
 
 ## Data 
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
-land_cover_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, land_cover_short_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
+land_cover_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, 
+                                        land_cover_short_class, KG_class_1_name)], 
+                          prec_grid[, .(lon, lat, prec_volume_year)], 
+                          by = c("lon", "lat"),
+                          all = TRUE)
 biome_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, biome_short_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 elevation_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, elev_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
 prec_quant <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, prec_quant, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
