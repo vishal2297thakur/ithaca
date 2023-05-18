@@ -1,4 +1,4 @@
-# Partition precipitation to different regional properties and quantify their uncertainty
+# Partition precipitation to different KG classes and quantify their uncertainty
 source('source/partition_prec.R')
 source('source/geo_functions.R')
 
