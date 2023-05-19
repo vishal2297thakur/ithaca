@@ -1,4 +1,4 @@
-# Add categorical classes to each variable 
+# Addition of categorical classes to each grid cell 
 
 source('source/partition_prec.R')
 source('source/geo_functions.R')

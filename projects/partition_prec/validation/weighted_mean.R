@@ -12,7 +12,6 @@ prec_volume <- prec_grid[prec_datasets[, .(lon, lat, prec_mean, dataset)], on = 
 prec_volume[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_KM][, prec_mean := NULL] # km3
 prec_annual_vol_mean_dataset <- prec_volume[, sum(prec_volume_year), dataset]
 
-GLOBAL_AREA <- 1.345883e+14 
 prec_annual_vol <- copy(prec_annual)
 prec_annual_vol <- prec_annual_vol[, prec_volume_year := GLOBAL_AREA * M2_TO_KM2 * prec_mean * MM_TO_KM
 ][, prec_mean := NULL] # km3
