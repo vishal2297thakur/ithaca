@@ -1,4 +1,6 @@
-# Estimation of ensemble statistics
+# Estimation of the mean global precipiation (mm) per dataset and year
+# Weighted mean was used to account for different grid cell size
+
 source('source/partition_prec.R')
 source('source/geo_functions.R')
 
