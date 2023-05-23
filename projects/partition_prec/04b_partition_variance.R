@@ -27,5 +27,5 @@ prec_annual_sd <- prec_annual_vol[dataset %in% PREC_GLOBAL_DATASETS,
                                   .(prec_sd = sd(prec_volume_year, na.rm = TRUE)), year]
 prec_annual_sd <- prec_annual_sd[complete.cases(prec_annual_sd)]
 prec_annual_sd[, range(prec_sd)]
-prec_annual_sd[, median(prec_sd)]
+prec_annual_sd[, mean(prec_sd)]
 
