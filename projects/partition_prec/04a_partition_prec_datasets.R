@@ -17,8 +17,9 @@ prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds
 prec_dataset_means <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
 dataset_types <- unique(prec_dataset_means[, .(dataset, dataset_type)])
 
+
 ## Analysis
-prec_datasets_volume <- merge(prec_datasets[, .(lon, lat, year, dataset, prec)], 
+prec_datasets_volume <- merge(prec_datasets[dataset %in% PREC_GLOBAL_DATASETS, .(lon, lat, year, dataset, prec)], 
                             prec_grid[, .(lon, lat, area)], 
                             by = c("lon", "lat"), all = TRUE)
 prec_datasets_volume[, prec_volume := area * M2_TO_KM2 * prec * MM_TO_KM]
@@ -204,6 +205,7 @@ ggplot(biome_class_global, aes(x = biome_short_class, y = prec_volume )) +
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Precipitation ['~km^3~year^-1~']')) +
   scale_linetype_manual(values = c("solid", "longdash", "dotdash")) +  
+  scale_color_manual(values = colset_RdBu_5[c(1, 3, 4)]) + 
   facet_wrap(~biome_short_class, scales = 'free') +
   guides(col = guide_legend(title = "Dataset type"), lty = guide_legend(title = "Dataset type")) +
   theme_minimal() +
@@ -217,6 +219,7 @@ ggplot(elev_class_global, aes(x = elev_class, y = prec_volume )) +
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Precipitation ['~km^3~year^-1~']')) +
   scale_linetype_manual(values = c("solid", "longdash", "dotdash")) +  
+  scale_color_manual(values = colset_RdBu_5[c(1, 3, 4)]) + 
   facet_wrap(~elev_class, scales = 'free') +
   guides(col = guide_legend(title = "Dataset type"), lty = guide_legend(title = "Dataset type")) +
   theme_minimal() +
@@ -230,6 +233,7 @@ ggplot(prec_class_global, aes(x = prec_quant, y = prec_volume)) +
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Precipitation ['~km^3~year^-1~']')) +
   scale_linetype_manual(values = c("solid", "longdash", "dotdash")) +  
+  scale_color_manual(values = colset_RdBu_5[c(1, 3, 4)]) + 
   facet_wrap(~prec_quant, scales = 'free') +
   guides(col = guide_legend(title = "Dataset type"), lty = guide_legend(title = "Dataset type")) +
   theme_minimal() +

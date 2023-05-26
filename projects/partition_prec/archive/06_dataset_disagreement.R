@@ -9,7 +9,7 @@ source('source/geo_functions.R')
 source('source/graphics.R')
 
 # Data
-prec_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_datasets.rds"))
+prec_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
 prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 ens_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC,  "prec_ensemble_stats.rds"))
 
