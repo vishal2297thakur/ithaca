@@ -1,6 +1,4 @@
-# Estimation of the 2000-2019 mean and sd at each grid cell (mm) for each dataset (prec_mean_datasets.rds) 
-# and the average annual volume (km3/yr) for all datasets per grid cell (prec_mean_volume_grid.rds)
-
+# Estimation of ensemble statistics
 source('source/partition_prec.R')
 source('source/geo_functions.R')
 
@@ -32,7 +30,7 @@ prec_datasets[dataset %in% PREC_DATASETS_OBS, dataset_type := 'ground stations'
 grid_cell_area <- unique(prec_datasets[, .(lon, lat)]) %>% grid_area() # m2
 prec_mean_datasets <- prec_datasets[, .(prec_mean = mean(prec_mean)), .(lon, lat, n_datasets)]
 prec_volume <- grid_cell_area[prec_mean_datasets, on = .(lon, lat)]
-prec_volume[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_KM] # km3
+prec_volume[, prec_volume_year := area * M2_TO_KM2 * prec_mean * MM_TO_KM][, prec_mean := NULL] # km3
 
 prec_datasets <- prec_datasets[, .(lon, lat, dataset, dataset_type, prec_mean, prec_sd)]
 prec_datasets[, prec_mean := round(prec_mean, 2)][, prec_sd := round(prec_sd, 2)]

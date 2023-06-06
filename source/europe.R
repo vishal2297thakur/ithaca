@@ -2,7 +2,7 @@ source('source/main.R')
 
 ## Paths & files
 ### Input
-FNAME_PREC_MSWEP <- "/home/rstudio/shared/data/obs/precip/raw/mswep_tp_mm_land_197902_202206_025_monthly.nc"
+FNAME_PREC_MSWEP <- "/home/rstudio/shared/data/obs/precip/raw/mswep_tp_mm_land_197902_202212_025_monthly.nc"
 FNAME_PREC_GPCC <- "/home/rstudio/shared/data/obs/precip/raw/gpcc_tp_mm_land_189101_201912_025_monthly.nc"
 FNAME_PREC_GPCP <- "/home/rstudio/shared/data/obs/precip/raw/gpcp_tp_mm_land_197901_202205_025_monthly.nc"
 

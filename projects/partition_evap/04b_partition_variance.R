@@ -18,14 +18,12 @@ prec_annual_vol <- prec_annual_vol[, prec_volume_year := area  * M2_TO_KM2 * pre
 prec_annual_vol[dataset %in% PREC_GLOBAL_DATASETS, 
                                         .(prec_volume = mean(prec_volume_year, na.rm = TRUE)), dataset]
 
-prec_dataset_sd <- prec_annual_vol[dataset %in% PREC_GLOBAL_DATASETS, 
-                                   .(prec_sd = sd(prec_volume_year, na.rm = TRUE)), dataset]
+prec_dataset_sd <- prec_annual_vol[dataset %in% PREC_GLOBAL_DATASETS, .(prec_sd = sd(prec_volume_year, na.rm = TRUE)), dataset]
 prec_dataset_sd[, range(prec_sd)]
 prec_dataset_sd[, median(prec_sd)]
 
-prec_annual_sd <- prec_annual_vol[dataset %in% PREC_GLOBAL_DATASETS, 
-                                  .(prec_sd = sd(prec_volume_year, na.rm = TRUE)), year]
+prec_annual_sd <- prec_annual_vol[dataset %in% PREC_GLOBAL_DATASETS, .(prec_sd = sd(prec_volume_year, na.rm = TRUE)), year]
 prec_annual_sd <- prec_annual_sd[complete.cases(prec_annual_sd)]
 prec_annual_sd[, range(prec_sd)]
-prec_annual_sd[, mean(prec_sd)]
+prec_annual_sd[, median(prec_sd)]
 
