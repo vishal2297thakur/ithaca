@@ -42,3 +42,4 @@ period_months <- interval(period_start, period_end) %/% months(1) + 1
 
 # Specify the lat/lon for the region of analysis
 study_area <- extent(-10.25, 40.25, 29.75, 45.25) 
+
