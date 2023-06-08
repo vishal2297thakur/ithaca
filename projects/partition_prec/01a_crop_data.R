@@ -14,4 +14,8 @@ foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
   save_nc(result, nc_out)
 } 
 
-
+PREC_FNAMES_2000_2019 <- list.files(path = PATH_SAVE_PARTITION_PREC_RAW, full.names = TRUE)
+dummy <- strsplit(PREC_FNAMES_2000_2019, split = '//')
+dummy <- sapply(dummy, "[[", 2)
+dummy <- strsplit(dummy, split = '_')
+PREC_FNAMES_SHORT_2000_2019 <- sapply(dummy, "[[", 1)
