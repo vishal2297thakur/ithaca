@@ -1,9 +1,14 @@
 # Reading and subsetting data for the specified region and period
 
-source('source/partition_prec.R')
+source('source/main.R')
 source('source/geo_functions.R')
 
+load("~/shared/data_projects/ithaca/misc/prec_fnames_2000_2019_full_record.Rdata") # Created by database/06_dataset_fnames.R
+
 registerDoParallel(cores = N_CORES - 1)
+n_datasets_2000_2019 <- length(PREC_FNAMES_2000_2019_FULL_RECORD)
+period_start <- as.Date("2000-01-01") 
+period_end <- ITHACA_PERIOD_END
 
 foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
   result <- crop_time(brick(PREC_FNAMES_2000_2019_FULL_RECORD[[dataset_count]]),
@@ -19,3 +24,5 @@ dummy <- strsplit(PREC_FNAMES_2000_2019, split = '//')
 dummy <- sapply(dummy, "[[", 2)
 dummy <- strsplit(dummy, split = '_')
 PREC_FNAMES_SHORT_2000_2019 <- sapply(dummy, "[[", 1)
+
+save(PREC_FNAMES_2000_2019, PREC_FNAMES_SHORT_2000_2019, file = paste0(PATH_SAVE_PARTITION_PREC, "prec_names_2000_2019.Rdata"))
