@@ -11,7 +11,6 @@ prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 
 ## Variables
 data_for_cor_temporal <- dcast(prec_annual, year ~ dataset, value.var = 'prec_mean')
-data_for_cor_spatial <- dcast(prec_datasets, lon + lat ~ dataset, value.var = 'prec_mean')
 
 taylor_obs <- prec_annual[dataset == 'gpcc', .(year, obs = prec_mean)]
 data_for_taylor <- merge(taylor_obs, prec_annual[dataset != 'gpcc'], by = "year")
@@ -20,10 +19,9 @@ setnames(data_for_taylor, 'prec_mean', 'mod')
 ## Analyses
 ### Correlation
 cor_matrix_temporal <- correlate(data_for_cor_temporal[, -1])
+png(filename = paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/cor_network.png"))
 network_plot(cor_matrix_temporal, min_cor = 0, legend = 'range')
-
-cor_matrix_spatial <- correlate(data_for_cor_spatial[, -(1:2)])
-network_plot(cor_matrix_spatial, min_cor = 0, legend = 'range')
+dev.off()
 
 #### Low dataset agreement and spatial correlation
 data_for_cor_spatial_agree <- merge(prec_mask[, .(lon, lat, prec_quant_dataset_agreement)], data_for_cor_spatial, by = c('lon', 'lat'))
@@ -32,6 +30,7 @@ cor_matrix_spatial_low_agree <- correlate(data_for_cor_spatial_low_agree[, -(1:2
 network_plot(cor_matrix_spatial_low_agree, min_cor = 0, legend = 'range')
 
 ### Taylor plot
+data_for_taylor
 TaylorDiagram(data_for_taylor, group = "dataset") 
 
 taylor_obs <- prec_annual[, .(obs = mean(prec_mean, na.rm = TRUE)), year]

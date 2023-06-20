@@ -1,6 +1,7 @@
 # Investigate the reasons of low dataset agreement
 install.packages('UpSetR')
 install.packages('randomForestSRC')
+install.packages('kohonen')
 install.packages('ggRandomForests')
 install.packages('caret')
 
