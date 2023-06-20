@@ -40,9 +40,9 @@ PREC_DATASETS_HYDROL <- c('fldas', 'gldas-clsm', 'gldas-noah', 'gldas-vic',
 
 ## Constants
 # Time
-PERIOD_START <- as.Date('2001-01-01')
+PERIOD_START <- as.Date('2000-01-01')
 PERIOD_END <- as.Date('2019-12-31')
-PERIOD_MONTHS <- interval(PERIOD_START, PERIOD_END) %/% months(1) + 1
+PERIOD_MONTHS <- seq(PERIOD_START, PERIOD_END, 'month')
 
 # Space
 GLOBAL_AREA <- 1.345883e+14 
