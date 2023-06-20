@@ -25,19 +25,28 @@ save(PATH_SAVE_UNCERTAINTY_PREC,
      file = paste0(PATH_SAVE_UNCERTAINTY_PREC, 'uncertainty_prec_paths.Rdata'))
 
 ## Period 2000-2019
-PREC_FNAMES_SHORT_2000_2019 <-  c('chirps', 'cmap', 'cmorph', 'cpc', 'cru-ts',
-                                  'em-earth', 'era5', 'gpcc', 'gpcp',
-                                  'gpm-imerg', 'jra55', 'merra2', 'mswep',
-                                  'ncep-doe', 'ncep-ncar', 'persiann', 'precl')
-PREC_FNAMES_2000_2019 <- c(list.files(path = PATH_PREC_SIM, full.names = TRUE),
+PREC_FNAMES_SHORT_2000_2019_FULL_RECORD <-  c('chirps', 'cmap', 'cmorph', 'cpc',
+                                              'cru-ts', 'em-earth', 'era5',
+                                              'gpcc', 'gpcp', 'gpm-imerg',
+                                              'jra55', 'merra2', 'mswep',
+                                              'ncep-doe', 'ncep-ncar',
+                                              'persiann', 'precl')
+PREC_FNAMES_2000_2019_FULL_RECORD <- c(list.files(path = PATH_PREC_SIM,
+                                                  full.names = TRUE),
                                        list.files(path = PATH_PREC_OBS,
                                                   full.names = TRUE))
 
-PREC_FNAMES_2000_2019 <- unique(grep(paste(PREC_FNAMES_SHORT_2000_2019,
+PREC_FNAMES_2000_2019_FULL_RECORD <- unique(grep(paste(PREC_FNAMES_SHORT_2000_2019_FULL_RECORD,
                                            collapse = '|'),
-                                     PREC_FNAMES_2000_2019, value = TRUE))
-PREC_FNAMES_2000_2019 <- grep('land', PREC_FNAMES_2000_2019, value = TRUE)
-PREC_FNAMES_2000_2019 <- grep('monthly', PREC_FNAMES_2000_2019, value = TRUE)
+                                     PREC_FNAMES_2000_2019_FULL_RECORD,
+                                     value = TRUE))
+PREC_FNAMES_2000_2019_FULL_RECORD <- grep('land',
+                                          PREC_FNAMES_2000_2019_FULL_RECORD,
+                                          value = TRUE)
+PREC_FNAMES_2000_2019_FULL_RECORD <- grep('monthly',
+                                          PREC_FNAMES_2000_2019_FULL_RECORD,
+                                          value = TRUE)
 
-save(PREC_FNAMES_2000_2019, file = paste0(PATH_SAVE_UNCERTAINTY_PREC,
-                                          'prec_fnames_2000_2019.Rdata'))
+save(PREC_FNAMES_2000_2019_FULL_RECORD,
+     file = paste0(PATH_SAVE_UNCERTAINTY_PREC,
+                   'prec_names_2000_2019_full_record.rda'))
