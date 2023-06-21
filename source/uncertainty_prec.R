@@ -38,6 +38,29 @@ PREC_DATASETS_REMOTE <- c('chirps', 'cmap', 'cmorph','gpcp', 'gpm-imerg',
 PREC_DATASETS_HYDROL <- c('fldas', 'gldas-clsm', 'gldas-noah', 'gldas-vic',
                           'terraclimate')
 
+### Output
+PATH_SAVE_UNCERTAINTY_PREC <- paste0(PATH_SAVE, 'uncertainty_prec/')
+PATH_SAVE_UNCERTAINTY_PREC_RAW <- paste0(PATH_SAVE, 'uncertainty_prec/raw/')
+PATH_SAVE_UNCERTAINTY_PREC_SPATIAL <- paste0(PATH_SAVE,
+                                             'uncertainty_prec/spatial/')
+PATH_SAVE_UNCERTAINTY_PREC_FIGURES <- paste0(PATH_SAVE,
+                                             'uncertainty_prec/figures/')
+PATH_SAVE_UNCERTAINTY_PREC_TABLES <- paste0(PATH_SAVE,
+                                            'uncertainty_prec/tables/')
+
+dir.create(PATH_SAVE_UNCERTAINTY_PREC, showWarnings = FALSE)
+dir.create(PATH_SAVE_UNCERTAINTY_PREC_RAW, showWarnings = FALSE)
+dir.create(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL, showWarnings = FALSE)
+dir.create(PATH_SAVE_UNCERTAINTY_PREC_FIGURES, showWarnings = FALSE)
+dir.create(PATH_SAVE_UNCERTAINTY_PREC_TABLES, showWarnings = FALSE)
+
+save(PATH_SAVE_UNCERTAINTY_PREC, 
+     PATH_SAVE_UNCERTAINTY_PREC_RAW,
+     PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
+     PATH_SAVE_UNCERTAINTY_PREC_FIGURES,
+     PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+     file = paste0(PATH_SAVE_UNCERTAINTY_PREC, 'uncertainty_prec_paths.rda'))
+
 ## Constants
 # Time
 PERIOD_START <- as.Date('2000-01-01')

@@ -1,29 +1,6 @@
 source('source/uncertainty_prec.R')
 
 ## Paths
-### Output
-PATH_SAVE_UNCERTAINTY_PREC <- paste0(PATH_SAVE, 'uncertainty_prec/')
-PATH_SAVE_UNCERTAINTY_PREC_RAW <- paste0(PATH_SAVE, 'uncertainty_prec/raw/')
-PATH_SAVE_UNCERTAINTY_PREC_SPATIAL <- paste0(PATH_SAVE,
-                                             'uncertainty_prec/spatial/')
-PATH_SAVE_UNCERTAINTY_PREC_FIGURES <- paste0(PATH_SAVE,
-                                             'uncertainty_prec/figures/')
-PATH_SAVE_UNCERTAINTY_PREC_TABLES <- paste0(PATH_SAVE,
-                                            'uncertainty_prec/tables/')
-
-dir.create(PATH_SAVE_UNCERTAINTY_PREC, showWarnings = FALSE)
-dir.create(PATH_SAVE_UNCERTAINTY_PREC_RAW, showWarnings = FALSE)
-dir.create(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL, showWarnings = FALSE)
-dir.create(PATH_SAVE_UNCERTAINTY_PREC_FIGURES, showWarnings = FALSE)
-dir.create(PATH_SAVE_UNCERTAINTY_PREC_TABLES, showWarnings = FALSE)
-
-save(PATH_SAVE_UNCERTAINTY_PREC, 
-     PATH_SAVE_UNCERTAINTY_PREC_RAW,
-     PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
-     PATH_SAVE_UNCERTAINTY_PREC_FIGURES,
-     PATH_SAVE_UNCERTAINTY_PREC_TABLES,
-     file = paste0(PATH_SAVE_UNCERTAINTY_PREC, 'uncertainty_prec_paths.Rdata'))
-
 ## Period 2000-2019
 PREC_NAMES_SHORT_2000_2019_FULL_RECORD <-  c('chirps', 'cmap', 'cmorph', 'cpc',
                                               'cru-ts', 'em-earth', 'era5',
@@ -47,6 +24,6 @@ PREC_NAMES_2000_2019_FULL_RECORD <- grep('monthly',
                                           PREC_NAMES_2000_2019_FULL_RECORD,
                                           value = TRUE)
 
-save(PREC_NAMES_2000_2019_FULL_RECORD,
+save(PREC_NAMES_SHORT_2000_2019_FULL_RECORD, PREC_NAMES_2000_2019_FULL_RECORD,
      file = paste0(PATH_SAVE_UNCERTAINTY_PREC,
                    'prec_names_2000_2019_full_record.rda'))
