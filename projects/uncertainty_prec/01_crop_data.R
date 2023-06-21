@@ -1,4 +1,4 @@
-# Reading and subsetting data for the specified region and period
+# Reading and subsetting data for the specified period
 
 source('source/uncertainty_prec.R')
 
