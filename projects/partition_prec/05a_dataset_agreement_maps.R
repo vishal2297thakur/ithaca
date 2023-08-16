@@ -44,7 +44,7 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
 fig_stations <- ggplot(station_grid) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(color = "dark red") +
-  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
+  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 1) +
   scale_color_viridis_c(option = "H") +
   labs(x = NULL, y = NULL) +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -75,10 +75,10 @@ to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>%
 fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = factor(value), fill = factor(value))) +
-  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = colset_RdBu_5, 
+  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
+  scale_fill_manual(values = rev(colset_RdBu_5),
                     labels = levels(prec_mask$rel_dataset_agreement)) +
-  scale_color_manual(values = colset_RdBu_5,
+  scale_color_manual(values = rev(colset_RdBu_5),
                      labels = levels(prec_mask$rel_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
@@ -110,10 +110,10 @@ to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>%
 fig_prec_quant_dataset_agreement <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = factor(value), fill = factor(value))) +
-  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = colset_RdBu_5, 
+  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
+  scale_fill_manual(values = rev(colset_RdBu_5), 
                     labels = levels(prec_mask$prec_quant_dataset_agreement)) +
-  scale_color_manual(values = colset_RdBu_5,
+  scale_color_manual(values = rev(colset_RdBu_5),
                      labels = levels(prec_mask$prec_quant_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
