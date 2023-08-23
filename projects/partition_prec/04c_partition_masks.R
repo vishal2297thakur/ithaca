@@ -68,7 +68,7 @@ prec_quant_agreement[, prec_quant_fraction := prec_sum / prec_quant_sum]
 save(land_cover_prec, land_cover_agreement, biome_prec, biome_agreement, 
      elevation_prec, elevation_agreement, prec_quant_prec, prec_quant_agreement, 
      file = paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
-
+load(paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
 ## Figures Main
 ### Land Use
 fig_land_cover_partition_prec_volume <- ggplot(land_cover_prec[land_cover_short_class != "Other"]) +

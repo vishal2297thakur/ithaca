@@ -20,7 +20,7 @@ setnames(data_for_taylor, 'prec_mean', 'mod')
 ### Correlation
 cor_matrix_temporal <- correlate(data_for_cor_temporal[, -1])
 png(filename = paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "supplement/cor_network.png"))
-network_plot(cor_matrix_temporal, min_cor = 0, legend = 'range')
+network_plot(cor_matrix_temporal, min_cor = -0, legend = 'range', colors = c('lightsteelblue', colset_RdBu_5[5]))
 dev.off()
 
 #### Low dataset agreement and spatial correlation
