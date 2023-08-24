@@ -1,4 +1,4 @@
-# Transform datasets from brick to a single data table (large memory requirements)
+# Transforms datasets from brick to a single data table (large memory requirements)
 
 source('source/partition_prec.R')
 source('source/geo_functions.R')

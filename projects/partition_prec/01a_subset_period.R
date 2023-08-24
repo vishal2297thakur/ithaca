@@ -1,4 +1,4 @@
-# Reading and subsetting data for the specified region and period
+# Reads and subsets data as netcdf files for the specified period.
 
 source('source/main.R')
 source('source/geo_functions.R')

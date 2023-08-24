@@ -1,5 +1,5 @@
-# Partitioning of annual precipitation [km3 and mm] to different grid cell types 
-# presented by violin plots 
+# Partitions annual precipitation (mm and km3) per dataset to different classes 
+# and creates the violin plots
 
 install.packages("ggstatsplot")
 

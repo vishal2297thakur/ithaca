@@ -1,4 +1,4 @@
-# Partition precipitation to different regional properties for SI Tables
+# Partition precipitation to different classes for SI Tables
 source('source/partition_prec.R')
 
 ## Data 

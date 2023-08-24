@@ -1,4 +1,4 @@
-# Plot global map of dataset agreement classses 
+# Plots global maps of dataset agreement classes 
 source('source/partition_prec.R')
 source('source/geo_functions.R')
 source('source/graphics.R')

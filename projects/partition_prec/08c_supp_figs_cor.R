@@ -1,3 +1,5 @@
+#Supplementary figure: Correlation network
+
 source('source/partition_prec.R')
 source('source/graphics.R')
 

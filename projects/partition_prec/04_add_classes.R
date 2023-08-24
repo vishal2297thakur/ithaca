@@ -11,13 +11,13 @@ library("gtools")
 ## Data 
 masks_global <- readRDS(paste0(PATH_SAVE, "/misc/masks_global.rds"))
 prec_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
-
+prec_volume <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
 
 ## Masks
 ### Precipitation
-prec_stats[, prec_quant := ordered(quantcut(ens_mean_mean, 10), labels = c('0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-0.5',
-                                                                           '0.5-0.6', '0.6-0.7', '0.7-0.8', '0.8-0.9', '0.9-1'))]
-prec_stats[, prec_class := ordered(quantcut(ens_mean_mean, 5), labels = c('low', 'below average', 'average', 'above average', 'high'))]
+prec_stats[, prec_quant := ordered(quantcut(ens_mean_mean, 10), 
+                                   labels = c('0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-0.5',     #Caution: This is biased due to different grid size
+                                              '0.5-0.6', '0.6-0.7', '0.7-0.8', '0.8-0.9', '0.9-1'))]
 
 ### Uncertainty - Dataset agreement
 prec_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5), 

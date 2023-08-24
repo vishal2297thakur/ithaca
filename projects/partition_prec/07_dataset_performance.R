@@ -1,3 +1,5 @@
+#Plots the datasets that are closests/furthest to the ensemble mean
+
 source('source/partition_prec.R')
 source('source/graphics.R')
 source('source/geo_functions.R')

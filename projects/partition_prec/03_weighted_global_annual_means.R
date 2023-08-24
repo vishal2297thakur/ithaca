@@ -1,4 +1,4 @@
-# Estimation of the mean global precipiation (mm) per dataset and year
+# Estimates the mean global precipiation (mm and volume) per dataset and year
 # Weighted mean was used to account for different grid cell size
 # Only datasets with global coverage are used
 

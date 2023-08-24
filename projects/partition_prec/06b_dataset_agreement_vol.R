@@ -1,4 +1,4 @@
-# Partition precipitation to different dataset agreement classes and quantify their uncertainty
+# Estimates stats for dataset agreement classes
 source('source/partition_prec.R')
 
 ## Data 
@@ -31,4 +31,4 @@ dataset_agreement_spread <- dataset_agreement_spread[, .(prec_mean = round(mean(
                                                          prec_sd = round(sd(prec_volume_year), 0), 
                                                          cv = round(sd(prec_volume_year) / mean(prec_volume_year), 2)), 
                                                      rel_dataset_agreement]
-dataset_agreement_spread <- dataset_agreement_spread[c(3, 2, 1, 4, 5)]
+q <- dataset_agreement_spread[c(3, 2, 1, 4, 5)]
