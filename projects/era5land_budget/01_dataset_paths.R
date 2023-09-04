@@ -22,6 +22,12 @@ evap_datasets_fpaths <- grep("land", evap_datasets_fpaths, value = TRUE)
 evap_datasets_fpaths <- grep("monthly", evap_datasets_fpaths, value = TRUE)
 evap_datasets_fpaths <- evap_datasets_fpaths[c(1, 6, 2, 4)]
 
+runoff_all_fpaths <- list.files(path = PATH_RUNOFF_SIM, full.names = TRUE)
+runoff_datasets_fpaths <- unique(grep(paste(runoff_dataset_names, collapse = "|"), 
+                                    runoff_all_fpaths, value = TRUE))
+runoff_datasets_fpaths <- runoff_datasets_fpaths[c(1, 3, 2)]
+
 save(prec_datasets_fpaths, 
      evap_datasets_fpaths,
+     runoff_datasets_fpaths,
      file = paste0(PATH_SAVE_ERA5LAND_BUDGET, "dataset_fpaths.Rdata"))

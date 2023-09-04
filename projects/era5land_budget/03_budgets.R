@@ -1,0 +1,68 @@
+source('source/main.R')
+source('source/era5land_budget.R')
+
+basins_eval <- readRDS(paste0(PATH_SAVE_ERA5LAND_BUDGET, 'basins_eval.rds'))
+
+start_year <- 1980
+end_year <- 2019
+
+basins_eval <- basins_eval[year(date) >= start_year & year(date) <= end_year]
+
+basins_eval_tab <- dcast(basins_eval, formula = date + basin  ~ variable + dataset, value.var = 'value')  
+basins_eval_tab[, pe_era5 := prec_era5 - `evap_era5-land`]
+basins_eval_tab[, pe_cru := `prec_cru-ts` - `evap_gleam`]
+basins_eval_tab[, `pe_em-earth` := `prec_em-earth` - `evap_gleam`]
+basins_eval_tab[, pe_gpcc := prec_gpcc - `evap_gleam`]
+basins_eval_tab[, pe_terraclimate := prec_terraclimate - evap_terraclimate]
+basins_eval_tab[, `pe_gldas-noah` := `prec_gldas-noah` - `evap_gldas-noah`]
+
+saveRDS(basins_eval_tab, paste0(PATH_SAVE_ERA5LAND_BUDGET, 'basins_eval_tab.rds'))
+
+ggplot(basins_eval_tab) +
+  geom_point(aes(x = pe_terraclimate, y = runoff_terraclimate), col = 'red',) +
+  geom_point(aes(x = `pe_gldas-noah`, y =  `runoff_gldas-noah`), col = 'blue') +
+  geom_point(aes(x = pe_era5, y =  pe_era5), alpha = 0.3) +
+  facet_wrap(~basin)
+
+ggplot(basins_eval_tab) +
+  geom_point(aes(x = pe_gpcc, y = pe_era5), alpha = 0.3) +
+  geom_smooth(aes(x = pe_gpcc, y = pe_era5), col = 'red', method = 'lm') +
+  geom_point(aes(x = pe_cru, y = pe_era5), alpha = 0.3) +
+  geom_smooth(aes(x = pe_cru, y = pe_era5), col = 'blue', method = 'lm') +
+  facet_wrap(~basin, scale = 'free')
+
+ggplot(basins_eval_tab) +
+  geom_point(aes(x = pe_gpcc, y = pe_era5), alpha = 0.3) +
+  geom_smooth(aes(x = pe_gpcc, y = pe_era5), col = 'red', method = 'lm') +
+  geom_point(aes(x = pe_cru, y = pe_era5), alpha = 0.3) +
+  geom_smooth(aes(x = pe_cru, y = pe_era5), col = 'blue', method = 'lm') +
+  geom_point(aes(x = `pe_em-earth`, y = pe_era5), alpha = 0.3) +
+  geom_smooth(aes(x = `pe_em-earth`, y = pe_era5), col = 'green', method = 'lm') +
+  geom_point(aes(x = pe_noah, y = pe_era5), alpha = 0.3) +
+  geom_smooth(aes(x = pe_noah, y = pe_era5), col = 'black', method = 'lm') +
+  geom_point(aes(x = pe_terra, y = pe_era5), alpha = 0.3) +
+  geom_smooth(aes(x = pe_terra, y = pe_era5), col = 'black', method = 'lm') +
+  facet_wrap(~basin, scale = 'free')
+
+ggplot(basins_eval_tab) +
+  geom_point(aes(x = pe_gpcc, y = pe_era5), alpha = 0.3) +
+  geom_point(aes(x = pe_cru, y = pe_era5), alpha = 0.3) +
+  geom_point(aes(x = `pe_em-earth`, y = pe_era5), alpha = 0.3) +
+  geom_point(aes(x = pe_era5, y = pe_era5), alpha = 0.3) +
+  geom_point(aes(x = pe_terra, y = pe_era5), alpha = 0.3) +
+  facet_wrap(~basin)
+
+to_plot <- melt(basins_eval_tab, id = 1:2)
+to_plot[, c("variable", "dataset") := tstrsplit(variable, "_", fixed = TRUE)]
+
+ggplot(to_plot[variable == 'pe']) +
+  geom_boxplot(aes(y = value, fill = dataset)) +
+  facet_wrap(~basin, scales = 'free') +
+  theme_minimal()
+
+ggplot(to_plot[variable == 'pe']) +
+  geom_line(aes(x = date, y = value, col = dataset)) +
+  facet_wrap(~basin) +
+  theme_minimal()
+
+to_plot <- dcast(to_plot,  date + basin + dataset ~ variable, value.var = 'value')
