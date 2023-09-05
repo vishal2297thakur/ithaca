@@ -1,4 +1,5 @@
 source('source/main.R')
+source('source/graphics.R')
 source('source/era5land_budget.R')
 
 basins_eval <- readRDS(paste0(PATH_SAVE_ERA5LAND_BUDGET, 'basins_eval.rds'))
@@ -20,22 +21,75 @@ basin_storage_era5 <- basins_eval_tab[, .(date, storage = cumsum(pe_era5 - `runo
 basin_storage_terraclimate <- basins_eval_tab[, .(date, storage = cumsum(pe_terraclimate - runoff_terraclimate)), .(basin)]
 basin_storage_gldas <- basins_eval_tab[, .(date, storage = cumsum(`pe_gldas-noah` - `runoff_gldas-noah`)), .(basin)]
 
-ggplot(basin_storage_gldas) +
+gg_era5_single <- ggplot(basin_storage_era5) +
+  geom_hline(yintercept = 0, col = 'grey50')+ 
   geom_line(aes(x = date, y = storage, col = basin)) + 
-  theme_minimal()
+  xlab('Date (year)') +
+  scale_x_date(limits = as.Date(c("1960-01-01", "2020-01-01"))) +
+  ylab(expression(paste('Cumulative ', italic('P - E - R  '), '(mm)'))) +
+  theme_light() + 
+  scale_color_manual(name = "Basin", labels = c("Danube", "Mahanadi", "Gulf of Mexico", "Shebelli n Juba"), 
+                     values = colset_mid_qual[c(1, 3, 5, 12)]) +
+  theme(panel.background = element_rect(colour = "black"))
 
-ggplot(basin_storage_era5) +
-  geom_line(aes(x = date, y = storage, col = basin)) + 
-  theme_minimal()
+basins_full_name<- c("Danube", "Mahanadi", "Gulf of Mexico", "Shebelli n Juba")
+names(basins_full_name) <- c('danube', 'mahanadi', 'mexico', 'shebelli')
 
-ggplot(basin_storage_terraclimate) +
+gg_era5 <- ggplot(basin_storage_era5) +
+  geom_hline(yintercept = 0, col = 'grey50')+ 
   geom_line(aes(x = date, y = storage, col = basin)) + 
-  theme_minimal()
+  xlab('Date (year)') +
+  scale_x_date(limits = as.Date(c("1960-01-01", "2020-01-01"))) +
+  ylab(expression(paste('Cumulative ', italic('P - E - R  '), '(mm)'))) +
+  theme_light() + 
+  scale_color_manual(values = colset_mid_qual[c(1, 3, 5, 12)]) +
+  theme(panel.background = element_rect(colour = "black")) +
+  facet_wrap(~basin, scale = 'free', labeller = as_labeller(basins_full_name))+ 
+  theme(strip.background = element_rect(fill = 'grey30', size=1.5, linetype="solid")) +
+  theme(legend.position = "none")
+
+gg_terraclimate <- ggplot(basin_storage_terraclimate) +
+  geom_hline(yintercept = 0, col = 'grey50')+ 
+  geom_line(aes(x = date, y = storage, col = basin)) + 
+  xlab('Date (year)') +
+  scale_x_date(limits = as.Date(c("1960-01-01", "2020-01-01"))) +
+  ylab(expression(paste('Cumulative ', italic('P - E - R  '), '(mm)'))) +
+  theme_light() + 
+  scale_color_manual(values = colset_mid_qual[c(1, 3, 5, 12)]) +
+  theme(panel.background = element_rect(colour = "black")) +
+  facet_wrap(~basin, scale = 'free', labeller = as_labeller(basins_full_name))+ 
+  theme(strip.background = element_rect(fill = 'grey30', size=1.5, linetype="solid")) +
+  theme(legend.position = "none")
+
+gg_gldas <- ggplot(basin_storage_gldas) +
+  geom_hline(yintercept = 0, col = 'grey50')+ 
+  geom_line(aes(x = date, y = storage, col = basin)) + 
+  xlab('Date (year)') +
+  scale_x_date(limits = as.Date(c("1960-01-01", "2020-01-01"))) +
+  ylab(expression(paste('Cumulative ', italic('P - E - R  '), '(mm)'))) +
+  theme_light() + 
+  scale_color_manual(values = colset_mid_qual[c(1, 3, 5, 12)]) +
+  theme(panel.background = element_rect(colour = "black")) +
+  facet_wrap(~basin, scale = 'free', labeller = as_labeller(basins_full_name))+ 
+  theme(strip.background = element_rect(fill = 'grey30', size=1.5, linetype="solid")) +
+  theme(legend.position = "none")
+
+ggarrange(gg_era5, gg_terraclimate, gg_gldas, 
+                      labels = c('a', 'b', 'c'), align = 'hv',
+                      nrow = 3, ncol = 1)
+ggsave(paste0(PATH_SAVE_ERA5LAND_BUDGET_FIGURES, "cumsum_storage_1.png"), width = 6, height = 12)
+
+ggarrange(gg_era5_single, gg_terraclimate, gg_gldas, 
+                      labels = c('a', 'b', 'c'), align = 'hv',
+                      nrow = 3, ncol = 1)
+ggsave(paste0(PATH_SAVE_ERA5LAND_BUDGET_FIGURES, "cumsum_storage_2.png"), width = 6, height = 12)
+
 
 basin_storage_era5 <- basins_eval_tab[, .(date, storage = cumsum(pe_era5 - `runoff_era5-land`)), .(basin)]
 
-
 saveRDS(basins_eval_tab, paste0(PATH_SAVE_ERA5LAND_BUDGET, 'basins_eval_tab.rds'))
+
+### Older plots 
 
 ggplot(basins_eval_tab) +
   geom_point(aes(x = pe_terraclimate, y = runoff_terraclimate), col = 'red',) +
