@@ -70,7 +70,7 @@ ggplot(basins_eval[year(date) > 1959 & variable == 'evap']) +
   facet_wrap(~basin, scales = 'free') +
   theme_bw()
 
-dummy <- brick(prec_datasets_fpaths[1])
+dummy <- brick(evap_datasets_fpaths[1])
 austin_map <- crop_data(dummy, paste0(PATH_SAVE_ERA5LAND_BUDGET_SPATIAL, '/era5_basins/Austin_North America.shp'))
 dhalegaon_map <- crop_data(dummy, paste0(PATH_SAVE_ERA5LAND_BUDGET_SPATIAL, '/era5_basins/Dhalegaon_India.shp'))
 nagymaros_map <- crop_data(dummy, paste0(PATH_SAVE_ERA5LAND_BUDGET_SPATIAL, '/era5_basins/Nagymaros_Europe.shp'))

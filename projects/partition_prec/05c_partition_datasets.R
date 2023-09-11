@@ -124,7 +124,7 @@ ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = prec_mean)) 
   geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
   geom_jitter(width = 0.1, alpha = .05) +
   scale_x_discrete(name = "") +
-  scale_y_continuous(name = bquote('Precipitation [mm]')) +
+  scale_y_continuous(name = bquote('Precipitation [mm/year]')) +
   scale_linetype_manual(values = c("solid", "longdash", "dotdash")) +
   scale_color_manual(values = colset_RdBu_5[c(1, 3, 4)]) + 
   facet_wrap(~land_cover_short_class, scales = 'free') +
@@ -140,7 +140,7 @@ ggplot(biome_class_global, aes(x = biome_short_class, y = prec_mean)) +
   geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
   geom_jitter(width = 0.1, alpha = .05) +
   scale_x_discrete(name = "") +
-  scale_y_continuous(name = bquote('Precipitation [mm]')) +
+  scale_y_continuous(name = bquote('Precipitation [mm/year]')) +
   scale_linetype_manual(values = c("solid", "longdash", "dotdash")) +
   scale_color_manual(values = colset_RdBu_5[c(1, 3, 4)]) + 
   facet_wrap(~biome_short_class, scales = 'free') +
@@ -156,7 +156,7 @@ ggplot(elev_class_global, aes(x = elev_class, y = prec_mean)) +
   geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
   geom_jitter(width = 0.1, alpha = .05) +
   scale_x_discrete(name = "") +
-  scale_y_continuous(name = bquote('Precipitation [mm]')) +
+  scale_y_continuous(name = bquote('Precipitation [mm/year]')) +
   scale_linetype_manual(values = c("solid", "longdash", "dotdash")) +
   scale_color_manual(values = colset_RdBu_5[c(1, 3, 4)]) + 
   facet_wrap(~elev_class, scales = 'free') +
@@ -172,7 +172,7 @@ ggplot(prec_class_global, aes(x = prec_quant, y = prec_mean )) +
   geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
   geom_jitter(width = 0.1, alpha = .05) +
   scale_x_discrete(name = "") +
-  scale_y_continuous(name = bquote('Precipitation [mm]')) +
+  scale_y_continuous(name = bquote('Precipitation [mm/year]')) +
   scale_linetype_manual(values = c("solid", "longdash", "dotdash")) +
   scale_color_manual(values = colset_RdBu_5[c(1, 3, 4)]) + 
   facet_wrap(~prec_quant, scales = 'free') +

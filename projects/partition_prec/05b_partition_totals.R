@@ -13,7 +13,7 @@ prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
 
 ## Variables
-prec_mask[, KG_class_1_name := relevel(factor(KG_class_1_name), "Polar")]
+prec_mask[, KG_class_1_name := factor(KG_class_1_name, levels = levels(prec_mask$KG_class_1_name)[c(5, 4, 2, 3, 1)])]
 levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average", "Below average", "Low")
 
 land_cover_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, land_cover_short_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
@@ -71,6 +71,7 @@ save(land_cover_prec, land_cover_agreement, biome_prec, biome_agreement,
      elevation_prec, elevation_agreement, prec_quant_prec, prec_quant_agreement, 
      file = paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
 load(paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
+
 ## Figures Main
 ### Land Use
 fig_land_cover_partition_prec_volume <- ggplot(land_cover_prec[land_cover_short_class != "Other"]) +

@@ -5,6 +5,7 @@ source('source/graphics.R')
 source('source/geo_functions.R')
 
 library(ggrepel)
+library(tidyverse)
 
 #Data
 datasets_vol <- data.table(read.csv(paste0(PATH_SAVE_PARTITION_PREC_TABLES, 
@@ -20,7 +21,17 @@ colnames(datasets_vol) <- c('dataset', 'climate', 'prec')
 KG_means <- datasets_vol[, .(prec_mean = mean(prec)), climate]
 datasets_mean_ratio <- datasets_vol_matrix / KG_means$prec_mean
 datasets_mean_ratio <- melt(data.table(datasets_mean_ratio))
-colnames(datasets_mean_ratio) <- c('climate', 'dataset', 'prec')
+
+datasets_mean_ratio <- as_tibble(datasets_mean_ratio) %>%
+  mutate(climate = factor(rownames(datasets_mean_ratio)))  %>%
+  relocate(climate)
+
+datasets_mean_ratio <- datasets_mean_ratio %>% pivot_longer(-climate,
+             names_to="dataset",
+             values_to="prec") 
+
+datasets_mean_ratio <- data.table(datasets_mean_ratio)
+
 datasets_mean_ratio[, prec_diff := prec - 1]
 datasets_mean_ratio[, abs_prec_diff := abs(prec_diff)]
 
@@ -34,11 +45,11 @@ dummy_3 <- datasets_mean_ratio[datasets_mean_ratio[, .I[dataset == tail(dataset,
 dummy_3[, class := factor("overestimate")]
 
 ## Figures
-to_plot <- rbind(dummy_1, dummy_2, dummy_3)[, c(1, 2, 4, 6)]
+to_plot <- rbind(dummy_1, dummy_2, dummy_3)[, c(1, 2, 3, 6)]
 to_plot[, levels(climate) := levels(climate)[c()]]
 
-ggplot(to_plot, aes(climate, prec_diff)) +
-  geom_hline(yintercept = 0, col = 'grey50') +
+ggplot(to_plot, aes(climate, prec)) +
+  geom_hline(yintercept = 1, col = 'grey50') +
   geom_point() +
   geom_line(aes(group = climate)) +
   scale_fill_manual(values = colset_RdBu_5[c(3, 4, 2)]) + 
