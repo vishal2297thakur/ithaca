@@ -6,81 +6,59 @@ library(gtable)
 library(grid)
 library(ggplotify)
 
-
-basins_eval <- readRDS(paste0(PATH_SAVE_ERA5LAND_BUDGET, 'basins_eval.rds'))
-prec_basins$variable <- 'prec'
-basins_eval <- rbind(basins_eval, prec_basins)
-basins_eval <- basins_eval[dataset != "era5"]
+basins_eval <- readRDS(paste0(PATH_SAVE_ERA5LAND_BUDGET, 'basins_eval_czechia.rds'))
 
 start_year <- 1960
 end_year <- 2019
 
 basins_eval <- basins_eval[year(date) >= start_year & year(date) <= end_year]
+basins_eval[, year := year(date)][, date := NULL]
+basins_eval[, value_annual := sum(value), .(dataset, variable, year)][, value := NULL]
+basins_eval <- unique(basins_eval)
 
-basins_eval_tab <- dcast(basins_eval, formula = date + basin  ~ variable + dataset, value.var = 'value')  
-basins_eval_tab[, `pe_era5-land` := `prec_era5-land` - `evap_era5-land`]
+basins_eval_tab <- dcast(basins_eval, formula = year ~ variable + dataset, value.var = 'value_annual')  
+basins_eval_tab[, pe_era5 := prec_era5land - `evap_era5-land`]
 basins_eval_tab[, pe_cru := `prec_cru-ts` - `evap_gleam`]
 basins_eval_tab[, `pe_em-earth` := `prec_em-earth` - `evap_gleam`]
 basins_eval_tab[, pe_gpcc := prec_gpcc - `evap_gleam`]
 basins_eval_tab[, pe_terraclimate := prec_terraclimate - evap_terraclimate]
 basins_eval_tab[, `pe_gldas-noah` := `prec_gldas-noah` - `evap_gldas-noah`]
 
-basin_storage_era5 <- basins_eval_tab[, .(date, storage = cumsum(`pe_era5-land`- `runoff_era5-land`)), .(basin)]
-basin_storage_terraclimate <- basins_eval_tab[, .(date, storage = cumsum(pe_terraclimate - runoff_terraclimate)), .(basin)]
-basin_storage_gldas <- basins_eval_tab[, .(date, storage = cumsum(`pe_gldas-noah` - `runoff_gldas-noah`)), .(basin)]
+basin_storage_era5 <- basins_eval_tab[, .(year, runoff = `runoff_era5-land`, 
+                                          prec = prec_era5land, evap =  `evap_era5-land`, 
+                                          cum_storage = cumsum(pe_era5 - `runoff_era5-land`))]
+basin_storage_era5 <- melt(basin_storage_era5, measure.vars = 2:5)
+basin_storage_terraclimate <- basins_eval_tab[, .(year, runoff = runoff_terraclimate, 
+                                                  prec = prec_terraclimate, evap = evap_terraclimate, 
+                                                  cum_storage = cumsum(prec_terraclimate - evap_terraclimate - runoff_terraclimate))]
+basin_storage_terraclimate <- melt(basin_storage_terraclimate, measure.vars = 2:5)
+basin_storage_gldas <- basins_eval_tab[, .(year, storage = cumsum(`pe_gldas-noah` - `runoff_gldas-noah`))]
+
 
 gg_era5_single <- ggplot(basin_storage_era5) +
   geom_hline(yintercept = 0, col = 'grey50')+ 
-  geom_line(aes(x = date, y = storage, col = basin)) + 
+  geom_line(aes(x = year, y = value, col = variable)) + 
   xlab('Date (year)') +
-  scale_x_date(limits = as.Date(c("1960-01-01", "2020-01-01"))) +
   ylab(expression(paste('Cumulative ', italic('P - E - R  '), '(mm)'))) +
   theme_light() + 
-  scale_color_manual(name = "Basin", labels = c("Danube", "Mahanadi", "Gulf of Mexico", "Shebelli n Juba"), 
-                     values = colset_mid_qual[c(1, 3, 5, 12)]) +
   theme(panel.background = element_rect(colour = "black"))
 
-basins_full_name<- c("Danube", "Mahanadi", "Gulf of Mexico", "Shebelli n Juba")
-names(basins_full_name) <- c('danube', 'mahanadi', 'mexico', 'shebelli')
-
-gg_era5 <- ggplot(basin_storage_era5) +
+gg_terraclimate_single <- ggplot(basin_storage_terraclimate) +
   geom_hline(yintercept = 0, col = 'grey50')+ 
-  geom_line(aes(x = date, y = storage, col = basin)) + 
+  geom_line(aes(x = year, y = value, col = variable)) + 
   xlab('Date (year)') +
-  scale_x_date(limits = as.Date(c("1960-01-01", "2020-01-01"))) +
   ylab(expression(paste('Cumulative ', italic('P - E - R  '), '(mm)'))) +
   theme_light() + 
-  scale_color_manual(values = colset_mid_qual[c(1, 3, 5, 12)]) +
-  theme(panel.background = element_rect(colour = "black")) +
-  facet_wrap(~basin, scale = 'free', labeller = as_labeller(basins_full_name))+ 
-  theme(strip.background = element_rect(fill = 'grey30', size=1.5, linetype="solid")) +
-  theme(legend.position = "none")
-
-gg_terraclimate <- ggplot(basin_storage_terraclimate) +
-  geom_hline(yintercept = 0, col = 'grey50')+ 
-  geom_line(aes(x = date, y = storage, col = basin)) + 
-  xlab('') +
-  scale_x_date(limits = as.Date(c("1960-01-01", "2020-01-01"))) +
-  ylab(expression(paste('Cumulative ', italic('P - E - R  '), '(mm)'))) +
-  theme_light() + 
-  scale_color_manual(values = colset_mid_qual[c(1, 3, 5, 12)]) +
-  theme(panel.background = element_rect(colour = "black")) +
-  facet_wrap(~basin, scale = 'free', labeller = as_labeller(basins_full_name))+ 
-  theme(strip.background = element_rect(fill = 'grey30', size=1.5, linetype="solid")) +
-  theme(legend.position = "none") +
-  theme(axis.text.x=element_blank(),
-        axis.ticks.x=element_blank())
+  theme(panel.background = element_rect(colour = "black"))
 
 gg_gldas <- ggplot(basin_storage_gldas) +
   geom_hline(yintercept = 0, col = 'grey50')+ 
-  geom_line(aes(x = date, y = storage, col = basin)) + 
+  geom_line(aes(x = year, y = storage)) + 
   xlab('Date (year)') +
-  scale_x_date(limits = as.Date(c("1960-01-01", "2020-01-01"))) +
   ylab(expression(paste('Cumulative ', italic('P - E - R  '), '(mm)'))) +
   theme_light() + 
   scale_color_manual(values = colset_mid_qual[c(1, 3, 5, 12)]) +
   theme(panel.background = element_rect(colour = "black")) +
-  facet_wrap(~basin, scale = 'free', labeller = as_labeller(basins_full_name))+ 
   theme(strip.background = element_rect(fill = 'grey30', size=1.5, linetype="solid")) +
   theme(legend.position = "none")
 

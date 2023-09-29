@@ -4,7 +4,7 @@ source("source/main.R")
 load(paste0(PATH_SAVE, "era5land_budget/paths.Rdata"))
 
 ## Variables
-prec_dataset_names <- c('era5', 'terraclimate', 'gldas-noah', 'gpcc', 'cru-ts', 'em-earth')
+prec_dataset_names <- c('era5-land', 'terraclimate', 'gldas-noah', 'gpcc', 'cru-ts', 'em-earth')
 evap_dataset_names <- c('era5-land', 'terraclimate', 'gldas-noah', 'gleam')
 runoff_dataset_names <- c('era5-land', 'terraclimate', 'gldas-noah')
 
