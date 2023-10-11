@@ -40,11 +40,12 @@ monthly_means <- function(dataset) {
   return(dataset_monthly_means)
 }
 
+
 # Example
 
 ## Data download & region setup
 dataset_names <- c("cru-ts", "era5", "em-earth")
-#download_data(dataset = dataset_names, domain = 'land', timestep = 'monthly') #kept it for vignette
+#download_data(dataset = dataset_names, domain = 'land', timestep = 'monthly') #kept it for later use in vignette
 
 dataset_fnames <- c(paste0(PATH_PREC_OBS, 'cru-ts_tp_mm_land_190101_202112_025_monthly.nc'),
                     paste0(PATH_PREC_SIM, 'era5_tp_mm_land_195901_202112_025_monthly.nc'),
@@ -77,7 +78,7 @@ dataset_cropped_fnames <- c(paste0(PATH_SAVE, '/precipe_dev/cru.grd'),
                             paste0(PATH_SAVE, '/precipe_dev/em_earth.grd'))
 ensemble_datasets_cropped <- create_ensemble(dataset_names, dataset_cropped_fnames)
 
-ensemble_means <- lapply(datasets_cropped_nc, calc, fun = mean, na.rm = TRUE) #to do: parallelize for any function
+ensemble_means <- lapply(ensemble_datasets_cropped, calc, fun = mean, na.rm = TRUE) #to do: parallelize for any function
 plot(ensemble_means$`cru-ts`)
 plot(ensemble_means$era5/ensemble_means$`em-earth`)
 
@@ -86,7 +87,7 @@ plot(ensemble_monthly_means$`cru-ts`)
 plot(ensemble_monthly_means$era5/ensemble_monthly_means$`em-earth`)
 
 ## Compare single year monthly differences
-ensemble_dt <- rbindlist(lapply(ensemble_datasets_cropped, fldmean), 
+ensemble_dt <- rbindlist(lapply(ensemble_datasets_cropped, fldmean), #to do: fldmean for ensemble
                          idcol = "dataset")
 check_year <- 1973     
 
@@ -109,12 +110,15 @@ ensemble_annual_dt <- ensemble_dt[, .(value = sum(value)), .(year(date), dataset
 ensemble_annual_dt[ensemble_annual_dt[, .I[value == max(value)], by = dataset]$V1]
 ensemble_dt[ensemble_dt[, .I[value == min(value)], by = .(dataset, month(date))]$V1]
 
-## Estimate ensemble statistics
+## Estimate ensemble statistics   #to-do: create ensemble_stats() function 
 ensemble_stack <- stack(ensemble_datasets_cropped[[1]], ensemble_datasets_cropped[[2]], ensemble_datasets_cropped[[3]]) 
 dates <- names(ensemble_datasets_cropped[[1]])
 ensemble_mean <- stackApply(ensemble_stack, indices = dates, fun = mean)
+ensemble_mean <- setZ(ensemble_mean, getZ(ensemble_datasets_cropped[[1]]))
 ensemble_median <- stackApply(ensemble_stack, indices = dates, fun = median) #takes too much time
+ensemble_median <- setZ(ensemble_median, getZ(ensemble_datasets_cropped[[1]]))
 ensemble_sd <-stackApply(ensemble_stack, indices = dates, fun = sd)  #takes too much time
+ensemble_sd <- setZ(ensemble_sd, getZ(ensemble_datasets_cropped[[1]]))
 ensemble_q25 <- stackApply(ensemble_stack, indices = dates, fun = estimate_q25)  #error
 ensemble_q75 <- stackApply(ensemble_stack, indices = dates, fun = estimate_q75)  #error
 
@@ -126,23 +130,10 @@ ensemble_stats <- list(ensemble_mean = ensemble_mean,
                        ensemble_median = ensemble_median, 
                        ensemble_sd = ensemble_sd)
 
+plot_summary(ensemble_stats$ensemble_median)
+
 plot(ensemble_stats$ensemble_median)
 plot(ensemble_stats$ensemble_sd / ensemble_stats$ensemble_mean)
 
-## somspace
-dummy <- tabular(ensemble_median)
-dummy <- dummy[, c(3, 2, 1, 4)]
-inp_som <- sominp(dummy)
-my_som <- somspa(inp_som, rlen = 10000, grid = somgrid(6, 6, "hexagonal"))
-my_regions <- somregs(my_som, nregions = 18) 
-plot(my_som$som)
-plot(my_regions, 3:18, 4, 4)
-cnet(my_regions, n = 4, thres = 0.5)
-
-
-
-
-
-plot_ts(my_regions, 1:5)
 
 
