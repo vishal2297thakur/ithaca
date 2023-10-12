@@ -21,22 +21,23 @@ PATH_PREC_SIM <- paste0(PATH_DATA, "sim/precip/raw/")
 PATH_PREC_OBS <- paste0(PATH_DATA, "obs/precip/raw/")
 
 ## Datasets
-PREC_GLOBAL_DATASETS <- c("20cr", "chirps", "cmap", "cmorph", "cpc", "cru-ts",
-                          "era20c", "era5", "em-earth", "fldas", "ghcn",
-                          "gldas-clsm", "gldas-noah", "gldas-vic", "gpcc",
-                          "gpcp", "gpm-imerg", "jra55", "merra2", "mswep",
-                          "ncep-doe", "ncep-ncar", "persiann", "precl",
-                          "terraclimate", "trmm-3b43", "udel")
+PREC_GLOBAL_DATASETS <- c("20cr", "chirps", "cmap", "cmorph", "cpc",
+                          "cru-ts", "era20c", "era5", "era5-land", "em-earth",
+                          "fldas", "ghcn", "gldas-clsm", "gldas-noah",
+                          "gldas-vic", "gpcc", "gpcp", "gpm-imerg", "gsmap",
+                          "jra55", "merra2", "mswep", "ncep-doe", "ncep-ncar",
+                          "persiann", "precl", "terraclimate", "trmm-3b43",
+                          "udel")
 
 # Types
 PREC_DATASETS_OBS <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl",
                        "udel")
-PREC_DATASETS_REANAL <- c("20cr", "era20c", "era5", "jra55", "merra2",
-                          "ncep-doe", "ncep-ncar")
+PREC_DATASETS_REANAL <- c("20cr", "era20c", "era5", "era5-land", "jra55",
+                          "merra2", "ncep-doe", "ncep-ncar")
 PREC_DATASETS_REMOTE <- c("chirps", "cmap", "cmorph","gpcp", "gpm-imerg",
-                          "mswep", "persiann", "trmm-3b43")
-PREC_DATASETS_HYDROL <- c("fldas", "gldas-clsm", "gldas-noah", "gldas-vic",
-                          "terraclimate")
+                          "gsmap", "mswep", "persiann", "trmm-3b43")
+PREC_DATASETS_HYDROL <- c("fldas", "gldas-clsm", "gldas-noah",
+                          "gldas-vic", "terraclimate")
 
 ### Output
 PATH_SAVE_UNCERTAINTY_PREC <- paste0(PATH_SAVE, "uncertainty_prec/")
@@ -56,11 +57,11 @@ dir.create(PATH_SAVE_UNCERTAINTY_PREC_TABLES, showWarnings = FALSE)
 
 ## Constants
 # Time
-PERIOD_START <- as.Date("2000-01-01")
+PERIOD_START <- as.Date("2001-01-01")
 PERIOD_END <- as.Date("2019-12-31")
 
 # Data
-MIN_N_DATASETS <- 10
+MIN_N_DATASETS <- 20
 
 ## Variable names
 PREC_NAME <- "prec"
