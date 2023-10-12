@@ -27,6 +27,8 @@ PATH_PREC_SIM <- paste0(PATH_DATA, "sim/precip/raw/")
 PATH_PREC_OBS <- paste0(PATH_DATA, "obs/precip/raw/")
 PATH_EVAP_SIM <- paste0(PATH_DATA, "sim/evap/raw/")
 PATH_EVAP_OBS <- paste0(PATH_DATA, "obs/evap/raw/")
+PATH_RUNOFF_SIM <- paste0(PATH_DATA, "sim/runoff/raw/")
+
 
 ## Datasets
 PREC_GLOBAL_DATASETS <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", "udel", 

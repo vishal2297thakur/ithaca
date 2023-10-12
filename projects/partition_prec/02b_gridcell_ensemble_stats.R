@@ -1,4 +1,4 @@
-# Estimation of ensemble statistics of each grid cell
+# Estimates the ensemble statistics at each grid cell
 
 source('source/partition_prec.R')
 source('source/geo_functions.R')

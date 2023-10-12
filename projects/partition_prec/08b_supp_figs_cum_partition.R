@@ -1,4 +1,4 @@
-# Partition precipitation to Koppen-Geiger classes and quantify their uncertainty
+# Supplementary figure: Cumulative sum and dataset agreement - Needs editing
 
 source('source/partition_prec.R')
 source('source/graphics.R')

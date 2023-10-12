@@ -1,4 +1,6 @@
-# Partition precipitation to different regional properties and quantify their uncertainty
+# Partitions total precipitation to different classes and creates the bar plots 
+# of climate types and dataset agreement
+
 source('source/partition_prec.R')
 source('source/graphics.R')
 source('source/geo_functions.R')
@@ -11,7 +13,7 @@ prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
 prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
 
 ## Variables
-prec_mask[, KG_class_1_name := relevel(factor(KG_class_1_name), "Polar")]
+prec_mask[, KG_class_1_name := factor(KG_class_1_name, levels = levels(prec_mask$KG_class_1_name)[c(5, 4, 2, 3, 1)])]
 levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average", "Below average", "Low")
 
 land_cover_class <- merge(prec_mask[, .(lat, lon, rel_dataset_agreement, land_cover_short_class, KG_class_1_name)], prec_grid[, .(lon, lat, prec_volume_year)], by = c("lon", "lat"))
@@ -68,6 +70,7 @@ prec_quant_agreement[, prec_quant_fraction := prec_sum / prec_quant_sum]
 save(land_cover_prec, land_cover_agreement, biome_prec, biome_agreement, 
      elevation_prec, elevation_agreement, prec_quant_prec, prec_quant_agreement, 
      file = paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
+load(paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
 
 ## Figures Main
 ### Land Use
@@ -79,7 +82,9 @@ fig_land_cover_partition_prec_volume <- ggplot(land_cover_prec[land_cover_short_
   labs(fill = 'Climate type')  +
   scale_fill_manual(values = colset_KG_1_names) +
   theme_light() + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12))
 
 land_cover_agreement$land_cover_short_class <- factor(land_cover_agreement$land_cover_short_class, 
                                                           levels = c("Forests", "Savannas", "Croplands", "Shrublands", "Grasslands", "Water", "Barren", "Snow/Ice", "Other"))
@@ -90,18 +95,21 @@ fig_land_cover_partition_fraction <- ggplot(land_cover_agreement[land_cover_shor
   labs(fill = 'Dataset agreement')  +
   scale_fill_manual(values = colset_RdBu_5) +
   theme_light() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
-
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12))
 ### Biomes
 fig_biome_partition_prec_volume <- ggplot(biome_prec) +
   geom_bar(aes(x = reorder(biome_short_class, -(prec_sum)), y = prec_sum, fill = KG_class_1_name), stat = "identity") +
   scale_y_continuous(label = axis_scientific) +
-  xlab('Biome class')  +
+  xlab('Biome')  +
   ylab(bquote('Precipitation sum ['~km^3~year^-1~']'))  +
   labs(fill = 'Climate type')  +
   scale_fill_manual(values = colset_KG_1_names) +
   theme_light() + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12))
 
 biome_agreement$biome_short_class <- factor(biome_agreement$biome_short_class, 
                                                   levels = c("T/S Forests", "T/S Grasslands", "T. Forests", 
@@ -109,12 +117,14 @@ biome_agreement$biome_short_class <- factor(biome_agreement$biome_short_class,
                                                              "Flooded", "M. Grasslands", "Mediterranean", NA))
 fig_biome_partition_fraction <- ggplot(biome_agreement) +
   geom_bar(aes(x = biome_short_class, y = biome_fraction, fill = rel_dataset_agreement), stat = "identity") +
-  xlab('Biome class')  +
+  xlab('Biome')  +
   ylab('Fraction')  +
   labs(fill = 'Dataset agreement')  +
   scale_fill_manual(values = colset_RdBu_5) +
   theme_light() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12))
 
 ### Elevation
 fig_elevation_partition_prec_volume <- ggplot(elevation_prec) +
@@ -125,7 +135,9 @@ fig_elevation_partition_prec_volume <- ggplot(elevation_prec) +
   labs(fill = 'Climate type')  +
   scale_fill_manual(values = colset_KG_1_names) +
   theme_light() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12))
 
 fig_elevation_partition_fraction <- ggplot(elevation_agreement) +
   geom_bar(aes(x = elev_class, y = elev_fraction, fill = rel_dataset_agreement), stat = "identity") +
@@ -134,27 +146,33 @@ fig_elevation_partition_fraction <- ggplot(elevation_agreement) +
   labs(fill = 'Dataset agreement')  +
   scale_fill_manual(values = colset_RdBu_5) +
   theme_light() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12))
 
 ### Precipitation classes
 fig_prec_partition_prec_volume <- ggplot(prec_quant_prec) +
   geom_bar(aes(x = prec_quant, y = prec_sum, fill = KG_class_1_name), stat = "identity") +
   scale_y_continuous(label = axis_scientific) +
-  xlab('Precipitation quantile')  +
+  xlab('Precipitation intensity class')  +
   ylab(bquote('Precipitation sum ['~km^3~year^-1~']'))  +
   labs(fill = 'Climate type')  +
   scale_fill_manual(values = colset_KG_1_names) +
   theme_light() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12))
 
 fig_prec_partition_fraction <- ggplot(prec_quant_agreement) +
   geom_bar(aes(x = prec_quant, y = prec_quant_fraction, fill = rel_dataset_agreement), stat = "identity") +
-  xlab('Precipitation quantile')  +
+  xlab('Precipitation intensity class')  +
   ylab('Fraction')  +
   labs(fill = 'Dataset agreement')  +
   scale_fill_manual(values = colset_RdBu_5) +
   theme_light() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12))
 
 ### Figure 1
 gg_fig_1 <- ggarrange(fig_land_cover_partition_prec_volume, fig_biome_partition_prec_volume, 

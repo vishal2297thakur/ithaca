@@ -1,4 +1,4 @@
-# Partition precipitation to different regional properties and quantify their uncertainty
+# Estimates interannual variance of global precipitation [km3]
 source('source/partition_prec.R')
 
 ## Data 

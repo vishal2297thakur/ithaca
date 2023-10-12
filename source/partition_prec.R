@@ -5,7 +5,7 @@ packages <- c('gtools', 'rnaturalearth', 'ggthemes', 'scales', 'ggpattern', "cor
 install.packages(setdiff(packages, rownames(installed.packages())))
 
 ## Paths
-load(paste0(PATH_SAVE, "partition_prec/partition_prec_paths.Rdata"))
+load(paste0(PATH_SAVE, "/partition_prec/paths.Rdata"))
 load(paste0(PATH_SAVE_PARTITION_PREC, "prec_names_2000_2019.Rdata"))
 
 ## Variables

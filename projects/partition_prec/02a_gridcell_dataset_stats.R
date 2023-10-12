@@ -1,4 +1,4 @@
-# Estimation of the 2000-2019 mean and sd at each grid cell (mm) for each dataset (prec_mean_datasets.rds) 
+# Estimates the 2000-2019 mean and sd at each grid cell (mm) for each dataset (prec_mean_datasets.rds) 
 # and the average annual volume (km3/yr) for all datasets per grid cell (prec_mean_volume_grid.rds)
 
 source('source/partition_prec.R')

@@ -1,3 +1,5 @@
+#Creates project paths
+
 source("source/main.R")
 source("database/06_dataset_fnames.R")
 
@@ -20,4 +22,4 @@ save(PATH_SAVE_PARTITION_PREC,
      PATH_SAVE_PARTITION_PREC_SPATIAL,
      PATH_SAVE_PARTITION_PREC_FIGURES,
      PATH_SAVE_PARTITION_PREC_TABLES,
-     file = paste0(PATH_SAVE_PARTITION_PREC, "partition_prec_paths.Rdata"))
+     file = paste0(PATH_SAVE_PARTITION_PREC, "paths.Rdata"))

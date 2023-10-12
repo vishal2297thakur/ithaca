@@ -1,4 +1,4 @@
-# Partition of global precipitation to different KG classes and quantify their uncertainty
+# Partitions global precipitation to different KG classes and quantify their uncertainty
 
 source('source/partition_prec.R')
 source('source/geo_functions.R')
@@ -37,7 +37,7 @@ dataset_partition_KG[(dataset == 'cmorph' |                       #Remove as the
                        (KG_class_1_name == 'Polar' | KG_class_1_name == 'Continental'), 
                      prec_sum := NA]
 
-### mean
+### Mean
 partition_KG_global <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
                              fun = mean, na.rm = TRUE)
 colnames(partition_KG_global)[1] <- "Source"

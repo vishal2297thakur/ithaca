@@ -1,4 +1,5 @@
-# Partition precipitation to different regional properties and quantify their uncertainty
+# Same as 05b but for conditioned dataset agrrement
+
 source('source/partition_prec.R')
 source('source/graphics.R')
 source('source/geo_functions.R')
