@@ -2,9 +2,9 @@
 source("source/uncertainty_prec.R")
 
 ## Data
-prec_month <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "rmse_month.rds"))
+prec_month <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "t_metric_month.rds"))
 
-prec_years <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "rmse_years.rds"))
+prec_years <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "t_metric_years.rds"))
 
 prec_masks <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
                              "pRecipe_masks.rds"))
@@ -37,8 +37,8 @@ MC_month <- foreach (idx = 1:10000, .combine = rbind) %dopar% {
   dummie <- prec_month[lonlat_sample[, .(lon, lat)], on = .(lon, lat)]
   dummie[, area_class := sum(area), .(dataset, land_cover_short_class)
   ][, area_weights := area/area_class
-  ][, weighted_rmse := rmse_prec*area_weights]
-  dummie <- dummie[, .(prec_rmse = sum(weighted_rmse)),
+  ][, weighted_t := t_prec*area_weights]
+  dummie <- dummie[, .(prec_t = sum(weighted_t, na.rm = TRUE)),
                    .(dataset, land_cover_short_class)]
   return(dummie)
 }
@@ -55,8 +55,8 @@ MC_years <- foreach (idx = 1:10000, .combine = rbind) %dopar% {
   dummie <- prec_years[lonlat_sample[, .(lon, lat)], on = .(lon, lat)]
   dummie[, area_class := sum(area), .(dataset, land_cover_short_class)
   ][, area_weights := area/area_class
-  ][, weighted_rmse := rmse_prec*area_weights]
-  dummie <- dummie[, .(prec_rmse = sum(weighted_rmse)),
+  ][, weighted_t := t_prec*area_weights]
+  dummie <- dummie[, .(prec_t = sum(weighted_t, na.rm = TRUE)),
                    .(dataset, land_cover_short_class)]
   return(dummie)
 }
@@ -64,16 +64,16 @@ MC_years <- foreach (idx = 1:10000, .combine = rbind) %dopar% {
 ##
 prec_month[, area_class := sum(area), .(dataset, land_cover_short_class)
            ][, area_weights := area/area_class
-             ][, weighted_rmse := rmse_prec*area_weights]
+             ][, weighted_t := t_prec*area_weights]
 
-prec_month <- prec_month[, .(prec_rmse = sum(weighted_rmse)),
+prec_month <- prec_month[, .(prec_t = sum(weighted_t, na.rm = TRUE)),
                          .(dataset, land_cover_short_class)]
 
 prec_years[, area_class := sum(area), .(dataset, land_cover_short_class)
            ][, area_weights := area/area_class
-             ][, weighted_rmse := rmse_prec*area_weights]
+             ][, weighted_t := t_prec*area_weights]
 
-prec_years <- prec_years[, .(prec_rmse = sum(weighted_rmse)),
+prec_years <- prec_years[, .(prec_t = sum(weighted_t, na.rm = TRUE)),
                          .(dataset, land_cover_short_class)]
 
 ## Save

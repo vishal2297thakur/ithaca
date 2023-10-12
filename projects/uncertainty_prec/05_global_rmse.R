@@ -20,7 +20,8 @@ prec_years <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_data_years.rds"))
 prec_month[, median_prec := median(prec, na.rm = TRUE), .(lon, lat, date)]
 prec_month <- prec_month[, .(mse_prec = mean((median_prec - prec)^2,
                                              na.rm = TRUE),
-                             r_prec = cor(prec, median_prec),
+                             r_prec = cor(prec, median_prec,
+                                          use = "complete.obs"),
                              bias_prec = mean(prec, na.rm = TRUE) -
                                mean(median_prec, na.rm = TRUE),
                              var_prec = var(prec, na.rm = TRUE),
@@ -34,7 +35,8 @@ prec_month <- prec_month[, .(t_prec = ((1 + r_prec)/2)*(1 - (mse_prec/((bias_pre
 prec_years[, median_prec := median(prec, na.rm = TRUE), .(lon, lat, date)]
 prec_years <- prec_years[, .(mse_prec = mean((median_prec - prec)^2,
                                              na.rm = TRUE),
-                             r_prec = cor(prec, median_prec),
+                             r_prec = cor(prec, median_prec,
+                                          use = "complete.obs"),
                              bias_prec = mean(prec, na.rm = TRUE) -
                                mean(median_prec, na.rm = TRUE),
                              var_prec = var(prec, na.rm = TRUE),

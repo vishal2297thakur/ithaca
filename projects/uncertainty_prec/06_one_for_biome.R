@@ -2,9 +2,9 @@
 source("source/uncertainty_prec.R")
 
 ## Data
-prec_month <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "rmse_month.rds"))
+prec_month <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "t_metric_month.rds"))
 
-prec_years <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "rmse_years.rds"))
+prec_years <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "t_metric_years.rds"))
 
 prec_masks <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
                              "pRecipe_masks.rds"))
@@ -38,8 +38,8 @@ MC_month <- foreach (idx = 1:10000, .combine = rbind) %dopar% {
   dummie <- prec_month[lonlat_sample[, .(lon, lat)], on = .(lon, lat)]
   dummie[, area_biome := sum(area), .(dataset, biome_short_class)
          ][, area_weights := area/area_biome
-           ][, weighted_rmse := rmse_prec*area_weights]
-  dummie <- dummie[, .(prec_rmse = sum(weighted_rmse)),
+           ][, weighted_t := t_prec*area_weights]
+  dummie <- dummie[, .(prec_t = sum(weighted_t, na.rm = TRUE)),
                    .(dataset, biome_short_class)]
   return(dummie)
 }
@@ -56,8 +56,8 @@ MC_years <- foreach (idx = 1:10000, .combine = rbind) %dopar% {
   dummie <- prec_years[lonlat_sample[, .(lon, lat)], on = .(lon, lat)]
   dummie[, area_biome := sum(area), .(dataset, biome_short_class)
          ][, area_weights := area/area_biome
-           ][, weighted_rmse := rmse_prec*area_weights]
-  dummie <- dummie[, .(prec_rmse = sum(weighted_rmse)),
+           ][, weighted_t := t_prec*area_weights]
+  dummie <- dummie[, .(prec_t = sum(weighted_t, na.rm = TRUE)),
                    .(dataset, biome_short_class)]
   return(dummie)
 }
@@ -66,28 +66,30 @@ MC_years <- foreach (idx = 1:10000, .combine = rbind) %dopar% {
 
 prec_month[, area_biome := sum(area), .(dataset, biome_short_class)
            ][, area_weights := area/area_biome
-             ][, weighted_rmse := rmse_prec*area_weights]
+             ][, weighted_t := t_prec*area_weights]
 
-prec_month <- prec_month[, .(prec_rmse = sum(weighted_rmse)),
+prec_month <- prec_month[, .(prec_t = sum(weighted_t, na.rm = TRUE)),
                          .(dataset, biome_short_class)]
 
 prec_years[, area_biome := sum(area), .(dataset, biome_short_class)
            ][, area_weights := area/area_biome
-             ][, weighted_rmse := rmse_prec*area_weights]
+             ][, weighted_t := t_prec*area_weights]
 
-prec_years <- prec_years[, .(prec_rmse = sum(weighted_rmse)),
+prec_years <- prec_years[, .(prec_t = sum(weighted_t, na.rm = TRUE)),
                          .(dataset, biome_short_class)]
 
 ## Save
 
 fwrite(prec_month,
-       file = paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,"biome_month.csv"))
+       file = paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+                     "t_metric_biome_month.csv"))
 
 fwrite(prec_years,
-       file = paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,"biome_years.csv"))
+       file = paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+                     "t_metric_biome_years.csv"))
 
 saveRDS(MC_month, file = paste0(PATH_SAVE_UNCERTAINTY_PREC,
-                                "prec_biome_month.rds"))
+                                "t_metric_prec_biome_month.rds"))
 
 saveRDS(MC_years, file = paste0(PATH_SAVE_UNCERTAINTY_PREC,
-                                "prec_biome_years.rds"))
+                                "t_metric_prec_biome_years.rds"))
