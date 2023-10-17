@@ -1,4 +1,5 @@
-# Partition precipitation to different KG classes and quantify their uncertainty
+# Supplementary figure: KG partition (not used)
+
 library(ggthemes)
 library(scales)
 
@@ -30,7 +31,7 @@ levels(dataset_agreement_koppen$rel_dataset_agreement) <- c("High", "Above avera
 
 fig_koppen_partition_prec_volume <- ggplot(dataset_agreement_koppen_prec) +
   geom_bar(aes(x = reorder(KG_class_1_name, -(prec_sum)), y = prec_sum, fill = land_cover_short_class), stat = "identity") +
-  scale_y_continuous(label = axis_scientific) +
+  #scale_y_continuous(label = axis_scientific) +
   xlab('Koppen-Geiger climate type')  +
   ylab(bquote('Precipitation sum ['~km^3~year^-1~']'))  +
   labs(fill = 'Dataset agreement')  +

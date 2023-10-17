@@ -1,4 +1,6 @@
-# Plot global map of dataset agreement classses 
+# Supplementary figure: Links dataset agreement to station existence and shows it 
+# at existing bar plots (not used)
+
 source('source/partition_prec.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
