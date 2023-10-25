@@ -1,11 +1,11 @@
 # No global dataset so not applicable for evaporation
 
 
-#Plots the datasets that are closests/furthest to the ensemble mean
+# Plots the datasets that are closests/furthest to the ensemble mean
 
 source('source/partition_evap.R')
 source('source/graphics.R')
-source('source/geo_functions_evap.R')
+source('source/geo_functions.R')
 
 library(ggrepel)
 library(tidyverse)
@@ -23,7 +23,6 @@ colnames(datasets_vol) <- c('dataset', 'climate', 'evap')
 ## Analysis
 KG_means <- datasets_vol[, .(evap_mean = mean(evap)), climate]
 datasets_mean_ratio <- datasets_vol_matrix / KG_means$evap_mean
-datasets_mean_ratio <- melt(data.table(datasets_mean_ratio))
 
 datasets_mean_ratio <- as_tibble(datasets_mean_ratio) %>%
   mutate(climate = factor(rownames(datasets_mean_ratio)))  %>%
@@ -49,7 +48,6 @@ dummy_3[, class := factor("overestimate")]
 
 ## Figures
 to_plot <- rbind(dummy_1, dummy_2, dummy_3)[, c(1, 2, 3, 6)]
-to_plot[, levels(climate) := levels(climate)[c()]]
 
 ggplot(to_plot, aes(climate, evap)) +
   geom_hline(yintercept = 1, col = 'grey50') +

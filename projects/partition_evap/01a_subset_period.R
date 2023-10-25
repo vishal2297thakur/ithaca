@@ -16,7 +16,7 @@ foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
   nc_out <- paste0(PATH_SAVE_PARTITION_EVAP_RAW,
                    EVAP_FNAMES_SHORT_2000_2019_FULL_RECORD[[dataset_count]],
                    "_e_mm_land_200001_201912_025_yearly.nc")
-  save_nc(result, nc_out, name_deftp = "e", longname_deftp = "Total monthly evaporation")
+  save_nc(result, nc_out, name_def = "e", longname_def = "Total evaporation")
 } 
 
 EVAP_FNAMES_2000_2019 <- list.files(path = PATH_SAVE_PARTITION_EVAP_RAW, full.names = TRUE)
