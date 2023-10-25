@@ -2,7 +2,7 @@
 # and the average annual volume (km3/yr) for all datasets per grid cell (evap_mean_volume_grid.rds)
 
 source('source/partition_evap.R')
-source('source/geo_functions_evap.R')
+source('source/geo_functions.R')
 
 ## Data
 evap_2000_2019 <- lapply(EVAP_FNAMES_2000_2019, brick)
@@ -42,10 +42,40 @@ evap_datasets[, evap_mean := round(evap_mean, 2)][, evap_sd := round(evap_sd, 2)
 saveRDS(evap_datasets, paste0(PATH_SAVE_PARTITION_EVAP, "evap_mean_datasets.rds"))
 saveRDS(evap_volume, paste0(PATH_SAVE_PARTITION_EVAP, "evap_mean_volume_grid.rds"))
 
-## Validation
+## Code review
+
+brks <- c(0, 0.5, seq(250, 2500, 250))
+nb <- length(brks)
+cols <- c("white", rainbow(nb-1))
 for(dataset_count in 1:n_datasets_2000_2019){
-  plot(evap_2000_2019[[dataset_count]]$X2010.01.01)  # Doesn't work for data set_count = 12 as the date doesn't match
+  plot(evap_2000_2019[[dataset_count]][[10]], main = names(evap_2000_2019[dataset_count]),
+       colNA = "black",
+       col = cols,
+       breaks = brks) 
 }
+
+
+brks <- c(-1.3, 0, 0.5, 2500)
+cols <- c("green","white", "orchid2")
+for(dataset_count in 1:n_datasets_2000_2019){
+  plot(evap_2000_2019[[dataset_count]][[10]], main = names(evap_2000_2019[dataset_count]),
+       colNA = "black",
+       col = cols,
+       breaks = brks)  
+}
+
+
+
+
+evap_mean_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_mean_datasets.rds"))
+
+library(ggplot2)
+
+ggplot(evap_mean_datasets[dataset == EVAP_GLOBAL_DATASETS[12]])+
+  geom_tile(aes(x = lon, y = lat, fill = evap_mean))+
+  scale_fill_binned(type = "viridis", breaks = c(-100,0, 0.5, seq(500, 2500, 500)), limits = c(-100, 2500))+
+  ggtitle(label = EVAP_GLOBAL_DATASETS[12])+
+  theme_bw()
 
 
 
