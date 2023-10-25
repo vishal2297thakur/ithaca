@@ -2,7 +2,7 @@
 
 source('source/partition_evap.R')
 source('source/graphics.R')
-source('source/geo_functions_evap.R')
+source('source/geo_functions.R')
 
 library(ggthemes)
 library(scales)
@@ -29,10 +29,8 @@ evap_quant <- merge(evap_mask[, .(lat, lon, evap_quant_dataset_agreement , evap_
 ### Climate
 datasets_KG[, .(area = round(sum(area), 2)), .(dataset, dataset_type)] #Antarctica 13.66 million km2
 dataset_partition_KG <- datasets_KG[, .(evap_sum = round(sum(evap_volume_year), 0)), .(KG_class_1_name, dataset, dataset_type)]
-#dataset_partition_KG[(dataset == 'cmorph' |                       #Remove as they do not cover the whole planet
-#                        dataset == 'persiann' | 
-#                        dataset == 'chirps') & 
-#                       (KG_class_1_name == 'Polar' | KG_class_1_name == 'Continental'), evap_sum := NA]
+
+
 #### Mean
 partition_KG_global <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
                                      fun = mean, na.rm = TRUE)
@@ -206,7 +204,7 @@ gg_fig_1 <- ggarrange(fig_land_cover_partition_evap_volume, fig_biome_partition_
                     labels = c('a', 'b', 'c', 'd'), align = 'hv',
                     common.legend = T, legend = 'right', 
                     nrow = 2, ncol = 2)
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_volume_climate.png"), width = 10, height = 10)
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_volume_climate_conditioned.png"), width = 10, height = 10)
 
 ### Figure 2
 gg_fig_2 <- ggarrange(fig_land_cover_partition_fraction,fig_biome_partition_fraction,
@@ -214,5 +212,5 @@ gg_fig_2 <- ggarrange(fig_land_cover_partition_fraction,fig_biome_partition_frac
                     labels = c('a', 'b', 'c', 'd'), align = 'hv',
                     common.legend = T, legend = 'right', 
                     nrow = 2, ncol = 2)
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_fraction_agreement.png"), width = 10, height = 10)
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_fraction_agreement_conditioned.png"), width = 10, height = 10)
 

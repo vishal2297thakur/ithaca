@@ -3,7 +3,7 @@
 
 source('source/partition_evap.R')
 source('source/graphics.R')
-source('source/geo_functions_evap.R')
+source('source/geo_functions.R')
 
 library(ggthemes)
 library(scales)
@@ -180,7 +180,7 @@ gg_fig_1 <- ggarrange(fig_land_cover_partition_evap_volume, fig_biome_partition_
                     labels = c('a', 'b', 'c', 'd'), align = 'hv',
                     common.legend = T, legend = 'right', 
                     nrow = 2, ncol = 2)
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_volume_climate.png"), width = 10, height = 10)
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_volume_climate_rel_dataset_agreement.png"), width = 10, height = 10)
 
 ### Figure 2
 gg_fig_2 <- ggarrange(fig_land_cover_partition_fraction,fig_biome_partition_fraction,
@@ -188,5 +188,5 @@ gg_fig_2 <- ggarrange(fig_land_cover_partition_fraction,fig_biome_partition_frac
                     labels = c('a', 'b', 'c', 'd'), align = 'hv',
                     common.legend = T, legend = 'right', 
                     nrow = 2, ncol = 2)
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_fraction_agreement.png"), width = 10, height = 10)
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_fraction_agreement_rel_dataset_agreement.png"), width = 10, height = 10)
 
