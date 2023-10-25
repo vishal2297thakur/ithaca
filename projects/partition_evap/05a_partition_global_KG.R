@@ -1,6 +1,6 @@
 # Partition evaporation to different regional properties and quantify their uncertainty
 source('source/partition_evap.R')
-source('source/geo_functions_evap.R')
+source('source/geo_functions.R')
 
 ## Data 
 evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
@@ -30,11 +30,6 @@ climate_KG[, sum(area, na.rm = TRUE) /
 climate_KG[, sum(area, na.rm = TRUE), KG_class_1_name]
 dataset_partition_KG <- datasets_KG[, .(evap_sum = round(sum(evap_volume_year), 0)), 
                                     .(KG_class_1_name, dataset, dataset_type)]
-#dataset_partition_KG[(dataset == 'cmorph' |                       #Remove as they do not cover the whole planet
-#                        dataset == 'persiann' | 
-#                        dataset == 'chirps') & 
-#                       (KG_class_1_name == 'Polar' | KG_class_1_name == 'Continental'), 
-#                     evap_sum := NA]
 
 
 ### Mean
@@ -54,7 +49,6 @@ partition_KG_datasets <- dcast(dataset_partition_KG, dataset ~ KG_class_1_name, 
 partition_KG_datasets <- merge(evap_dataset_means[, .(dataset = unique(dataset)), dataset_type], partition_KG_datasets, by = 'dataset')
 colnames(partition_KG_datasets)[1] <- c("Dataset")
 partition_KG_datasets <- merge(partition_KG_datasets, dataset_means[, .(Dataset, Global)], by = "Dataset")
-#partition_KG_datasets[, diff_mean := round(Global - mean(Global, na.rm = TRUE), 0)]
 
 ### St. Dev
 partition_KG_global_sd <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
