@@ -1,9 +1,9 @@
 # Reads and subsets data as netcdf files for the specified period.
 
 source('source/main.R')
-source('source/geo_functions_evap.R')
+source('source/geo_functions.R')
 
-load("~/shared/data_projects/ithaca/misc/evap_fnames_2000_2019_full_record.Rdata") # Created by database/06_dataset_fnames.R
+load("~/shared/data_projects/ithaca/misc/evap_fnames_2000_2019_full_record.Rdata") # Created by database/07_dataset_fnames_evap.R
 
 registerDoParallel(cores = N_CORES - 1)
 n_datasets_2000_2019 <- length(EVAP_FNAMES_2000_2019_FULL_RECORD)
