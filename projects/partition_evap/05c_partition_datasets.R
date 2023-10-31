@@ -119,14 +119,14 @@ write.csv(table_evap_class_vol, paste0(PATH_SAVE_PARTITION_EVAP_TABLES, "partiti
 ## Plots
 ### Means
 ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = evap_mean)) +
+  geom_boxplot(width = .2, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
   geom_violin(fill = NA, aes(linetype = dataset_type, col = dataset_type), lwd = 0.7, position = "identity") +
   geom_violin(fill = NA, lwd = 0.7) +
-  geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
-  geom_jitter(width = 0.1, alpha = .05) +
+  #geom_jitter(width = 0.1, alpha = .05, col = "orchid4") +
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
-  scale_color_manual(values = colset_RdBu_5[c(1, 2, 3, 4)]) + 
+  scale_color_manual(values = colset_RdBu_5[c(1, 3, 4, 5)]) + 
   facet_wrap(~land_cover_short_class, scales = 'free') +
   guides(col = guide_legend(title = "Dataset type"), lty = guide_legend(title = "Dataset type")) +
   theme_minimal() +
@@ -134,15 +134,69 @@ ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = evap_mean)) 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "evap_datasets_land_cover_annual_mm.png"), 
        width = 8, height = 8)
 
+ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = evap_mean)) +
+  geom_boxplot(width = 1.1, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
+  geom_violin(fill = NA, aes(col = dataset), lwd = 0.7, position = "identity") +
+  geom_violin(fill = NA, lwd = 0.7) +
+  #geom_jitter(width = 0.1, alpha = .05, col = "orchid4") +
+  scale_x_discrete(name = "") +
+  scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
+  #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
+  scale_color_manual(values = c("chartreuse4", "red2", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
+  facet_wrap(~land_cover_short_class, scales = 'free', nrow = 1) +
+  guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
+  theme_bw() +
+  theme(axis.text.x = element_blank())
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "evap_single_datasets_land_cover_annual_mm.png"), 
+       width = 16, height = 8)
+
+
+ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = evap_mean)) +
+  #geom_boxplot(width = 1.1, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
+  geom_violin(fill = NA, aes(x = dataset_type, col = dataset), lwd = 0.7, position = "identity") +
+  geom_violin(fill = NA, lwd = 0.7) +
+  #geom_jitter(width = 0.1, alpha = .05, col = "orchid4") +
+  scale_x_discrete(name = "") +
+  scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
+  #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
+  scale_color_manual(values = c("chartreuse4", "red2", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
+  facet_wrap(~land_cover_short_class, scales = 'free', nrow = 1) +
+  guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
+  theme_bw() +
+  theme(axis.text.x = element_blank())
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "evap_single_datasets_land_cover_annual_mm_v2.png"), 
+       width = 16, height = 8)
+
+
+ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = evap_mean)) +
+  #geom_boxplot(width = 1.1, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
+  geom_boxplot(fill = NA, aes(x = dataset_type, col = dataset), lwd = 0.7, position = "identity") +
+  geom_violin(fill = NA, lwd = 0.7) +
+  #geom_jitter(width = 0.1, alpha = .05, col = "orchid4") +
+  scale_x_discrete(name = "") +
+  scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
+  #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
+  scale_color_manual(values = c("chartreuse4", "red2", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
+  facet_wrap(~land_cover_short_class, scales = 'free', nrow = 1) +
+  guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
+  theme_bw() +
+  theme(axis.text.x = element_blank())
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "evap_single_datasets_land_cover_annual_mm_v3.png"), 
+       width = 16, height = 8)
+
+
 ggplot(biome_class_global, aes(x = biome_short_class, y = evap_mean)) +
+  geom_boxplot(width = .2, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
   geom_violin(fill = NA, aes(linetype = dataset_type, col = dataset_type), lwd = 0.7, position = "identity") +
   geom_violin(fill = NA, lwd = 0.7) +
-  geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
-  geom_jitter(width = 0.1, alpha = .05) +
+  #geom_jitter(width = 0.1, alpha = .05) +
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
-  scale_color_manual(values = colset_RdBu_5[c(1,2, 3, 4)]) + 
+  scale_color_manual(values = colset_RdBu_5[c(1, 3, 4, 5)]) + 
   facet_wrap(~biome_short_class, scales = 'free') +
   guides(col = guide_legend(title = "Dataset type"), lty = guide_legend(title = "Dataset type")) +
   theme_minimal() +
@@ -150,15 +204,34 @@ ggplot(biome_class_global, aes(x = biome_short_class, y = evap_mean)) +
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/evap_datasets_biome_annual_mm.png"), 
        width = 8, height = 8)
 
+
+
+ggplot(biome_class_global, aes(x = biome_short_class, y = evap_mean)) +
+  #geom_boxplot(width = 1.1, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
+  geom_boxplot(fill = NA, aes(x = dataset_type, col = dataset), lwd = 0.7, position = "identity") +
+  geom_violin(fill = NA, lwd = 0.7) +
+  #geom_jitter(width = 0.1, alpha = .05, col = "orchid4") +
+  scale_x_discrete(name = "") +
+  scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
+  #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
+  scale_color_manual(values = c("chartreuse4", "red2", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
+  facet_wrap(~biome_short_class, scales = 'free', nrow = 1) +
+  guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
+  theme_bw() +
+  theme(axis.text.x = element_blank())
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/evap_datasets_single_biome_annual_mm_v3.png"), 
+       width = 8, height = 8)
+
 ggplot(elev_class_global, aes(x = elev_class, y = evap_mean)) +
+  geom_boxplot(width = .2, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
   geom_violin(fill = NA, aes(linetype = dataset_type, col = dataset_type), lwd = 0.7, position = "identity") +
   geom_violin(fill = NA, lwd = 0.7) +
-  geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
-  geom_jitter(width = 0.1, alpha = .05) +
+  #geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
+  #geom_jitter(width = 0.1, alpha = .05) +
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
-  scale_color_manual(values = colset_RdBu_5[c(1,2, 3, 4)]) + 
+  scale_color_manual(values = colset_RdBu_5[c(1, 3, 4, 5)]) + 
   facet_wrap(~elev_class, scales = 'free') +
   guides(col = guide_legend(title = "Dataset type"), lty = guide_legend(title = "Dataset type")) +
   theme_minimal() +
@@ -166,15 +239,33 @@ ggplot(elev_class_global, aes(x = elev_class, y = evap_mean)) +
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/evap_datasets_elev_annual_mm.png"), 
        width = 8, height = 8)
 
+ggplot(elev_class_global, aes(x = elev_class, y = evap_mean)) +
+  geom_boxplot(width = .2, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
+  geom_boxplot(fill = NA, aes(x = dataset_type, col = dataset), lwd = 0.7, position = "identity") +
+  geom_violin(fill = NA, lwd = 0.7) +
+  #geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
+  #geom_jitter(width = 0.1, alpha = .05) +
+  scale_x_discrete(name = "") +
+  scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
+  #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
+  scale_color_manual(values = c("chartreuse4", "red2", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
+  facet_wrap(~elev_class, scales = 'free') +
+  guides(col = guide_legend(title = "Dataset type"), lty = guide_legend(title = "Dataset type")) +
+  theme_minimal() +
+  theme(axis.text.x = element_blank())
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/evap_datasets_single_elev_annual_mm_v3.png"), 
+       width = 8, height = 8)
+
 ggplot(evap_class_global, aes(x = evap_quant, y = evap_mean )) +
+  geom_boxplot(width = .2, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
   geom_violin(fill = NA, aes(linetype = dataset_type, col = dataset_type), lwd = 0.7, position = "identity") +
   geom_violin(fill = NA, lwd = 0.7) +
-  geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
-  geom_jitter(width = 0.1, alpha = .05) +
+  #geom_boxplot(width = .2, alpha = .7, show.legend = FALSE) +
+  #geom_jitter(width = 0.1, alpha = .05) +
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
-  scale_color_manual(values = colset_RdBu_5[c(1,2, 3, 4)]) + 
+  scale_color_manual(values = colset_RdBu_5[c(1, 3, 4, 5)]) + 
   facet_wrap(~evap_quant, scales = 'free') +
   guides(col = guide_legend(title = "Dataset type"), lty = guide_legend(title = "Dataset type")) +
   theme_minimal() +
