@@ -9,7 +9,7 @@ source('source/mask_paths.R')
 library("gtools")
 
 ## Data 
-masks_global <- readRDS(paste0(PATH_SAVE, "/misc/masks_global.rds"))
+masks_global <- readRDS(paste0(PATH_SAVE, "/misc/masks_global_IPCC.rds"))
 evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats.rds"))
 evap_volume <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_mean_volume_grid.rds"))
 
@@ -41,6 +41,8 @@ evap_stats[std_quant_range > quant_thr_0_9, rel_dataset_agreement := ordered(7, 
 
 evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
                                                      labels = c('high', 'above average', 'average', 'below average', 'low')), evap_quant]
+
+
 #evap_stats[std_quant_range <= 0.1, evap_quant_dataset_agreement := ordered(1, labels = "high")] 
 #evap_stats[std_quant_range > 0.1 & std_quant_range <= 0.3, evap_quant_dataset_agreement := ordered(3, labels = "above average")]
 #evap_stats[std_quant_range > 0.3 & std_quant_range <= 0.7, evap_quant_dataset_agreement := ordered(4, labels = "average")]
@@ -48,7 +50,20 @@ evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 #evap_stats[std_quant_range > 0.9, evap_quant_dataset_agreement := ordered(7, labels = "low")]
 
 evap_masks <- merge(masks_global, evap_stats[, .(lon, lat, evap_quant, rel_dataset_agreement, #Merges only complete cases
-                               evap_quant_dataset_agreement)], by = c("lon", "lat"))
+                               std_quant_range, evap_quant_dataset_agreement)], by = c("lon", "lat"))
+
+
+
+evap_masks[, biome_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
+                                                labels = c('high', 'above average', 'average', 'below average', 'low')), biome_class]
+
+
+evap_masks[, landcover_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
+                                                    labels = c('high', 'above average', 'average', 'below average', 'low')), land_cover_short_class]
+
+
+evap_masks[, ipcc_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
+                                                    labels = c('high', 'above average', 'average', 'below average', 'low')), IPCC_ref_region]
 
 ## Save data
 saveRDS(evap_masks, paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
@@ -64,3 +79,4 @@ ggplot(evap_masks)+
 ggplot(evap_masks)+
   geom_tile(aes(x = lon, y = lat, fill = evap_quant_dataset_agreement))+
   theme_bw()
+
