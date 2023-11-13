@@ -17,7 +17,7 @@ evap_mask[, KG_class_1_name := factor(KG_class_1_name, levels = levels(evap_mask
 levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average", "Below average", "Low")
 
 land_cover_class <- merge(evap_mask[, .(lat, lon, rel_dataset_agreement, land_cover_short_class, KG_class_1_name)], evap_grid[, .(lon, lat, evap_volume_year)], by = c("lon", "lat"))
-biome_class <- merge(evap_mask[, .(lat, lon, rel_dataset_agreement, biome_short_class, KG_class_1_name)], evap_grid[, .(lon, lat, evap_volume_year)], by = c("lon", "lat"))
+biome_class <- merge(evap_mask[, .(lat, lon, rel_dataset_agreement, biome_class, KG_class_1_name)], evap_grid[, .(lon, lat, evap_volume_year)], by = c("lon", "lat"))
 elevation_class <- merge(evap_mask[, .(lat, lon, rel_dataset_agreement, elev_class, KG_class_1_name)], evap_grid[, .(lon, lat, evap_volume_year)], by = c("lon", "lat"))
 evap_quant <- merge(evap_mask[, .(lat, lon, rel_dataset_agreement, evap_quant, KG_class_1_name)], evap_grid[, .(lon, lat, evap_volume_year)], by = c("lon", "lat"))
 
@@ -34,14 +34,14 @@ land_cover_agreement[, land_cover_sum := sum(evap_sum), land_cover_short_class]
 land_cover_agreement[, land_cover_fraction := evap_sum / land_cover_sum]
 
 ### Biome types
-biome_evap <- biome_class[, .(evap_sum = sum(evap_volume_year)), .(KG_class_1_name, biome_short_class)]
+biome_evap <- biome_class[, .(evap_sum = sum(evap_volume_year)), .(KG_class_1_name, biome_class)]
 biome_evap <- biome_evap[complete.cases(biome_evap)]
-biome_evap <- biome_evap[order(KG_class_1_name, biome_short_class), ]
+biome_evap <- biome_evap[order(KG_class_1_name, biome_class), ]
 
-biome_agreement <- biome_class[, .(evap_sum = sum(evap_volume_year)), .(rel_dataset_agreement, biome_short_class)]
+biome_agreement <- biome_class[, .(evap_sum = sum(evap_volume_year)), .(rel_dataset_agreement, biome_class)]
 biome_agreement <- biome_agreement[complete.cases(biome_agreement)]
-biome_agreement <- biome_agreement[order(rel_dataset_agreement, biome_short_class), ]
-biome_agreement[, biome_sum := sum(evap_sum), biome_short_class]
+biome_agreement <- biome_agreement[order(rel_dataset_agreement, biome_class), ]
+biome_agreement[, biome_sum := sum(evap_sum), biome_class]
 biome_agreement[, biome_fraction := evap_sum / biome_sum]
 
 ### Elevation
@@ -100,7 +100,7 @@ fig_land_cover_partition_fraction <- ggplot(land_cover_agreement[land_cover_shor
         axis.title = element_text(size = 12))
 ### Biomes
 fig_biome_partition_evap_volume <- ggplot(biome_evap) +
-  geom_bar(aes(x = reorder(biome_short_class, -(evap_sum)), y = evap_sum, fill = KG_class_1_name), stat = "identity") +
+  geom_bar(aes(x = reorder(biome_class, -(evap_sum)), y = evap_sum, fill = KG_class_1_name), stat = "identity") +
   scale_y_continuous(label = axis_scientific) +
   xlab('Biome')  +
   ylab(bquote('Evaporation sum ['~km^3~year^-1~']'))  +
@@ -111,12 +111,14 @@ fig_biome_partition_evap_volume <- ggplot(biome_evap) +
         axis.text = element_text(size = 11),
         axis.title = element_text(size = 12))
 
-biome_agreement$biome_short_class <- factor(biome_agreement$biome_short_class, 
-                                                  levels = c("T/S Forests", "T/S Grasslands", "T. Forests", 
-                                                             "B. Forests", "T. Grasslands", "Deserts", "Tundra", 
-                                                             "Flooded", "M. Grasslands", "Mediterranean", NA))
+biome_agreement$biome_class <- factor(biome_agreement$biome_class, 
+                                                  levels = c("Tundra", "Boreal Forests/Taiga", "Tropical & Subtropical Dry Broadleaf Forests", 
+                                                             "Tropical & Subtropical Grasslands, Savannas & Shrublands", "Tropical & Subtropical Moist Broadleaf Forests", "Temperate Conifer Forests", "Temperate Grasslands, Savannas & Shrublands", 
+                                                             "Mediterranean Forests, Woodlands & Scrub", "Deserts & Xeric Shrublands", "Tropical & Subtropical Coniferous Forests", 
+                                                             "Mangroves","Temperate Broadleaf & Mixed Forests","Flooded Grasslands & Savannas",
+                                                             "Montane Grasslands & Shrublands",NA))
 fig_biome_partition_fraction <- ggplot(biome_agreement) +
-  geom_bar(aes(x = biome_short_class, y = biome_fraction, fill = rel_dataset_agreement), stat = "identity") +
+  geom_bar(aes(x = biome_class, y = biome_fraction, fill = rel_dataset_agreement), stat = "identity") +
   xlab('Biome')  +
   ylab('Fraction')  +
   labs(fill = 'Dataset agreement')  +

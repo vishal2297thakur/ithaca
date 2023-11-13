@@ -36,11 +36,16 @@ evap_stats[std_quant_range > quant_thr_0_3 & std_quant_range <= quant_thr_0_7, r
 evap_stats[std_quant_range > quant_thr_0_7 & std_quant_range <= quant_thr_0_9, rel_dataset_agreement := ordered(5, labels = "below average")]
 evap_stats[std_quant_range > quant_thr_0_9, rel_dataset_agreement := ordered(7, labels = "low")]
 
-evap_stats[std_quant_range <= 0.1, evap_quant_dataset_agreement := ordered(1, labels = "high")] 
-evap_stats[std_quant_range > 0.1 & std_quant_range <= 0.3, evap_quant_dataset_agreement := ordered(3, labels = "above average")]
-evap_stats[std_quant_range > 0.3 & std_quant_range <= 0.7, evap_quant_dataset_agreement := ordered(4, labels = "average")]
-evap_stats[std_quant_range > 0.7 & std_quant_range <= 0.9, evap_quant_dataset_agreement := ordered(5, labels = "below average")]
-evap_stats[std_quant_range > 0.9, evap_quant_dataset_agreement := ordered(7, labels = "low")]
+#evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c(0, quant_thr_0_1, quant_thr_0_3, quant_thr_0_7, quant_thr_0_9, 1)),
+#                                                     labels = c('high', 'above average', 'average', 'below average', 'low')), evap_quant]
+
+evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
+                                                     labels = c('high', 'above average', 'average', 'below average', 'low')), evap_quant]
+#evap_stats[std_quant_range <= 0.1, evap_quant_dataset_agreement := ordered(1, labels = "high")] 
+#evap_stats[std_quant_range > 0.1 & std_quant_range <= 0.3, evap_quant_dataset_agreement := ordered(3, labels = "above average")]
+#evap_stats[std_quant_range > 0.3 & std_quant_range <= 0.7, evap_quant_dataset_agreement := ordered(4, labels = "average")]
+#evap_stats[std_quant_range > 0.7 & std_quant_range <= 0.9, evap_quant_dataset_agreement := ordered(5, labels = "below average")]
+#evap_stats[std_quant_range > 0.9, evap_quant_dataset_agreement := ordered(7, labels = "low")]
 
 evap_masks <- merge(masks_global, evap_stats[, .(lon, lat, evap_quant, rel_dataset_agreement, #Merges only complete cases
                                evap_quant_dataset_agreement)], by = c("lon", "lat"))

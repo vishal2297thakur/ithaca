@@ -220,7 +220,7 @@ ggplot(biome_class_global, aes(x = biome_short_class, y = evap_mean)) +
   theme_bw() +
   theme(axis.text.x = element_blank())
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/evap_datasets_single_biome_annual_mm_v3.png"), 
-       width = 8, height = 8)
+       width = 16, height = 8)
 
 ggplot(elev_class_global, aes(x = elev_class, y = evap_mean)) +
   geom_boxplot(width = .2, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
@@ -237,7 +237,7 @@ ggplot(elev_class_global, aes(x = elev_class, y = evap_mean)) +
   theme_minimal() +
   theme(axis.text.x = element_blank())
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/evap_datasets_elev_annual_mm.png"), 
-       width = 8, height = 8)
+       width = 16, height = 8)
 
 ggplot(elev_class_global, aes(x = elev_class, y = evap_mean)) +
   geom_boxplot(width = .2, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
