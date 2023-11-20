@@ -71,10 +71,10 @@ evap_mean_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_mean_datase
 
 library(ggplot2)
 
-ggplot(evap_mean_datasets[dataset == EVAP_GLOBAL_DATASETS[12]])+
+ggplot(evap_mean_datasets[dataset == EVAP_GLOBAL_DATASETS[13]])+
   geom_tile(aes(x = lon, y = lat, fill = evap_mean))+
   scale_fill_binned(type = "viridis", breaks = c(-100,0, 0.5, seq(500, 2500, 500)), limits = c(-100, 2500))+
-  ggtitle(label = EVAP_GLOBAL_DATASETS[12])+
+  ggtitle(label = EVAP_GLOBAL_DATASETS[13])+
   theme_bw()
 
 
