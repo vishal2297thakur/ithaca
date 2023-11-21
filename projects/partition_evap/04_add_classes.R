@@ -62,8 +62,8 @@ evap_masks[, landcover_dataset_agreement := ordered(quantcut(std_quant_range, c(
                                                     labels = c('high', 'above average', 'average', 'below average', 'low')), land_cover_short_class]
 
 
-evap_masks[, ipcc_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
-                                                    labels = c('high', 'above average', 'average', 'below average', 'low')), IPCC_ref_region]
+#evap_masks[, ipcc_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.1, 0.3, 0.7, 0.9, 1)),
+#                                                    labels = c('high', 'above average', 'average', 'below average', 'low')), IPCC_ref_region]
 
 ## Save data
 saveRDS(evap_masks, paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))

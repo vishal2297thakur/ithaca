@@ -6,8 +6,8 @@ install.packages(setdiff(packages, rownames(installed.packages())))
 
 ## Paths
 ### Input - Raw data 
-EVAP_FNAMES_SHORT_2000_2019_FULL_RECORD <-  c("bess","camele","era5-land","fldas", "gldas-clsm","gldas-noah", 
-                                              "gldas-vic","gleam", "jra55", "merra2","terraclimate","zheng","elnashar")
+EVAP_FNAMES_SHORT_2000_2019_FULL_RECORD <-  c("bess","camele","elnashar","era5-land","fldas", "gldas-clsm","gldas-noah", 
+                                              "gldas-vic","gleam", "jra55", "merra2","terraclimate","zheng")
 EVAP_FNAMES_2000_2019_FULL_RECORD <- c(list.files(path = PATH_EVAP_SIM, full.names = TRUE,pattern = "*_e_mm*"))
 
 EVAP_FNAMES_2000_2019_FULL_RECORD <- unique(grep(paste(EVAP_FNAMES_SHORT_2000_2019_FULL_RECORD, collapse = "|"), 

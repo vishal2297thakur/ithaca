@@ -142,7 +142,7 @@ ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = evap_mean)) 
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
-  scale_color_manual(values = c("chartreuse4", "red2", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
+  scale_color_manual(values = c("chartreuse4", "red2","pink", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
   facet_wrap(~land_cover_short_class, scales = 'free', nrow = 1) +
   guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
   theme_bw() +
@@ -160,7 +160,7 @@ ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = evap_mean)) 
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
-  scale_color_manual(values = c("chartreuse4", "red2", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
+  scale_color_manual(values = c("chartreuse4", "red2","pink", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
   facet_wrap(~land_cover_short_class, scales = 'free', nrow = 1) +
   guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
   theme_bw() +
@@ -178,7 +178,7 @@ ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = evap_mean)) 
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
-  scale_color_manual(values = c("chartreuse4", "red2", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
+  scale_color_manual(values = c("chartreuse4", "red2","pink", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
   facet_wrap(~land_cover_short_class, scales = 'free', nrow = 1) +
   guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
   theme_bw() +
@@ -214,7 +214,7 @@ ggplot(biome_class_global, aes(x = biome_short_class, y = evap_mean)) +
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
-  scale_color_manual(values = c("chartreuse4", "red2", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
+  scale_color_manual(values = c("chartreuse4", "red2","pink", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
   facet_wrap(~biome_short_class, scales = 'free', nrow = 1) +
   guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
   theme_bw() +
@@ -248,7 +248,7 @@ ggplot(elev_class_global, aes(x = elev_class, y = evap_mean)) +
   scale_x_discrete(name = "") +
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
-  scale_color_manual(values = c("chartreuse4", "red2", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
+  scale_color_manual(values = c("chartreuse4", "red2","pink", "orange1", "darkslategray3","deepskyblue1", "deepskyblue3", "darkblue", "darkgreen","gold1", "orange3", "darkslategray1", "chartreuse2")) + 
   facet_wrap(~elev_class, scales = 'free') +
   guides(col = guide_legend(title = "Dataset type"), lty = guide_legend(title = "Dataset type")) +
   theme_minimal() +
