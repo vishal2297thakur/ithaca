@@ -43,7 +43,8 @@ dummy_1[, class := factor("mean")]
 datasets_mean_ratio <- datasets_mean_ratio[order(-rank(climate), evap_diff)]
 dummy_2 <- datasets_mean_ratio[datasets_mean_ratio[, .I[dataset == head(dataset, 2)], by = climate]$V1]
 dummy_2[, class := factor("underestimate")]
-dummy_3 <- datasets_mean_ratio[datasets_mean_ratio[, .I[dataset == tail(dataset, 2)], by = climate]$V1]
+datasets_mean_ratio <- datasets_mean_ratio[order(-rank(climate), -evap_diff)]
+dummy_3 <- datasets_mean_ratio[datasets_mean_ratio[, .I[dataset == head(dataset, 2)], by = climate]$V1]
 dummy_3[, class := factor("overestimate")]
 
 ## Figures
