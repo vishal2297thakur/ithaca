@@ -20,7 +20,6 @@ colnames(datasets_vol) <- c('dataset', 'climate', 'prec')
 ## Analysis
 KG_means <- datasets_vol[, .(prec_mean = mean(prec)), climate]
 datasets_mean_ratio <- datasets_vol_matrix / KG_means$prec_mean
-datasets_mean_ratio <- melt(data.table(datasets_mean_ratio))
 
 datasets_mean_ratio <- as_tibble(datasets_mean_ratio) %>%
   mutate(climate = factor(rownames(datasets_mean_ratio)))  %>%
