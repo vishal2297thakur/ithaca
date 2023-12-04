@@ -3,7 +3,7 @@ source("source/main.R")
 # Precipitation
 
 ## Period 2000-2019
-PREC_FNAMES_SHORT_2000_2019_FULL_RECORD <-  c("era5", "jra55", "merra2", "ncep-doe", "ncep-ncar", "chirps", 
+PREC_FNAMES_SHORT_2000_2019_FULL_RECORD <-  c("era5-land", "jra55", "merra2", "ncep-doe", "ncep-ncar", "chirps", 
                                               "cmap", "cmorph", "cpc", "cru-ts", "em-earth", "gpcc", "gpcp", "gpm-imerg",
                                               "mswep", "persiann", "precl")
 PREC_FNAMES_2000_2019_FULL_RECORD <- c(list.files(path = PATH_PREC_SIM, full.names = TRUE),
