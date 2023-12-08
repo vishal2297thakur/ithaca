@@ -29,25 +29,24 @@ PATH_EVAP_SIM <- paste0(PATH_DATA, "sim/evap/raw/")
 PATH_EVAP_OBS <- paste0(PATH_DATA, "obs/evap/raw/")
 PATH_RUNOFF_SIM <- paste0(PATH_DATA, "sim/runoff/raw/")
 
-
 ## Datasets
 PREC_GLOBAL_DATASETS <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", "udel", 
-                          "20cr", "era20c", "era5", "jra55", "merra2", "ncep-doe", "ncep-ncar", 
+                          "20cr", "era20c", "era5-land", "jra55", "merra2", "ncep-doe", "ncep-ncar", 
                           "cmap", "gpcp", "gpm-imerg", "mswep",  
                           "fldas", "gldas-clsm", "gldas-noah", "gldas-vic", "terraclimate")
 
-EVAP_GLOBAL_DATASETS <- c("bess","camele", "era5-land","fldas", "gldas-clsm","gldas-noah", 
-                          "gldas-vic","gleam", "jra55", "merra2","terraclimate","zheng")
+EVAP_GLOBAL_DATASETS <- c("bess", "camele", "era5-land","fldas", "gldas-clsm", "gldas-noah", 
+                          "gldas-vic", "gleam", "jra55", "merra2", "terraclimate", "zheng")
 
 # Types
 PREC_DATASETS_OBS <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", "udel")
-PREC_DATASETS_REANAL <- c("20cr", "era20c", "era5", "jra55", "merra2", "ncep-doe", "ncep-ncar")
+PREC_DATASETS_REANAL <- c("20cr", "era20c", "era5-land", "jra55", "merra2", "ncep-doe", "ncep-ncar")
 PREC_DATASETS_REMOTE <- c("chirps", "cmap", "cmorph", "gpcp", "gpm-imerg", "mswep", "persiann", "trmm-3b43")
 PREC_DATASETS_HYDROL <- c("fldas", "gldas-clsm", "gldas-noah", "gldas-vic", "terraclimate")
 
 #EVAP_DATASETS_OBS <- c()
 EVAP_DATASETS_REANAL <- c("era5-land", "jra55", "merra2")
-EVAP_DATASETS_REMOTE <- c("bess","zheng","gleam")
+EVAP_DATASETS_REMOTE <- c("bess", "zheng", "gleam")
 EVAP_DATASETS_HYDROL <- c("fldas", "gldas-clsm", "gldas-noah", "gldas-vic", "terraclimate")
 EVAP_DATASETS_ENSEMB <- c("camele")
                           

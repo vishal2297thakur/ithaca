@@ -43,17 +43,19 @@ dummy_2[, class := factor("underestimate")]
 dummy_3 <- datasets_mean_ratio[datasets_mean_ratio[, .I[dataset == tail(dataset, 2)], by = climate]$V1]
 dummy_3[, class := factor("overestimate")]
 
+tail(datasets_mean_ratio[order(datasets_mean_ratio$prec_diff),], n = 3)
+
 ## Figures
 to_plot <- rbind(dummy_1, dummy_2, dummy_3)[, c(1, 2, 3, 6)]
 to_plot[, levels(climate) := levels(climate)[c()]]
 
-ggplot(to_plot, aes(climate, prec)) +
+ggplot(datasets_mean_ratio, aes(climate, prec)) +
   geom_hline(yintercept = 1, col = 'grey50') +
   geom_point() +
   geom_line(aes(group = climate)) +
   scale_fill_manual(values = colset_RdBu_5[c(3, 4, 2)]) + 
   scale_color_manual(values = c('white', 'black', 'white')) + 
-  geom_label_repel(aes(label = dataset, fill = class),
+  geom_label_repel(aes(label = dataset),
                    box.padding   = 0.35, 
                    point.padding = 0.5,
                    segment.color = 'grey50') +

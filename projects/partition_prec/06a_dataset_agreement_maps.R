@@ -11,8 +11,6 @@ levels(prec_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
 levels(prec_mask$prec_quant_dataset_agreement) <- c("High", "Above average", "Average",
                                                      "Below average", "Low")
-levels(prec_mask$abs_dataset_agreement) <- c("High", "Above average", "Average",
-                                             "Below average", "Low")
 
 station_grid <- read_stars(paste0(PATH_SAVE_PARTITION_PREC_SPATIAL,
                                "prec_station_grid.nc")) %>% st_as_sf()
@@ -143,38 +141,3 @@ dev.off()
      
 ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
               "prec_quant_dataset_agreement_map.png"), width = 12, height = 8)
-
-### Absolute dataset agreement
-to_plot_sf <- prec_mask[, .(lon, lat, abs_dataset_agreement)
-][, value := as.numeric(abs_dataset_agreement)]
-to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
-  rasterFromXYZ(res = c(0.25, 0.25),
-                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
-  st_as_stars() %>% st_as_sf()
-
-fig_abs_dataset_agreement <- ggplot(to_plot_sf) +
-  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(color = factor(value), fill = factor(value))) +
-  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = colset_RdBu_5,
-                    labels = levels(prec_mask$abs_dataset_agreement)) +
-  scale_color_manual(values = colset_RdBu_5,
-                     labels = levels(prec_mask$abs_dataset_agreement),
-                     guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
-  coord_sf(expand = FALSE, crs = "+proj=robin") +
-  scale_y_continuous(breaks = seq(-60, 60, 30)) +
-  geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
-  geom_sf_text(data = labs_x, aes(label = label), color = "gray40", size = 4) +
-  theme_bw() +
-  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
-        panel.border = element_blank(),
-        axis.ticks.length = unit(0, "cm"),
-        panel.grid.major = element_line(colour = "gray60"),
-        axis.text = element_blank(), 
-        axis.title = element_text(size = 16), 
-        legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 16))
-
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "supplement/abs_dataset_agreement_map.png"), width = 12, height = 8)

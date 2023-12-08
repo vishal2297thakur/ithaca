@@ -1,4 +1,4 @@
-# Same as 05b but for conditioned dataset agrrement
+# Same as 05b but for conditioned dataset agreement
 
 source('source/partition_prec.R')
 source('source/graphics.R')
@@ -108,10 +108,6 @@ prec_quant_agreement[, prec_quant_sum := sum(prec_sum), prec_quant]
 prec_quant_agreement[, prec_quant_fraction := prec_sum / prec_quant_sum]
 
 ## Save data
-write.csv(partition_KG, paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG.csv"))
-write.csv(partition_KG_sd, paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_sd.csv"))
-write.csv(partition_KG_datasets[, -2], paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_datasets.csv"))
-save(land_cover_prec, land_cover_agreement, biome_prec, biome_agreement, elevation_prec, elevation_agreement, prec_quant_prec, prec_quant_agreement, file = paste0(PATH_SAVE_PARTITION_PREC, "partition_prec.Rdata"))
 
 ## Figures Main
 ### Land Use
