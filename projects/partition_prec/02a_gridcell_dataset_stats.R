@@ -28,6 +28,8 @@ prec_datasets[dataset %in% PREC_DATASETS_OBS, dataset_type := 'ground stations'
               ][dataset %in% PREC_DATASETS_REANAL, dataset_type := 'reanalysis'
                 ][dataset %in% PREC_DATASETS_REMOTE, dataset_type := 'remote sensing']
 
+prec_datasets <- prec_datasets[dataset %in% datasets_used] #After revision
+
 ### Precipitation volumes 
 grid_cell_area <- unique(prec_datasets[, .(lon, lat)]) %>% grid_area() # m2
 prec_mean_datasets <- prec_datasets[, .(prec_mean = mean(prec_mean)), .(lon, lat, n_datasets)]

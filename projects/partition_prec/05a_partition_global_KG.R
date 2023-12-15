@@ -9,6 +9,8 @@ prec_dataset_means <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datase
 prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
 prec_annual <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_mean.rds"))
 
+prec_annual <- prec_annual[dataset %in% datasets_used] #After revision
+
 ## Variables
 climate_KG <- merge(prec_mask[, .(lat, lon, KG_class_1_name)], 
                     prec_grid[, .(lon, lat, area)], by = c("lon", "lat"), all = TRUE)
