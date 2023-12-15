@@ -36,8 +36,8 @@ PREC_GLOBAL_DATASETS <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", 
                           "cmap", "gpcp", "gpm-imerg", "mswep",  
                           "fldas", "gldas-clsm", "gldas-noah", "gldas-vic", "terraclimate")
 
-EVAP_GLOBAL_DATASETS <- c("bess","camele","elnashar", "era5-land","fldas", "gldas-clsm","gldas-noah", 
-                          "gldas-vic","gleam", "jra55", "merra2","terraclimate","zheng")
+EVAP_GLOBAL_DATASETS <- c("bess","camele","era5-land","etmonitor","etsynthesis","fldas", "gldas-clsm","gldas-noah", 
+                          "gldas-vic","gleam", "jra55", "merra2","terraclimate")
 
 # Types
 PREC_DATASETS_OBS <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", "udel")
@@ -47,9 +47,9 @@ PREC_DATASETS_HYDROL <- c("fldas", "gldas-clsm", "gldas-noah", "gldas-vic", "ter
 
 #EVAP_DATASETS_OBS <- c()
 EVAP_DATASETS_REANAL <- c("era5-land", "jra55", "merra2")
-EVAP_DATASETS_REMOTE <- c("bess","zheng","gleam")
+EVAP_DATASETS_REMOTE <- c("bess","etmonitor","gleam")
 EVAP_DATASETS_HYDROL <- c("fldas", "gldas-clsm", "gldas-noah", "gldas-vic", "terraclimate")
-EVAP_DATASETS_ENSEMB <- c("camele","elnashar")
+EVAP_DATASETS_ENSEMB <- c("camele","etsynthesis")
                           
 ## Constants
 # Time
