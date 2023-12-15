@@ -46,7 +46,7 @@ biome_class[grepl("Temperate Grasslands", biome_class) == TRUE, biome_short_clas
 biome_class[grepl("Subtropical Grasslands", biome_class) == TRUE, biome_short_class := "T/S Grasslands"]
 biome_class[grepl("Montane Grasslands", biome_class) == TRUE, biome_short_class := "M. Grasslands"]
 biome_class[grepl("Flooded", biome_class) == TRUE, biome_short_class := "Flooded"]
-biome_class[grepl("Mangroves", biome_class) == TRUE, biome_short_class := "Flooded"]
+biome_class[grepl("Mangroves", biome_class) == TRUE, biome_short_class := "Mangroves"]
 biome_class[grepl("Deserts", biome_class) == TRUE, biome_short_class := "Deserts"]
 biome_class[grepl("Mediterranean", biome_class) == TRUE, biome_short_class := "Mediterranean"]
 biome_class[grepl("N/A", biome_class) == TRUE, biome_short_class := NA]
