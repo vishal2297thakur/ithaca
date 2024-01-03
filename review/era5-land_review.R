@@ -1,4 +1,4 @@
-# Review MERRA2 data ----
+# Review era5-land data ----
 source('source/partition_evap.R')
 source("source/cdo_functions.R")
 
@@ -11,14 +11,14 @@ library(sp)
 library(sf)
 library(stars)
 
+
 ## Load data ----
 fnames_nc <- list.files(path = PATH_EVAP_SIM, pattern = ".nc$", 
-                     full.names = T)
+                        full.names = T)
 
-fnames_product <- fnames_nc[grep("merra2", fnames_nc)]
+fnames_product <- fnames_nc[grep("era5-land", fnames_nc)]
 
 fname <- fnames_product[grep("yearly", fnames_product)]
-
 ## 1. Check name: Data product, variables, unit, scale, beginning of time, end of time, spatial resolution, temporal resolution ----
 fname
 
@@ -31,8 +31,6 @@ system(cmd_ncdump)
 # variable name
 cmd_cdo_variable_name <- paste0("cdo vardes ", fname)
 system(cmd_cdo_variable_name)
-
-
 
 # summary
 cdo_info_fnc(fname)
@@ -68,22 +66,4 @@ data@z$Date
 cdo_sinfo_fnc(fname)
 
 ## 7. Compare values to at least one other publication ----
-# Change according to need
-# Comparison to Kim et all. 2021 "An Assessment of Concurrency in Evapotranspiration Trends across Multiple Global Datasets" reported mean value form 1982-2012 
-period_start <- as.Date("1982-01-01") 
-period_end <- as.Date("2012-01-01") 
 
-start_time <- which(data@z$Date == period_start)
-end_time <- which(data@z$Date == period_end)
-
-# selects time
-cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/merra2_review_sel.nc", start_time = start_time, end_time = end_time)
-
-# Calculate field means
-cdo_fldmean_fnc(inputfile_name = "~/Review/merra2_review_sel.nc", outputfile_name = "~/Review/merra2_review_fldmean_check.nc")
-
-cdo_info_fnc(inputfile_name = "~/Review/merra2_review_fldmean_check.nc")
-
-cdo_timmean_fnc(inputfile_name =  "~/Review/merra2_review_fldmean_check.nc", outputfile_name = "~/Review/merra2_fldmean_timmean_mean.nc")
-
-cdo_info_fnc(inputfile_name = "~/Review/merra2_fldmean_timmean_mean.nc")

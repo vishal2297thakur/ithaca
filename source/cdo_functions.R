@@ -99,6 +99,7 @@ cdo_fldmean_fnc <- function(inputfile_name, outputfile_name){
 }
 
 
+
 ## cdo field sum with weights command ----
 cdo_fldsum_fnc <- function(inputfile_name, outputfile_name){
   if(!is.character(inputfile_name)){
@@ -175,4 +176,45 @@ cdo_timmean_fnc <- function(inputfile_name, outputfile_name){
   }
   cmd_cdo <- paste("cdo timmean", inputfile_name, outputfile_name)
   system(cmd_cdo)
+}
+
+## cdo info to text
+cdo_info_to_text_fnc <- function(inputfile_name, outputfile_name){
+  if(!is.character(inputfile_name)){
+    stop(paste(inputfile_name, "is not a valid filename"))
+  }
+  
+  if(!is.character(outputfile_name)){
+    stop(paste(outputfile_name, "is not a valid filename"))
+  }
+  
+  file_extension <- strsplit(basename(inputfile_name), split="\\.")[[1]]
+  if(file_extension[-1] != "nc"){
+    stop(paste(basename(inputfile_name), "not a nc file"))
+  }
+  
+  cmd_cdo <- paste("cdo info", inputfile_name, ">", outputfile_name)
+  
+  system(cmd_cdo)
+  
+  dummy <- read.table(outputfile_name, sep = "", header = F, skip = 1, flush = T)
+
+  n_row <- nrow(dummy)-1
+
+  dummy <- dummy[1:n_row,]
+  
+  date <- dummy$V3
+  
+
+  if(ncol(dummy) == 11){
+    value <- as.numeric(dummy[,9])
+  }
+  
+  if(ncol(dummy) == 13){
+    value <- as.numeric(dummy[,10])
+  }
+  
+  data <- data.table(date = as.Date(date), value = value)
+  data <- data[complete.cases(data)]
+  return(data)
 }

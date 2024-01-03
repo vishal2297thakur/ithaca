@@ -1,6 +1,7 @@
-# Review MERRA2 data ----
+# Review gleam data ----
 source('source/partition_evap.R')
 source("source/cdo_functions.R")
+source("source/geo_functions.R")
 
 library(pRecipe)
 
@@ -11,11 +12,15 @@ library(sp)
 library(sf)
 library(stars)
 
+## stats
+library("Kendall")
+library("RobustLinearReg")
+
 ## Load data ----
 fnames_nc <- list.files(path = PATH_EVAP_SIM, pattern = ".nc$", 
-                     full.names = T)
+                        full.names = T)
 
-fnames_product <- fnames_nc[grep("merra2", fnames_nc)]
+fnames_product <- fnames_nc[grep("gleam", fnames_nc)]
 
 fname <- fnames_product[grep("yearly", fnames_product)]
 
@@ -31,8 +36,6 @@ system(cmd_ncdump)
 # variable name
 cmd_cdo_variable_name <- paste0("cdo vardes ", fname)
 system(cmd_cdo_variable_name)
-
-
 
 # summary
 cdo_info_fnc(fname)
@@ -68,22 +71,22 @@ data@z$Date
 cdo_sinfo_fnc(fname)
 
 ## 7. Compare values to at least one other publication ----
-# Change according to need
-# Comparison to Kim et all. 2021 "An Assessment of Concurrency in Evapotranspiration Trends across Multiple Global Datasets" reported mean value form 1982-2012 
 period_start <- as.Date("1982-01-01") 
-period_end <- as.Date("2012-01-01") 
+period_end <- as.Date("2020-01-01") 
 
 start_time <- which(data@z$Date == period_start)
 end_time <- which(data@z$Date == period_end)
 
-# selects time
-cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/merra2_review_sel.nc", start_time = start_time, end_time = end_time)
+cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/gleam_review_sel_i.nc", start_time = start_time, end_time = end_time)
+cdo_fldmean_fnc(inputfile_name = "~/Review/gleam_review_sel_i.nc", outputfile_name = "~/Review/gleam_review_sel_fldmean.nc")
 
-# Calculate field means
-cdo_fldmean_fnc(inputfile_name = "~/Review/merra2_review_sel.nc", outputfile_name = "~/Review/merra2_review_fldmean_check.nc")
+cmd_cdo_trend <- paste0("cdo trend ~/Review/gleam_review_sel_fldmean.nc ~/Review/gleam_review_sel_fldmean_trend_a.nc ~/Review/gleam_review_sel_fldmean_trend_b.nc")
+system(cmd_cdo_trend)
+cdo_info_fnc(inputfile_name = "~/Review/gleam_review_sel_fldmean_trend_b.nc")
 
-cdo_info_fnc(inputfile_name = "~/Review/merra2_review_fldmean_check.nc")
-
-cdo_timmean_fnc(inputfile_name =  "~/Review/merra2_review_fldmean_check.nc", outputfile_name = "~/Review/merra2_fldmean_timmean_mean.nc")
-
-cdo_info_fnc(inputfile_name = "~/Review/merra2_fldmean_timmean_mean.nc")
+fld_means <- cdo_info_to_text_fnc(inputfile_name = "~/Review/gleam_review_sel_fldmean.nc", outputfile_name = "~/Review/gleam_1982_2020.txt")
+fld_means[, year := as.numeric(format(date, "%Y"))]
+slope <- theil_sen_regression(value ~ year, data = fld_means)$coefficients[2]
+lm(value ~ year, data = fld_means)
+mean_fld <- mean(fld_means$value, na.rm = T)
+plot(fld_means$date, fld_means$value-mean_fld, type = "b", ylim = c(-30, 30))

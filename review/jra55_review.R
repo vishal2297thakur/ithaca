@@ -27,6 +27,11 @@ fname
 cmd_ncdump <- paste0("ncdump -h ", fname)
 system(cmd_ncdump)
 
+
+# variable name
+cmd_cdo_variable_name <- paste0("cdo vardes ", fname)
+system(cmd_cdo_variable_name)
+
 # summary
 cdo_info_fnc(fname)
 

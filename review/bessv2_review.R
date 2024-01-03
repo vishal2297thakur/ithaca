@@ -11,6 +11,10 @@ library(sp)
 library(sf)
 library(stars)
 
+## stats
+library("Kendall")
+library("RobustLinearReg")
+
 ## Load data ----
 fnames_nc <- list.files(path = PATH_EVAP_SIM, pattern = ".nc$", 
                         full.names = T)
@@ -27,6 +31,10 @@ fname
 # muldpm
 cmd_ncdump <- paste0("ncdump -h ", fname)
 system(cmd_ncdump)
+
+# variable name
+cmd_cdo_variable_name <- paste0("cdo vardes ", fname)
+system(cmd_cdo_variable_name)
 
 # summary
 cdo_info_fnc(fname)
@@ -85,3 +93,49 @@ cdo_fldsum_fnc(inputfile_name = "~/Review/bess_timmean_mean_area.nc", outputfile
 cdo_info_fnc(inputfile_name = "~/Review/bess_review_timmean_mean_area_fldsum.nc")
 
 6.7167e+16*M2_TO_KM2*MM_TO_KM
+
+
+# Comparison to review paper (yang et al. 2023, Nature Reviews Earth & Environment) reporting trend for (i) 1982-2016 - 0.12 mm/yr/yr, (ii) 1982-2011 (SI) - 0.2 mm/yr/yr
+# trend i
+period_start <- as.Date("1982-01-01") 
+period_end <- as.Date("2016-01-01") 
+
+start_time <- which(data@z$Date == period_start)
+end_time <- which(data@z$Date == period_end)
+
+cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/bess_review_sel_i.nc", start_time = start_time, end_time = end_time)
+cdo_fldmean_fnc(inputfile_name = "~/Review/bess_review_sel_i.nc", outputfile_name = "~/Review/bess_review_sel_fldmean.nc")
+cmd_cdo_trend <- paste0("cdo trend ~/Review/bess_review_sel_fldmean.nc ~/Review/bess_review_sel_fldmean_trend_a.nc ~/Review/bess_review_sel_fldmean_trend_b.nc")
+system(cmd_cdo_trend)
+cdo_info_fnc(inputfile_name = "~/Review/bess_review_sel_fldmean_trend_b.nc")
+cdo_info_fnc(inputfile_name = "~/Review/bess_review_sel_fldmean_trend_a.nc")
+
+cdo_info_fnc("~/Review/bess_review_sel_fldmean.nc")
+fld_means <- cdo_info_to_text_fnc(inputfile_name = "~/Review/bess_review_sel_fldmean.nc", outputfile_name = "~/Review/bess_1982_2016.txt")
+fld_means[, year := as.numeric(format(date, "%Y"))]
+slope <- theil_sen_regression(value ~ year, data = fld_means)$coefficients[2]
+lm(value ~ year, data = fld_means)
+mean_fld <- mean(fld_means$value, na.rm = T)
+plot(fld_means$date, fld_means$value-mean_fld, type = "b", ylim = c(-30, 30))
+
+# trend ii
+period_start <- as.Date("1982-01-01") 
+period_end <- as.Date("2011-01-01") 
+
+start_time <- which(data@z$Date == period_start)
+end_time <- which(data@z$Date == period_end)
+
+cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/bess_review_sel_ii.nc", start_time = start_time, end_time = end_time)
+cdo_fldmean_fnc(inputfile_name = "~/Review/bess_review_sel_ii.nc", outputfile_name = "~/Review/bess_review_sel_fldmean.nc")
+cmd_cdo_trend <- paste0("cdo trend ~/Review/bess_review_sel_fldmean.nc ~/Review/bess_review_sel_fldmean_trend_a.nc ~/Review/bess_review_sel_fldmean_trend_b.nc")
+system(cmd_cdo_trend)
+cdo_info_fnc(inputfile_name = "~/Review/bess_review_sel_fldmean_trend_b.nc")
+cdo_info_fnc("~/Review/bess_review_sel_fldmean.nc")
+fld_means <- cdo_info_to_text_fnc(inputfile_name = "~/Review/bess_review_sel_fldmean.nc", outputfile_name = "~/Review/bess_1982_2011.txt")
+fld_means[, year := as.numeric(format(date, "%Y"))]
+slope <- theil_sen_regression(value ~ year, data = fld_means)$coefficients[2]
+lm(value ~ year, data = fld_means)
+mean_fld <- mean(fld_means$value, na.rm = T)
+plot(fld_means$date, fld_means$value-mean_fld, type = "b", ylim = c(-30, 30))
+
+
