@@ -11,12 +11,12 @@ library(sf)
 library(stars)
 
 ## Load data ----
-fnames_nc <- list.files(path = "~/shared/data_review/jra55", pattern = ".nc$", 
+fnames_nc <- list.files(path = "~/shared/data_review/Riya_name_modified", pattern = ".nc$", 
                      full.names = T)
 
 fnames_product <- fnames_nc[grep("jra55", fnames_nc)]
 
-fname <- fnames_product[grep("land", fnames_product)]
+fname <- fnames_product[grep("monthly", fnames_product)]
 
 ## 1. Check name: Data product, variables, unit, scale, beginning of time, end of time, spatial resolution, temporal resolution ----
 fname
