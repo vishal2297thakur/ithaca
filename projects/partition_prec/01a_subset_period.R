@@ -1,6 +1,7 @@
 # Reads and subsets data as netcdf files for the specified period.
 
 source('source/main.R')
+source('source/partition_prec.R')
 source('source/geo_functions.R')
 
 load("~/shared/data_projects/ithaca/misc/prec_fnames_2000_2019_full_record.Rdata") # Created by database/06_dataset_fnames.R

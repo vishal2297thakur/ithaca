@@ -1,7 +1,7 @@
 #Creates project paths
 
 source("source/main.R")
-source("database/06_dataset_fnames.R")
+source("database/06_dataset_fnames_prec.R")
 
 ## Paths
 ### Output

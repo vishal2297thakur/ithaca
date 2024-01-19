@@ -6,34 +6,34 @@ install.packages(setdiff(packages, rownames(installed.packages())))
 
 ## Paths
 ### Input - Raw data 
-PREC_FNAMES_SHORT_2000_2019_FULL_RECORD <-  c("era5", "jra55", "merra2", "ncep-doe", "ncep-ncar", "chirps", 
-                                  "cmap", "cmorph", "cpc", "cru-ts", "em-earth", "gpcc", "gpcp",      "gpm-imerg",
-                                  "mswep", "persiann")
-PREC_FNAMES_2000_2019_FULL_RECORD <- c(list.files(path = PATH_PREC_SIM, full.names = TRUE),
-                                       list.files(path = PATH_PREC_OBS, full.names = TRUE))
+EVAP_FNAMES_SHORT_2000_2019_FULL_RECORD <-  c("bess","camele","era5-land","fldas", "gldas-clsm","gldas-noah", 
+                                              "gldas-vic","gleam", "jra55", "merra2","terraclimate","zheng")
+EVAP_FNAMES_2000_2019_FULL_RECORD <- c(list.files(path = PATH_EVAP_SIM, full.names = TRUE,pattern = "*_e_mm*"))
 
-PREC_FNAMES_2000_2019_FULL_RECORD <- unique(grep(paste(PREC_FNAMES_SHORT_2000_2019_FULL_RECORD, collapse = "|"), 
-                       PREC_FNAMES_2000_2019_FULL_RECORD, value = TRUE))
-PREC_FNAMES_2000_2019_FULL_RECORD <- grep("land", PREC_FNAMES_2000_2019_FULL_RECORD, value = TRUE)
-PREC_FNAMES_2000_2019_FULL_RECORD <- grep("yearly", PREC_FNAMES_2000_2019_FULL_RECORD, value = TRUE)
+EVAP_FNAMES_2000_2019_FULL_RECORD <- unique(grep(paste(EVAP_FNAMES_SHORT_2000_2019_FULL_RECORD, collapse = "|"), 
+                                                 EVAP_FNAMES_2000_2019_FULL_RECORD, value = TRUE))
+
+EVAP_FNAMES_2000_2019_FULL_RECORD <- grep("land", EVAP_FNAMES_2000_2019_FULL_RECORD, value = TRUE)
+EVAP_FNAMES_2000_2019_FULL_RECORD <- grep("yearly", EVAP_FNAMES_2000_2019_FULL_RECORD, value = TRUE)
 
 ### Output
-PATH_SAVE_PARTITION_PREC <- paste0(PATH_SAVE, "partition_prec/")
-PATH_SAVE_PARTITION_PREC_RAW <- paste0(PATH_SAVE, "partition_prec/raw/")
-PATH_SAVE_PARTITION_PREC_SPATIAL <- paste0(PATH_SAVE, "partition_prec/spatial/")
-PATH_SAVE_PARTITION_PREC_FIGURES <- paste0(PATH_SAVE, "partition_prec/figures/")
-PATH_SAVE_PARTITION_PREC_TABLES <- paste0(PATH_SAVE, "partition_prec/tables/")
+PATH_SAVE_PARTITION_EVAP <- paste0(PATH_SAVE, "partition_evap/")
+PATH_SAVE_PARTITION_EVAP_RAW <- paste0(PATH_SAVE, "partition_evap/raw/")
+PATH_SAVE_PARTITION_EVAP_SPATIAL <- paste0(PATH_SAVE, "partition_evap/spatial/")
+PATH_SAVE_PARTITION_EVAP_FIGURES <- paste0(PATH_SAVE, "partition_evap/figures/")
+PATH_SAVE_PARTITION_EVAP_TABLES <- paste0(PATH_SAVE, "partition_evap/tables/")
 
 ### Project data
-PREC_FNAMES_2000_2019 <-  list.files(path = PATH_SAVE_PARTITION_PREC_RAW, full.names = TRUE)
-dummy <- strsplit(PREC_FNAMES_2000_2019, split = '//')
+EVAP_FNAMES_2000_2019 <-  list.files(path = PATH_SAVE_PARTITION_EVAP_RAW, full.names = TRUE)
+dummy <- strsplit(EVAP_FNAMES_2000_2019, split = '//')
 dummy <- sapply(dummy, "[[", 2)
 dummy <- strsplit(dummy, split = '_')
-PREC_FNAMES_SHORT_2000_2019 <- sapply(dummy, "[[", 1)
+EVAP_FNAMES_SHORT_2000_2019 <- sapply(dummy, "[[", 1)
 
 ## Variables
-MIN_N_DATASETS <- 10
-n_datasets_2000_2019 <- length(PREC_FNAMES_SHORT_2000_2019)
+MIN_N_DATASETS <- 6
+#n_datasets_2000_2019 <- length(EVAP_FNAMES_SHORT_2000_2019)
+n_datasets_2000_2019 <- 12
 
 ## Specify start/end for the period of analysis 
 period_start <- as.Date("2000-01-01") 

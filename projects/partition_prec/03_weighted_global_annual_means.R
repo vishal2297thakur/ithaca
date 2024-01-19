@@ -16,7 +16,7 @@ n_datasets_2000_2019_global <- length(prec_2000_2019_global)
 registerDoParallel(cores = N_CORES - 1)
 
 prec_annual <- foreach(dataset_count = 1:n_datasets_2000_2019_global) %dopar% {
-  dummie_raster <- names_prec_2000_2019_global[[dataset_count]]
+  dummie_raster <- prec_2000_2019_global[[dataset_count]]
   dummie_weights <- area(dummie_raster, na.rm = TRUE, weights = TRUE)
   dummie_table <- dummie_raster * dummie_weights
   dummie_table <- cellStats(dummie_table, 'sum')
@@ -24,9 +24,9 @@ prec_annual <- foreach(dataset_count = 1:n_datasets_2000_2019_global) %dopar% {
   setnames(dummie_table, c("date", "wavg_yearly"))
   dummie_table <- dummie_table[, .(year = year(date), prec_mean =  wavg_yearly)]
 }
-names(prec_annual) <- names(names_prec_2000_2019_global)
+names(prec_annual) <- names_prec_2000_2019_global
 prec_annual$`gpm-imerg`[1] <- NA
-prec_annual <- bind_rows(prec_annual, .id = "column_label")
+prec_annual <- bind_rows(prec_annual[1:14], .id = "column_label")
 colnames(prec_annual)[1] <- "dataset"
 prec_annual[, prec_volume := GLOBAL_AREA * M2_TO_KM2 * prec_mean * MM_TO_KM]
 

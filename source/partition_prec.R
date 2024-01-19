@@ -11,6 +11,7 @@ load(paste0(PATH_SAVE_PARTITION_PREC, "prec_names_2000_2019.Rdata"))
 ## Variables
 MIN_N_DATASETS <- 10
 n_datasets_2000_2019 <- length(PREC_FNAMES_2000_2019)
+datasets_used <- PREC_GLOBAL_DATASETS[!PREC_GLOBAL_DATASETS %in% c('ncep-doe', 'ncep-ncar', 'cmap')]
 
 ## Specify start/end for the period of analysis 
 period_start <- as.Date("2000-01-01") 
