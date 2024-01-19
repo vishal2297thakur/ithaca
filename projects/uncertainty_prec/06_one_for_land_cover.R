@@ -1,6 +1,7 @@
 # Best data set per Land Cover
 source("source/uncertainty_prec.R")
 
+registerDoParallel(cores = N_CORES - 1)
 ## Data
 prec_month <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "t_metric_month.rds"))
 
@@ -11,8 +12,7 @@ prec_masks <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
 
 ## Analysis
 ### Prepare mask
-prec_masks <- prec_masks[unique(prec_years[, .(lon, lat)]),
-                         .(lon, lat, land_cover_short_class), on = .(lon, lat)]
+prec_masks <- prec_masks[, .(lon, lat, land_cover_short_class)]
 
 lonlat_area <- unique(prec_masks[, .(lon, lat)]) %>% .[, val := 1] %>%
   rasterFromXYZ(res = c(0.25, 0.25)) %>% area() %>% tabular() %>%

@@ -56,6 +56,9 @@ dir.create(PATH_SAVE_UNCERTAINTY_PREC_FIGURES, showWarnings = FALSE)
 dir.create(PATH_SAVE_UNCERTAINTY_PREC_TABLES, showWarnings = FALSE)
 
 ## Constants
+#Graphs
+GOLDEN_RATIO <- (1 + sqrt(5))/2
+
 # Time
 PERIOD_START <- as.Date("2001-01-01")
 PERIOD_END <- as.Date("2019-12-31")
@@ -75,4 +78,3 @@ N_CORES <- detectCores()
 M2_TO_KM2 <- 10 ^ (-6)
 MM_TO_M <- 10 ^ (-3)
 MM_TO_KM <- 10 ^ (-6)
-

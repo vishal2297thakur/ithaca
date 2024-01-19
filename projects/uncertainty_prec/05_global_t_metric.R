@@ -24,13 +24,14 @@ prec_month <- prec_month[, .(mse_prec = mean((median_prec - prec)^2,
                                           use = "complete.obs"),
                              bias_prec = mean(prec, na.rm = TRUE) -
                                mean(median_prec, na.rm = TRUE),
-                             var_prec = var(prec, na.rm = TRUE),
-                             median_var = var(median_prec, na.rm = TRUE)),
+                             var_prec = sd(prec, na.rm = TRUE)^2,
+                             median_var = sd(median_prec, na.rm = TRUE)^2),
                          .(lon, lat, dataset)]
 
-prec_month <- prec_month[, .(t_prec = ((1 + r_prec)/2)*(1 - (mse_prec/((bias_prec^2) + (var_prec^2) + (median_var^2))))),
+prec_month <- prec_month[, .(t_prec = ((1 + r_prec)/2)*(1 - (mse_prec/(bias_prec^2 + var_prec + median_var)))),
                          .(lon, lat, dataset)]
 
+prec_month[t_prec < 0, t_prec := 0]
 
 prec_years[, median_prec := median(prec, na.rm = TRUE), .(lon, lat, date)]
 prec_years <- prec_years[, .(mse_prec = mean((median_prec - prec)^2,
@@ -39,12 +40,13 @@ prec_years <- prec_years[, .(mse_prec = mean((median_prec - prec)^2,
                                           use = "complete.obs"),
                              bias_prec = mean(prec, na.rm = TRUE) -
                                mean(median_prec, na.rm = TRUE),
-                             var_prec = var(prec, na.rm = TRUE),
-                             median_var = var(median_prec, na.rm = TRUE)),
+                             var_prec = sd(prec, na.rm = TRUE)^2,
+                             median_var = sd(median_prec, na.rm = TRUE)^2),
                          .(lon, lat, dataset)]
 
-prec_years <- prec_years[, .(t_prec = ((1 + r_prec)/2)*(1 - (mse_prec/((bias_prec^2) + (var_prec^2) + (median_var^2))))),
+prec_years <- prec_years[, .(t_prec = ((1 + r_prec)/2)*(1 - (mse_prec/(bias_prec^2 + var_prec + median_var)))),
                          .(lon, lat, dataset)]
+prec_years[t_prec < 0, t_prec := 0]
 
 ## Save
 saveRDS(prec_month, paste0(PATH_SAVE_UNCERTAINTY_PREC, "t_metric_month.rds"))
