@@ -29,11 +29,11 @@ evap_datasets_volume[, dataset_type := factor(dataset_type, levels =  c( "reanal
                               labels = c( "Reanalyses", "Remote sensing","Hydrologic model","Ensemble"))]
 
 evap_datasets_volume[, dataset := factor(dataset, 
-                                            levels = c("bess", "etmonitor", "gleam",
+                                            levels = c("bess", "etmonitor", "gleam","mod16a",
                                                        "camele", "etsynthesis", 
                                                        "fldas", "gldas-clsm", "gldas-noah", "gldas-vic", "terraclimate",
                                                        "era5-land", "jra55","merra2"),
-                                            labels = c("bess", "etmonitor", "gleam",
+                                            labels = c("bess", "etmonitor", "gleam","mod16a",
                                                        "camele", "etsynthesis", 
                                                        "fldas", "gldas-clsm", "gldas-noah", "gldas-vic", "terraclimate",
                                                        "era5-land", "jra55","merra2")
@@ -157,6 +157,7 @@ cols_data <- c("bess" = "chartreuse2",
                "gleam" = "darkgreen",
                "jra55" = "orange1",
                "merra2" = "orange3",
+               "mod16a" = "green",
                "terraclimate" = "darkblue"
                )
 

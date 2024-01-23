@@ -16,7 +16,7 @@ datasets <- evap_mean_datasets[, unique(dataset)]
 
 
 ## Plotting evap means ----
-ggplot(evap_mean_datasets[dataset %in% c(datasets[1:13])])+
+ggplot(evap_mean_datasets[dataset %in% c(datasets[1:14])])+
   geom_tile(aes(x = lon, y = lat, col = evap_mean))+
   scale_color_binned(type = "viridis", 
                     breaks = c(-50,0, 0.5, seq(100, 700, 150), 1000, 2000, 2800), 
@@ -30,7 +30,7 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "evap_datasets_mean_annual_mm.pn
 
 ## Plotting evap sd ----
 
-ggplot(evap_mean_datasets[dataset %in% c(datasets[1:13])])+
+ggplot(evap_mean_datasets[dataset %in% c(datasets[1:14])])+
   geom_tile(aes(x = lon, y = lat, col = evap_sd))+
   scale_color_binned(type = "viridis", 
                      breaks = c(seq(0, 100, 20), 500), 
@@ -56,6 +56,7 @@ cols_data <- c("bess" = "chartreuse2",
                "gleam" = "darkgreen",
                "jra55" = "orange1",
                "merra2" = "orange3",
+               "mod16a" = "green",
                "terraclimate" = "darkblue"
 )
 

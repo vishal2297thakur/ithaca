@@ -1,4 +1,4 @@
-# Supplementary figure: Plot global map of partition classes 
+# Supplementary figure: Plot global map of partition classes: Needs editing
 source('source/partition_evap.R')
 source('source/geo_functions.R')
 source('source/graphics.R')

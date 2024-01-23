@@ -1,4 +1,4 @@
-#Supplementary figure: Correlation network
+#Supplementary figure: Correlation network : Needs editing
 
 source('source/partition_evap.R')
 source('source/graphics.R')
