@@ -42,11 +42,6 @@ fnames_nc <- list.files(path = paste0(PATH_DATA, "sim/soilmoisture/raw/"), patte
 fnames_product <- fnames_nc[grep("terraclimate", fnames_nc)]
 fname <- fnames_product[grep("yearly", fnames_product)]
 
-### Calculate mean and standard deviation ----
-# Mean
-cdo_timmean_fnc(fname, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_195801_202112_025_yearly_mean.nc"))
-# Standard deviation
-cdo_timstd_fnc(fname, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_195801_202112_025_yearly_std.nc"))
 
 ### Select time step ----
 period_start <- as.Date("2000-01-01") 
@@ -56,23 +51,32 @@ data <- brick(fname)
 start_time <- which(data@z$Date == period_start)
 end_time <- which(data@z$Date == period_end)
 
+output_fname <- paste0(PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly.nc")
 cdo_seltimestep_fnc(fname, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly.nc"), 
                     start_time = start_time, end_time = end_time)
 
+
+### Calculate mean and standard deviation ----
+# Mean
+cdo_timmean_fnc(output_fname, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly_mean.nc"))
+# Standard deviation
+cdo_timstd_fnc(output_fname, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly_std.nc"))
+
+
 ### Calculate SSI ----
 cmd_cdo <- paste0("cdo sub ", PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly.nc ", 
-                  PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_195801_202112_025_yearly_mean.nc ", 
+                  PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly_mean.nc ", 
                   PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly-mean.nc")
 system(cmd_cdo)
 
 cmd_cdo <- paste0("cdo div ",PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly-mean.nc ",
-                  PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_195801_202112_025_yearly_std.nc ",
+                  PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly_std.nc ",
                   PATH_DATA, "sim/soilmoisture/processed/terraclimate_ssi_global-land_200001_201912_025_yearly.nc")
 system(cmd_cdo)
 
 ### Remove temporary files ----
-system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_195801_202112_025_yearly_mean.nc"))
-system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_195801_202112_025_yearly_std.nc"))
+system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly_mean.nc"))
+system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly_std.nc"))
 system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/terraclimate_sm_mm_global-land_200001_201912_025_yearly-mean.nc"))
 
 ## Save data as data.table ----
@@ -82,7 +86,7 @@ saveRDS(data_ssi_dt, paste0(PATH_SAVE_PARTITION_EVAP, "ssi_200001_201912_terracl
 
 ## plot data ----
 
-ggplot(data_ssi_dt[time == as.Date("2004-01-01")])+
+ggplot(data_ssi_dt[time == as.Date("2003-01-01")])+
   geom_tile(aes(x = x, y = y, fill = value, col = value))+
   theme_bw()
 

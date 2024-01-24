@@ -6,7 +6,7 @@ source('source/graphics.R')
 library(rnaturalearth)
 
 ## Dry Data ----
-evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_el_nino.rds"))
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ENSO_el_nino.rds"))
 levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
 levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
@@ -118,7 +118,7 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
 
 ## Wet Data ----
 
-evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_la_nina.rds"))
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ENSO_la_nina.rds"))
 levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
 levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
@@ -208,7 +208,7 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
 
 ## Normal Data ----
 
-evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_neutral.rds"))
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ENSO_neutral.rds"))
 levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
 levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",

@@ -13,10 +13,6 @@ fname <- fnames_product[grep("yearly", fnames_product)]
 
 fname
 ## Analysis ----
-# Mean
-cdo_timmean_fnc(fname, outputfile_name = paste0(PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_189101_201912_025_yearly_mean.nc"))
-# Standard deviation
-cdo_timstd_fnc(fname, outputfile_name = paste0(PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_189101_201912_025_yearly_std.nc"))
 
 # Time select
 data <- brick(fname)
@@ -25,22 +21,31 @@ period_end <- as.Date("2019-01-01")
 
 start_time <- which(data@z$Date == period_start)
 end_time <- which(data@z$Date == period_end)
+
+output_fname <- paste0(PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly.nc")
+
 cdo_seltimestep_fnc(fname, outputfile_name = paste0(PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly.nc"), start_time = start_time, end_time = end_time)
 
+# Mean
+cdo_timmean_fnc(output_fname, outputfile_name = paste0(PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly_mean.nc"))
+# Standard deviation
+cdo_timstd_fnc(output_fname, outputfile_name = paste0(PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly_std.nc"))
+
+
 cmd_cdo <- paste0("cdo sub ", PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly.nc ", 
-                  PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_189101_201912_025_yearly_mean.nc ", 
+                  PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly_mean.nc ", 
                   PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly-mean.nc")
 system(cmd_cdo)
 cdo_sinfo_fnc(paste0(PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly-mean.nc"))
 
 cmd_cdo <- paste0("cdo div ",PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly-mean.nc ", 
-                  PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_189101_201912_025_yearly_std.nc ", 
+                  PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly_std.nc ", 
                   PATH_DATA, "obs/precip/processed/gpcc_spi_land_200001_201912_025_yearly.nc ")
 system(cmd_cdo)
 
 ## remove temp files ----
-system(paste0("rm ",PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_189101_201912_025_yearly_mean.nc"))
-system(paste0("rm ",PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_189101_201912_025_yearly_std.nc"))
+system(paste0("rm ",PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly_mean.nc"))
+system(paste0("rm ",PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly_std.nc"))
 system(paste0("rm ",PATH_DATA, "obs/precip/processed/gpcc_tp_mm_land_200001_201912_025_yearly-mean.nc"))
 
 

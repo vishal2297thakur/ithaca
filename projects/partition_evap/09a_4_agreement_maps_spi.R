@@ -5,14 +5,6 @@ source('source/graphics.R')
 
 library(rnaturalearth)
 
-## Dry Data ----
-evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_spi_dry.rds"))
-levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
-                                             "Below average", "Low")
-levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
-                                                    "Below average", "Low")
-
-
 
 ## World and Land borders ----
 earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP_SPATIAL,
@@ -34,7 +26,15 @@ labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
 labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
-## Figures ----
+## Dry Data ----
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_spi_dry.rds"))
+levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
+                                             "Below average", "Low")
+levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
+                                                    "Below average", "Low")
+
+
+
 
 ### Relative dataset agreement ----
 to_plot_sf <- evap_mask[, .(lon, lat, rel_dataset_agreement)
@@ -115,6 +115,96 @@ dev.off()
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "evap_quant_dataset_agreement_map_spi_dry.png"), width = 12, height = 8)
+## Dry ranked Data ----
+
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_spi_dry_rank.rds"))
+levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
+                                             "Below average", "Low")
+levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
+                                                    "Below average", "Low")
+
+
+### Relative dataset agreement ----
+to_plot_sf <- evap_mask[, .(lon, lat, rel_dataset_agreement)
+][, value := as.numeric(rel_dataset_agreement)]
+to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+  st_as_stars() %>% st_as_sf()
+
+fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
+  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
+  geom_sf(aes(color = factor(value), fill = factor(value))) +
+  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
+  scale_fill_manual(values = rev(colset_RdBu_5),
+                    labels = levels(evap_mask$rel_dataset_agreement)) +
+  scale_color_manual(values = rev(colset_RdBu_5),
+                     labels = levels(evap_mask$rel_dataset_agreement),
+                     guide = "none") +
+  labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
+  coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray40", size = 4) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16))
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
+              "rel_dataset_agreement_map_spi_dry_ranked.png"), width = 12, height = 8)
+
+### Relative dataset agreement conditioned by evaporation rate ----
+to_plot_sf <- evap_mask[, .(lon, lat, evap_quant_dataset_agreement)
+][, value := as.numeric(evap_quant_dataset_agreement )]
+to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+  st_as_stars() %>% st_as_sf()
+
+fig_evap_quant_dataset_agreement <- ggplot(to_plot_sf) +
+  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
+  geom_sf(aes(color = factor(value), fill = factor(value))) +
+  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
+  scale_fill_manual(values = rev(colset_RdBu_5), 
+                    labels = levels(evap_mask$evap_quant_dataset_agreement)) +
+  scale_color_manual(values = rev(colset_RdBu_5),
+                     labels = levels(evap_mask$evap_quant_dataset_agreement),
+                     guide = "none") +
+  labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
+  coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray40", size = 4) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16))
+
+gg_agreement <- ggarrange(fig_rel_dataset_agreement, fig_evap_quant_dataset_agreement,
+                          labels = c('a', 'b'), common.legend = TRUE,
+                          legend = 'right', align = 'hv',
+                          nrow = 2, ncol = 1)
+
+jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_spi_dry_ranked.png"), 
+     width = 12, height = 12, res = 300, units = 'in')
+gg_agreement
+dev.off()
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
+              "evap_quant_dataset_agreement_map_spi_dry_ranked.png"), width = 12, height = 8)
+
+
 
 ## Wet Data ----
 
@@ -204,6 +294,97 @@ dev.off()
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "evap_quant_dataset_agreement_map_spi_wet.png"), width = 12, height = 8)
+
+## Wet ranked Data ----
+
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_spi_wet_rank.rds"))
+levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
+                                             "Below average", "Low")
+levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
+                                                    "Below average", "Low")
+
+
+### Relative dataset agreement ----
+to_plot_sf <- evap_mask[, .(lon, lat, rel_dataset_agreement)
+][, value := as.numeric(rel_dataset_agreement)]
+to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+  st_as_stars() %>% st_as_sf()
+
+fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
+  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
+  geom_sf(aes(color = factor(value), fill = factor(value))) +
+  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
+  scale_fill_manual(values = rev(colset_RdBu_5),
+                    labels = levels(evap_mask$rel_dataset_agreement)) +
+  scale_color_manual(values = rev(colset_RdBu_5),
+                     labels = levels(evap_mask$rel_dataset_agreement),
+                     guide = "none") +
+  labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
+  coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray40", size = 4) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16))
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
+              "rel_dataset_agreement_map_spi_wet_ranked.png"), width = 12, height = 8)
+
+### Relative dataset agreement conditioned by evaporation rate ----
+to_plot_sf <- evap_mask[, .(lon, lat, evap_quant_dataset_agreement)
+][, value := as.numeric(evap_quant_dataset_agreement )]
+to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+  st_as_stars() %>% st_as_sf()
+
+fig_evap_quant_dataset_agreement <- ggplot(to_plot_sf) +
+  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
+  geom_sf(aes(color = factor(value), fill = factor(value))) +
+  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
+  scale_fill_manual(values = rev(colset_RdBu_5), 
+                    labels = levels(evap_mask$evap_quant_dataset_agreement)) +
+  scale_color_manual(values = rev(colset_RdBu_5),
+                     labels = levels(evap_mask$evap_quant_dataset_agreement),
+                     guide = "none") +
+  labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
+  coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray40", size = 4) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16))
+
+gg_agreement <- ggarrange(fig_rel_dataset_agreement, fig_evap_quant_dataset_agreement,
+                          labels = c('a', 'b'), common.legend = TRUE,
+                          legend = 'right', align = 'hv',
+                          nrow = 2, ncol = 1)
+
+jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_spi_wet_ranked.png"), 
+     width = 12, height = 12, res = 300, units = 'in')
+gg_agreement
+dev.off()
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
+              "evap_quant_dataset_agreement_map_spi_wet_ranked.png"), width = 12, height = 8)
+
+
 
 
 ## Normal Data ----

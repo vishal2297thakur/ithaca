@@ -216,32 +216,34 @@ cmd_cdo <- paste0(" cdo vardes ", output_name_sum)
 system(cmd_cdo)
 
 ### Calculate mean and standard deviation ----
-# Mean
-cdo_timmean_fnc(output_name_sum, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_195901_202112_025_yearly_mean.nc"))
-# Standard deviation
-cdo_timstd_fnc(output_name_sum, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_195901_202112_025_yearly_std.nc"))
 
 data <- brick(output_name_sum)
 data@z$Date
 
+output_fname <- paste0(PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly.nc")
 ### Select time step ----
-cdo_seltimestep_fnc(output_name_sum, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly.nc"), start_time = 42, end_time = 54)
+cdo_seltimestep_fnc(output_name_sum, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly.nc"), start_time = 42, end_time = 61)
+
+# Mean
+cdo_timmean_fnc(output_fname, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly_mean.nc"))
+# Standard deviation
+cdo_timstd_fnc(output_fname, outputfile_name = paste0(PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly_std.nc"))
+
 
 ### Calculate SSI ----
 cmd_cdo <- paste0("cdo sub ", PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly.nc ", 
-                  PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_195901_202112_025_yearly_mean.nc ", 
+                  PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly_mean.nc ", 
                   PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly-mean.nc")
 system(cmd_cdo)
 
 cmd_cdo <- paste0("cdo div ",PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly-mean.nc ", 
-                  PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_195901_202112_025_yearly_std.nc ", 
+                  PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly_std.nc ", 
                   PATH_DATA,"sim/soilmoisture/processed/era5_ssi_land_200001_201912_025_yearly.nc")
 system(cmd_cdo)
 
 ### Remove temporary files ----
-system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_195901_202112_025_yearly_mean.nc"))
-system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_195901_202112_025_yearly_std.nc"))
-system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly.nc"))
+system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly_mean.nc"))
+system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly_std.nc"))
 system(paste0("rm ",PATH_DATA, "sim/soilmoisture/processed/era5_swv_frac_land_200001_201912_025_yearly-mean.nc"))
 
 ## Save data as data.table ----

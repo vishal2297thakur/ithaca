@@ -52,7 +52,7 @@ evap_ens_stats_el_nino <- merge(evap_ens_stats_el_nino, dummy, by = c('lon', 'la
 evap_ens_stats_el_nino[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_mean_median, 2)] # Using q75 - q25 as in Sun et al. 2018 paper
 evap_ens_stats_el_nino[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 
-saveRDS(evap_ens_stats_el_nino, paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_el_nino.rds"))
+saveRDS(evap_ens_stats_el_nino, paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_ENSO_el_nino.rds"))
 
 ### la_nina group ----
 evap_ens_stats_la_nina <- evap_datasets_la_nina[, .(ens_mean_mean = round(mean(evap_mean, na.rm = TRUE), 2)), .(lat, lon)]
@@ -76,7 +76,7 @@ evap_ens_stats_la_nina <- merge(evap_ens_stats_la_nina, dummy, by = c('lon', 'la
 evap_ens_stats_la_nina[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_mean_median, 2)] # Using q75 - q25 as in Sun et al. 2018 paper
 evap_ens_stats_la_nina[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 
-saveRDS(evap_ens_stats_la_nina, paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_la_nina.rds"))
+saveRDS(evap_ens_stats_la_nina, paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_ENSO_la_nina.rds"))
 
 
 ### neutral group ----
@@ -101,4 +101,4 @@ evap_ens_stats_neutral <- merge(evap_ens_stats_neutral, dummy, by = c('lon', 'la
 evap_ens_stats_neutral[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_mean_median, 2)] # Using q75 - q25 as in Sun et al. 2018 paper
 evap_ens_stats_neutral[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 
-saveRDS(evap_ens_stats_neutral, paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_neutral.rds"))
+saveRDS(evap_ens_stats_neutral, paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_ENSO_neutral.rds"))

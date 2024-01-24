@@ -7,8 +7,9 @@ source('source/graphics.R')
 ## Packages ----
 library("gtools")
 
-## Dry Data ----
-evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_el_nino.rds"))
+## el nino Data ----
+evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_ENSO_el_nino.rds"))
+evap_stats <- evap_stats[dataset_count > MIN_N_DATASETS]
 
 ### Evaporation ----
 evap_stats[, evap_quant := ordered(quantcut(ens_mean_mean, 10), 
@@ -38,12 +39,13 @@ evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 
 
 ### Save data ----
-saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_el_nino.rds"))
+saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ENSO_el_nino.rds"))
 
 
 
-## Wet Data ----
-evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_la_nina.rds"))
+## la nina Data ----
+evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_ENSO_la_nina.rds"))
+evap_stats <- evap_stats[dataset_count > MIN_N_DATASETS]
 
 ### Evaporation ----
 evap_stats[, evap_quant := ordered(quantcut(ens_mean_mean, 10), 
@@ -73,11 +75,12 @@ evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 
 
 ## Save data ----
-saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_la_nina.rds"))
+saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ENSO_la_nina.rds"))
 
 
 ## Normal Data ----
-evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_neutral.rds"))
+evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_ENSO_neutral.rds"))
+evap_stats <- evap_stats[dataset_count > MIN_N_DATASETS]
 
 ### Evaporation ----
 evap_stats[, evap_quant := ordered(quantcut(ens_mean_mean, 10), 
@@ -107,6 +110,6 @@ evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 
 
 ## Save data ----
-saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_neutral.rds"))
+saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ENSO_neutral.rds"))
 
 

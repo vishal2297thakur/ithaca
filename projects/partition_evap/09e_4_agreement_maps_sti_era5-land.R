@@ -5,15 +5,6 @@ source('source/graphics.R')
 
 library(rnaturalearth)
 
-## Dry Data ----
-evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ssi_era5-land_dry.rds"))
-levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
-                                             "Below average", "Low")
-levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
-                                                    "Below average", "Low")
-
-
-
 ## World and Land borders ----
 earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP_SPATIAL,
                             "earth_box.rds")) %>%
@@ -34,7 +25,15 @@ labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
 labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
-## Figures ----
+
+## cold Data ----
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_cold_sti_era5-land.rds"))
+levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
+                                             "Below average", "Low")
+levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
+                                                    "Below average", "Low")
+
+
 
 ### Relative dataset agreement ----
 to_plot_sf <- evap_mask[, .(lon, lat, rel_dataset_agreement)
@@ -69,7 +68,7 @@ fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
-              "rel_dataset_agreement_map_ssi_era5-land_dry.png"), width = 12, height = 8)
+              "rel_dataset_agreement_map_sti_cold.png"), width = 12, height = 8)
 
 ### Relative dataset agreement conditioned by evaporation rate ----
 to_plot_sf <- evap_mask[, .(lon, lat, evap_quant_dataset_agreement)
@@ -108,18 +107,16 @@ gg_agreement <- ggarrange(fig_rel_dataset_agreement, fig_evap_quant_dataset_agre
                           legend = 'right', align = 'hv',
                           nrow = 2, ncol = 1)
 
-jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_ssi_era5-land_dry.png"), 
+jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_sti_cold.png"), 
      width = 12, height = 12, res = 300, units = 'in')
 gg_agreement
 dev.off()
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
-              "evap_quant_dataset_agreement_map_ssi_era5-land_dry.png"), width = 12, height = 8)
+              "evap_quant_dataset_agreement_map_sti_cold.png"), width = 12, height = 8)
+## cold ranked Data ----
 
-
-## Dry ranked Data ----
-
-evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ssi_era5-land_dry_ranked.rds"))
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_cold_rank_sti_era5-land.rds"))
 levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
 levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
@@ -159,7 +156,7 @@ fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
-              "rel_dataset_agreement_map_ssi_era5-land_dry_ranked.png"), width = 12, height = 8)
+              "rel_dataset_agreement_map_sti_cold_ranked.png"), width = 12, height = 8)
 
 ### Relative dataset agreement conditioned by evaporation rate ----
 to_plot_sf <- evap_mask[, .(lon, lat, evap_quant_dataset_agreement)
@@ -198,18 +195,18 @@ gg_agreement <- ggarrange(fig_rel_dataset_agreement, fig_evap_quant_dataset_agre
                           legend = 'right', align = 'hv',
                           nrow = 2, ncol = 1)
 
-jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_ssi_era5-land_dry_ranked.png"), 
+jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_sti_cold_ranked.png"), 
      width = 12, height = 12, res = 300, units = 'in')
 gg_agreement
 dev.off()
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
-              "evap_quant_dataset_agreement_map_ssi_era5-land_dry_ranked.png"), width = 12, height = 8)
+              "evap_quant_dataset_agreement_map_sti_cold_ranked.png"), width = 12, height = 8)
 
 
-## Wet Data ----
+## warm Data ----
 
-evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ssi_era5-land_wet.rds"))
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_warm_sti_era5-land.rds"))
 levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
 levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
@@ -249,7 +246,7 @@ fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
-              "rel_dataset_agreement_map_ssi_era5-land_wet.png"), width = 12, height = 8)
+              "rel_dataset_agreement_map_sti_warm.png"), width = 12, height = 8)
 
 ### Relative dataset agreement conditioned by evaporation rate ----
 to_plot_sf <- evap_mask[, .(lon, lat, evap_quant_dataset_agreement)
@@ -288,18 +285,17 @@ gg_agreement <- ggarrange(fig_rel_dataset_agreement, fig_evap_quant_dataset_agre
                           legend = 'right', align = 'hv',
                           nrow = 2, ncol = 1)
 
-jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_ssi_era5-land_wet.png"), 
+jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_sti_warm.png"), 
      width = 12, height = 12, res = 300, units = 'in')
 gg_agreement
 dev.off()
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
-              "evap_quant_dataset_agreement_map_ssi_era5-land_wet.png"), width = 12, height = 8)
+              "evap_quant_dataset_agreement_map_sti_warm.png"), width = 12, height = 8)
 
+## warm ranked Data ----
 
-## Wet ranked Data ----
-
-evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ssi_era5-land_wet_ranked.rds"))
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_warm_rank_sti_era5-land.rds"))
 levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
 levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
@@ -339,7 +335,7 @@ fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
-              "rel_dataset_agreement_map_ssi_era5-land_wet_ranked.png"), width = 12, height = 8)
+              "rel_dataset_agreement_map_sti_warm_ranked.png"), width = 12, height = 8)
 
 ### Relative dataset agreement conditioned by evaporation rate ----
 to_plot_sf <- evap_mask[, .(lon, lat, evap_quant_dataset_agreement)
@@ -378,18 +374,19 @@ gg_agreement <- ggarrange(fig_rel_dataset_agreement, fig_evap_quant_dataset_agre
                           legend = 'right', align = 'hv',
                           nrow = 2, ncol = 1)
 
-jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_ssi_era5-land_wet_ranked.png"), 
+jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_sti_warm_ranked.png"), 
      width = 12, height = 12, res = 300, units = 'in')
 gg_agreement
 dev.off()
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
-              "evap_quant_dataset_agreement_map_ssi_era5-land_wet_ranked.png"), width = 12, height = 8)
+              "evap_quant_dataset_agreement_map_sti_warm_ranked.png"), width = 12, height = 8)
+
 
 
 ## Normal Data ----
 
-evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_ssi_era5-land_normal.rds"))
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_normal_sti_era5-land.rds"))
 levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
                                              "Below average", "Low")
 levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Average",
@@ -429,7 +426,7 @@ fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
-              "rel_dataset_agreement_map_ssi_era5-land_normal.png"), width = 12, height = 8)
+              "rel_dataset_agreement_map_sti_normal.png"), width = 12, height = 8)
 
 ### Relative dataset agreement conditioned by evaporation rate ----
 to_plot_sf <- evap_mask[, .(lon, lat, evap_quant_dataset_agreement)
@@ -468,10 +465,10 @@ gg_agreement <- ggarrange(fig_rel_dataset_agreement, fig_evap_quant_dataset_agre
                           legend = 'right', align = 'hv',
                           nrow = 2, ncol = 1)
 
-jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_ssi_era5-land_normal.png"), 
+jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_agreement_maps_sti_normal.png"), 
      width = 12, height = 12, res = 300, units = 'in')
 gg_agreement
 dev.off()
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
-              "evap_quant_dataset_agreement_map_ssi_era5-land_normal.png"), width = 12, height = 8)
+              "evap_quant_dataset_agreement_map_sti_normal.png"), width = 12, height = 8)

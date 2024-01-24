@@ -7,9 +7,10 @@ source('source/graphics.R')
 ## Packages ----
 library("gtools")
 
-## Dry Data ----
-evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_dry_spi.rds"))
+## warm Data ----
+evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_warm_sti_era5-land.rds"))
 evap_stats <- evap_stats[dataset_count > MIN_N_DATASETS]
+
 ### Evaporation ----
 evap_stats[, evap_quant := ordered(quantcut(ens_mean_mean, 10), 
                                    labels = c('0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-0.5',     #Caution: This is biased due to different grid size
@@ -21,10 +22,10 @@ evap_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5),
 
 
 ### Relative dataset agreement at quantile 0.1, 0.3, 0.7. 0.9 ----
-quant_thr_0_1 <- quantile(evap_stats$std_quant_range, c(0.1))
-quant_thr_0_3 <- quantile(evap_stats$std_quant_range, c(0.3))
-quant_thr_0_7 <- quantile(evap_stats$std_quant_range, c(0.7))
-quant_thr_0_9 <- quantile(evap_stats$std_quant_range, c(0.9))
+quant_thr_0_1 <- quantile(evap_stats$std_quant_range, c(0.1), na.rm = T)
+quant_thr_0_3 <- quantile(evap_stats$std_quant_range, c(0.3), na.rm = T)
+quant_thr_0_7 <- quantile(evap_stats$std_quant_range, c(0.7), na.rm = T)
+quant_thr_0_9 <- quantile(evap_stats$std_quant_range, c(0.9), na.rm = T)
 
 evap_stats[std_quant_range <= quant_thr_0_1, rel_dataset_agreement := ordered(1, labels = "high")] 
 evap_stats[std_quant_range > quant_thr_0_1 & std_quant_range <= quant_thr_0_3, rel_dataset_agreement := ordered(3, labels = "above average")]
@@ -38,12 +39,12 @@ evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 
 
 ### Save data ----
-saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_spi_dry.rds"))
+saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_warm_sti_era5-land.rds"))
 
 
 
-## Wet Data ----
-evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_wet_spi.rds"))
+## cold Data ----
+evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_cold_sti_era5-land.rds"))
 evap_stats <- evap_stats[dataset_count > MIN_N_DATASETS]
 
 ### Evaporation ----
@@ -57,10 +58,10 @@ evap_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5),
 
 
 ### Relative dataset agreement at quantile 0.1, 0.3, 0.7. 0.9 ----
-quant_thr_0_1 <- quantile(evap_stats$std_quant_range, c(0.1))
-quant_thr_0_3 <- quantile(evap_stats$std_quant_range, c(0.3))
-quant_thr_0_7 <- quantile(evap_stats$std_quant_range, c(0.7))
-quant_thr_0_9 <- quantile(evap_stats$std_quant_range, c(0.9))
+quant_thr_0_1 <- quantile(evap_stats$std_quant_range, c(0.1), na.rm = T)
+quant_thr_0_3 <- quantile(evap_stats$std_quant_range, c(0.3), na.rm = T)
+quant_thr_0_7 <- quantile(evap_stats$std_quant_range, c(0.7), na.rm = T)
+quant_thr_0_9 <- quantile(evap_stats$std_quant_range, c(0.9), na.rm = T)
 
 evap_stats[std_quant_range <= quant_thr_0_1, rel_dataset_agreement := ordered(1, labels = "high")] 
 evap_stats[std_quant_range > quant_thr_0_1 & std_quant_range <= quant_thr_0_3, rel_dataset_agreement := ordered(3, labels = "above average")]
@@ -74,11 +75,11 @@ evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 
 
 ## Save data ----
-saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_spi_wet.rds"))
+saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_cold_sti_era5-land.rds"))
 
 
 ## Normal Data ----
-evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_normal_spi.rds"))
+evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_normal_sti_era5-land.rds"))
 evap_stats <- evap_stats[dataset_count > MIN_N_DATASETS]
 
 ### Evaporation ----
@@ -92,10 +93,10 @@ evap_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5),
 
 
 ### Relative dataset agreement at quantile 0.1, 0.3, 0.7. 0.9 ----
-quant_thr_0_1 <- quantile(evap_stats$std_quant_range, c(0.1))
-quant_thr_0_3 <- quantile(evap_stats$std_quant_range, c(0.3))
-quant_thr_0_7 <- quantile(evap_stats$std_quant_range, c(0.7))
-quant_thr_0_9 <- quantile(evap_stats$std_quant_range, c(0.9))
+quant_thr_0_1 <- quantile(evap_stats$std_quant_range, c(0.1), na.rm = T)
+quant_thr_0_3 <- quantile(evap_stats$std_quant_range, c(0.3), na.rm = T)
+quant_thr_0_7 <- quantile(evap_stats$std_quant_range, c(0.7), na.rm = T)
+quant_thr_0_9 <- quantile(evap_stats$std_quant_range, c(0.9), na.rm = T)
 
 evap_stats[std_quant_range <= quant_thr_0_1, rel_dataset_agreement := ordered(1, labels = "high")] 
 evap_stats[std_quant_range > quant_thr_0_1 & std_quant_range <= quant_thr_0_3, rel_dataset_agreement := ordered(3, labels = "above average")]
@@ -109,10 +110,11 @@ evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 
 
 ## Save data ----
-saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_spi_normal.rds"))
+saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_normal_sti_era5-land.rds"))
 
-## Dry Data ranked ----
-evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_dry_rank_spi.rds"))
+
+## warm ranked Data ----
+evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_warm_rank_sti_era5-land.rds"))
 evap_stats <- evap_stats[dataset_count > MIN_N_DATASETS]
 
 ### Evaporation ----
@@ -126,10 +128,10 @@ evap_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5),
 
 
 ### Relative dataset agreement at quantile 0.1, 0.3, 0.7. 0.9 ----
-quant_thr_0_1 <- quantile(evap_stats$std_quant_range, c(0.1))
-quant_thr_0_3 <- quantile(evap_stats$std_quant_range, c(0.3))
-quant_thr_0_7 <- quantile(evap_stats$std_quant_range, c(0.7))
-quant_thr_0_9 <- quantile(evap_stats$std_quant_range, c(0.9))
+quant_thr_0_1 <- quantile(evap_stats$std_quant_range, c(0.1), na.rm = T)
+quant_thr_0_3 <- quantile(evap_stats$std_quant_range, c(0.3), na.rm = T)
+quant_thr_0_7 <- quantile(evap_stats$std_quant_range, c(0.7), na.rm = T)
+quant_thr_0_9 <- quantile(evap_stats$std_quant_range, c(0.9), na.rm = T)
 
 evap_stats[std_quant_range <= quant_thr_0_1, rel_dataset_agreement := ordered(1, labels = "high")] 
 evap_stats[std_quant_range > quant_thr_0_1 & std_quant_range <= quant_thr_0_3, rel_dataset_agreement := ordered(3, labels = "above average")]
@@ -143,12 +145,12 @@ evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 
 
 ### Save data ----
-saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_spi_dry_rank.rds"))
+saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_warm_rank_sti_era5-land.rds"))
 
 
 
-## Wet Data ranked ----
-evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_wet_rank_spi.rds"))
+## cold ranked Data ----
+evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_cold_rank_sti_era5-land.rds"))
 evap_stats <- evap_stats[dataset_count > MIN_N_DATASETS]
 
 ### Evaporation ----
@@ -162,10 +164,10 @@ evap_stats[, quant_ens_cv := ordered(quantcut(ens_mean_cv, 5),
 
 
 ### Relative dataset agreement at quantile 0.1, 0.3, 0.7. 0.9 ----
-quant_thr_0_1 <- quantile(evap_stats$std_quant_range, c(0.1))
-quant_thr_0_3 <- quantile(evap_stats$std_quant_range, c(0.3))
-quant_thr_0_7 <- quantile(evap_stats$std_quant_range, c(0.7))
-quant_thr_0_9 <- quantile(evap_stats$std_quant_range, c(0.9))
+quant_thr_0_1 <- quantile(evap_stats$std_quant_range, c(0.1), na.rm = T)
+quant_thr_0_3 <- quantile(evap_stats$std_quant_range, c(0.3), na.rm = T)
+quant_thr_0_7 <- quantile(evap_stats$std_quant_range, c(0.7), na.rm = T)
+quant_thr_0_9 <- quantile(evap_stats$std_quant_range, c(0.9), na.rm = T)
 
 evap_stats[std_quant_range <= quant_thr_0_1, rel_dataset_agreement := ordered(1, labels = "high")] 
 evap_stats[std_quant_range > quant_thr_0_1 & std_quant_range <= quant_thr_0_3, rel_dataset_agreement := ordered(3, labels = "above average")]
@@ -179,5 +181,5 @@ evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 
 
 ## Save data ----
-saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_spi_wet_rank.rds"))
+saveRDS(evap_stats, paste0(PATH_SAVE_PARTITION_EVAP, "evap_stats_cold_rank_sti_era5-land.rds"))
 
