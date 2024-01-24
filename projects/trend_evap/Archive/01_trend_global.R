@@ -7,6 +7,7 @@ library(RobustLinearReg)
 ## Data  ----
 evap_annual <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_global_annual_mean.rds"))
 evap_annual <- evap_annual[!(dataset == "etmonitor" & year == 2000), ]
+evap_annual_test <- evap_annual[!(year < 2003), ]
 
 evap_annual[, evap_anomaly := evap_mean - mean(evap_mean), .(dataset)]
 evap_annual[ year < 2010, time_period := "2000-2009", ]
@@ -25,6 +26,16 @@ evap_annual_trend <- evap_annual[, .(lm_slope = lm(evap_mean~year)$coefficients[
                                      ), 
                                  .(dataset)]
 
+evap_annual_trend_test <- evap_annual_test[, .(lm_slope = lm(evap_mean~year)$coefficients[2], 
+                                     lm_p_value = summary(lm(evap_mean~year))$coefficients[8],
+                                     kendall_tau = Kendall(evap_mean, year)$tau,
+                                     kendall_p_value = Kendall(evap_mean, year)$sl,
+                                     theil_sen_slope = theil_sen_regression(evap_mean~year)$coefficients[2], 
+                                     theil_sen_p_value = summary(theil_sen_regression(evap_mean~year))$coefficients[8],
+                                     siegel_slope = siegel_regression(evap_mean~year)$coefficients[2], 
+                                     siegel_p_value = summary(siegel_regression(evap_mean~year))$coefficients[8]
+), 
+.(dataset)]
 
 evap_annual_trend[lm_p_value > 0.05,significant_lm:= FALSE] 
 evap_annual_trend[lm_p_value <= 0.05,significant_lm:= TRUE] 
