@@ -2,19 +2,15 @@
 
 source("source/uncertainty_prec.R")
 
-load(paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_names_2000_2019.rda"))
+## Data
+load(paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_names_2001_2019.rda"))
 
-## Data 
-prec_2000_2019_month <- lapply(PREC_NAMES_2000_2019_MONTH, brick)
-prec_2000_2019_years <- lapply(PREC_NAMES_2000_2019_YEARS, brick)
-n_datasets_2000_2019 <- length(prec_2000_2019_month)
-
-## Analysis
 registerDoParallel(cores = N_CORES - 1)
 
-prec_datasets_month <- foreach(data_count = 1:n_datasets_2000_2019,
+## Analysis
+prec_data_month <- foreach(data_count = 1:length(PREC_NAMES_2001_2019_MONTH),
                                .combine = rbind) %do% {
-  dummie_brick <- prec_2000_2019_month[[data_count]]
+  dummie_brick <- brick(PREC_NAMES_2001_2019_MONTH[data_count])
   n_layers <- nlayers(dummie_brick)
   dummie_table <- foreach(idx = 1:n_layers, .combine = rbind) %dopar% {
     dummie_layer <- as.data.frame(dummie_brick[[idx]], long = TRUE, xy = TRUE,
@@ -29,9 +25,14 @@ prec_datasets_month <- foreach(data_count = 1:n_datasets_2000_2019,
   return(dummie_table)
 }
 
-prec_datasets_years <- foreach(data_count = 1:n_datasets_2000_2019,
+saveRDS(prec_data_month, paste0(PATH_SAVE_UNCERTAINTY_PREC,
+                                "prec_data_month.rds"))
+
+rm(prec_data_month)
+
+prec_data_years <- foreach(data_count = 1:length(PREC_NAMES_2001_2019_YEARS),
                                .combine = rbind) %do% {
-  dummie_brick <- prec_2000_2019_years[[data_count]]
+  dummie_brick <- brick(PREC_NAMES_2001_2019_YEARS[data_count])
   n_layers <- nlayers(dummie_brick)
   dummie_table <- foreach(idx = 1:n_layers, .combine = rbind) %dopar% {
     dummie_layer <- as.data.frame(dummie_brick[[idx]], long = TRUE, xy = TRUE,
@@ -44,8 +45,9 @@ prec_datasets_years <- foreach(data_count = 1:n_datasets_2000_2019,
   dummie_table <- dummie_table[, .(lon = x, lat = y, date = Z, dataset,
                                    prec = value)]
   return(dummie_table)
-}
+ }
 
 ## Save data
-saveRDS(prec_datasets_month, paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_datasets_month.rds"))
-saveRDS(prec_datasets_years, paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_datasets_years.rds"))
+
+saveRDS(prec_data_years, paste0(PATH_SAVE_UNCERTAINTY_PREC,
+                                "prec_data_years.rds"))
