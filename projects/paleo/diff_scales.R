@@ -6,8 +6,6 @@ library(csa)
 library(HKprocess)
 
 dummy <- setDT(read.csv('~/shared/data/paleo/processed/ljn_hydro_proxy/Coo13.txt', sep = ""))
-nrow(dummy)
-dummy[, value := scale(value)]
 
 ggplot(dummy, aes(year, value)) +
   geom_line() + 
@@ -16,6 +14,7 @@ ggplot(dummy, aes(year, value)) +
 csa(as.numeric(dummy$value), threshold = 10, fast = TRUE, wn = TRUE)
 mleHK(as.numeric(dummy$value))
 
+###########################################################################
 
 # Function to calculate pairwise differences
 calculate_pairwise_diff <- function(data) {
