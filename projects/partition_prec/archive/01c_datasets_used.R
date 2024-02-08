@@ -40,7 +40,6 @@ ggplot() +
              col = 'black') +
   theme_linedraw()
 
-
 mergers <- c('gpm-imerg', 'mswep')
 
 taylor_obs <- prec_datasets_annual[!dataset %in% c(outliers, mergers), .(prec_mean = mean(prec, na.rm = TRUE)), .(year)]

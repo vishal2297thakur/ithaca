@@ -1,6 +1,7 @@
 # Creates network plots
 library(readr)
 library(igraph)
+library(ggnetwork)
 
 source('source/partition_prec.R')
 source('source/graphics.R')
@@ -40,7 +41,7 @@ family_network <- graph_from_adjacency_matrix(data.matrix(family_tree),
 data_for_cor <- dcast(prec_annual, year ~ dataset, value.var = 'prec')
 data_for_cor <- data_for_cor[, c(1:6, 8:15, 7, 16:18)]
 cor_matrix <- cor(data_for_cor[, -1], use = 'pairwise.complete.obs') + 1
-cor_matrix[cor_matrix < quantile(cor_matrix, 0.8)] <- 0
+cor_matrix[cor_matrix < 1.85] <- 0
 
 cor_network <- graph_from_adjacency_matrix(cor_matrix, 
                                            mode = 'undirected', 
@@ -62,7 +63,8 @@ fig_correlation_high <- ggplot(cor_network_dt, aes(x = x, y = y, xend = xend, ye
 abs_distance <- abs(dist(prec_datasets_mean[!dataset %in% c('cmorph', 'persiann', 'chirps')]$prec))
 names(abs_distance) <- prec_datasets_mean[!dataset %in% c('cmorph', 'persiann', 'chirps')]$dataset
 abs_distance <- 1 + 1 / abs_distance
-abs_distance[abs_distance < quantile(abs_distance, 0.7)] <- 0 
+#abs_distance[abs_distance < quantile(abs_distance, 0.6)] <- 0 
+abs_distance[abs_distance < 1.019] <- 0 #Hard-coded value of abs_distance for all datasets to avoid the relativity
 
 distance_network <- graph_from_adjacency_matrix(data.matrix(abs_distance), 
                                                 mode = 'undirected', 
@@ -106,6 +108,7 @@ fig_combination_high <- ggplot(dataset_agreement_network_dt, aes(x = x, y = y, x
   theme(panel.border = element_rect(fill = NA, size = 0.3)) +
   guides(fill = "none", col = 'none') 
 
+
 ## Low agreement
 
 prec_datasets_mean <- prec_datasets_masks[prec_quant_dataset_agreement == 'low', .(prec = mean(prec, na.rm = TRUE)), .(dataset)]
@@ -135,7 +138,7 @@ family_network <- graph_from_adjacency_matrix(data.matrix(family_tree),
 data_for_cor <- dcast(prec_annual, year ~ dataset, value.var = 'prec')
 data_for_cor <- data_for_cor[, c(1:6, 8:15, 7, 16:18)]
 cor_matrix <- cor(data_for_cor[, -1], use = 'pairwise.complete.obs') + 1
-cor_matrix[cor_matrix < quantile(cor_matrix, 0.8)] <- 0
+cor_matrix[cor_matrix < 1.854496] <- 0
 
 cor_network <- graph_from_adjacency_matrix(cor_matrix, 
                                            mode = 'undirected', 
@@ -157,7 +160,8 @@ fig_correlation_low <- ggplot(cor_network_dt, aes(x = x, y = y, xend = xend, yen
 abs_distance <- abs(dist(prec_datasets_mean[!dataset %in% c('cmorph', 'persiann', 'chirps')]$prec))
 names(abs_distance) <- prec_datasets_mean[!dataset %in% c('cmorph', 'persiann', 'chirps')]$dataset
 abs_distance <- 1 + 1 / abs_distance
-abs_distance[abs_distance < quantile(abs_distance, 0.7)] <- 0 
+#abs_distance[abs_distance < quantile(abs_distance, 0.6)] <- 0 
+abs_distance[abs_distance < 1.019] <- 0 #Hard-coded value of abs_distance for all datasets to avoid the relativity
 
 distance_network <- graph_from_adjacency_matrix(data.matrix(abs_distance), 
                                                 mode = 'undirected', 
@@ -201,5 +205,6 @@ fig_combination_low <- ggplot(dataset_agreement_network_dt, aes(x = x, y = y, xe
   theme(panel.border = element_rect(fill = NA, size = 0.3)) +
   guides(fill = "none", col = 'none') 
 
-ggarrange(fig_correlation_high, fig_distance_high, fig_combination_high, fig_correlation_low, fig_distance_low, fig_combination_low, 
-          ncol = 3, nrow = 2, labels = c('a', 'b', 'c', 'd', 'e', 'f'), hjust = -2.1, vjust = 2.5)
+ggarrange(fig_correlation_high, fig_distance_high, fig_correlation_low, fig_distance_low, 
+          ncol = 2, nrow = 2, labels = c('a', 'b', 'c', 'd'), hjust = -2.1, vjust = 2.5)
+ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES, "networks_agreement.png"), width = 10, height = 10)

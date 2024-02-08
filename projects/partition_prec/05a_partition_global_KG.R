@@ -9,8 +9,6 @@ prec_dataset_means <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datase
 prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
 prec_annual <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_mean.rds"))
 
-prec_annual <- prec_annual[dataset %in% datasets_used] #After revision
-
 ## Variables
 climate_KG <- merge(prec_mask[, .(lat, lon, KG_class_1_name)], 
                     prec_grid[, .(lon, lat, area)], by = c("lon", "lat"), all = TRUE)
@@ -57,6 +55,11 @@ partition_KG_datasets <- merge(prec_dataset_means[, .(dataset = unique(dataset))
 colnames(partition_KG_datasets)[1] <- c("Dataset")
 partition_KG_datasets <- merge(partition_KG_datasets, dataset_means[, .(Dataset, Global)], by = "Dataset")
 #partition_KG_datasets[, diff_mean := round(Global - mean(Global, na.rm = TRUE), 0)]
+
+partition_KG_datasets[, mean(Global)]
+partition_KG_datasets[Dataset %in% datasets_no_outliers, mean(Global)]
+partition_KG_datasets[Dataset %in% datasets_no_overlap, mean(Global)]
+partition_KG_datasets[Dataset %in% datasets_no_overlap & Dataset %in% datasets_no_outliers, mean(Global)]
 
 ### St. Dev
 partition_KG_global_sd <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
