@@ -7,7 +7,7 @@ library(terra)
 con <- dbConnect(Postgres(), dbname = 'earth', host = "10.152.183.146", port = 5432,         
                  user = rstudioapi::askForPassword("Database user"),      
                  password = rstudioapi::askForPassword("Database password"))
-basin_atlas_feats <- readRDS(paste0('../../shared/data_projects/schemata/data/basin_atlas_feats.rds'))
+basin_atlas_feats <- readRDS(paste0('~/shared/data_projects/schemata/data/basin_atlas_feats.rds'))
 
 regions_all <- c('af', 'ar', 'as', 'au', 'eu', 'gr', 'na', 'sa', 'si')
 lon <- 0.75 #Example for Pla et al. 2014 reconstruction
