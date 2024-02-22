@@ -28,7 +28,7 @@ levels(to_plot$period) <-  c("Up to 2001", "After 2001")
 names(to_plot)[7] <- "Period"
 to_plot[grid_id == 100 & Period == "Up to 2001", Conditions := factor('Wetter - Deccelerated')] # needed for plotting purposes
 
-gg_all <-ggplot(to_plot) +
+gg_all <- ggplot(to_plot) +
   geom_point(aes(y = mean_flux / 20, x = diff_pe / 20, fill = Period, shape = Period), colour = "transparent", size = 2) +
   geom_line(aes(y = mean_flux / 20, x = diff_pe / 20, group = grid_id, col = Conditions), alpha = 0.5) +
   #geom_rect(aes(xmin = 250, xmax = 280, ymin = 710, ymax = 790), fill = NA, col = '#a4c8a4', linewidth = 0.25) +
@@ -36,7 +36,7 @@ gg_all <-ggplot(to_plot) +
   scale_fill_manual(values = c('grey60', 'grey20')) +
   scale_color_manual(values = c( 'darkgreen', 'darkred', 'darkorange', 'steelblue3')) +
   scale_shape_manual(values = c(22, 21)) +
-  xlab("Atmospheric water residual (mm)") +
+  xlab("Atmospheric water residual over land (mm)") +
   ylab("Mean land-atmosphere water exchange (mm)") +
   theme_linedraw()
 
@@ -66,7 +66,7 @@ gg_not_event <- ggplot(to_plot) +
   scale_color_manual(values = c('steelblue3' ,  'darkorange', 'darkred','darkgreen')) +
   scale_shape_manual(values = c(22, 21)) +
   xlab("Atmospheric water residual (mm)") +
-  ylab("Mean land-atmosphere water exchange (mm)") +
+  ylab("Mean land-atmosphere exchange (mm)") +
   theme_linedraw()
 
 exeves_prec_sums <- unique(exeves_prec[!is.na(event_id), .(evap = sum(evap), 
