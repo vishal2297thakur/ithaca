@@ -5,13 +5,14 @@ install.packages('waffle', repos="http://cloud.r-project.org")
 library(pRecipe)
 library(waffle)
 
-
 region <- 'czechia'
 exeves <- readRDS(paste0(PATH_OUTPUT_DATA, 'exeves_std_', region, '.rds'))
 prec <- readRDS(paste0(PATH_OUTPUT_DATA, region, '_prec_grid.rds'))
 evap_grid <- readRDS(paste0(PATH_OUTPUT_DATA, 'grid_', region, '.rds'))
 borders <- read_sf('../../shared/data/geodata/maps/admin/czechia/CZE_adm0.shp')
 
+axis_decimal <- function(x) sprintf("%.1f", x)
+  
 names(prec)[3] <- "prec"
 exeves_prec <- merge(exeves, prec, by = c('grid_id', 'date'), all.x = TRUE)
 names(exeves_prec)[5] <- 'evap'
@@ -42,8 +43,9 @@ gg_not_event <- ggplot(to_plot) +
   scale_fill_manual(values = c('grey60', 'grey20')) +
   scale_color_manual(values = c('steelblue3','darkgreen' ,  'darkorange', 'darkred')) +
   scale_shape_manual(values = c(22, 21)) +
-  xlab("Atmospheric water residual over land (mm/day)") +
-  ylab("Mean land-atmosphere exchange (mm/day)") +
+  xlab("Water residual over land (mm/day)") +
+  ylab("Mean land-atmosphere water exchange (mm/day)") +
+  scale_y_continuous(labels = axis_decimal) + 
   theme_linedraw()
 
 to_plot_nested <- to_plot[, .N, Conditions]
@@ -125,10 +127,11 @@ gg_event <- ggplot(to_plot) +
   geom_point(aes(y = mean_flux, x = diff_pe, fill = Period, shape = Period), colour = "transparent", size = 2) +
   geom_line(aes(y = mean_flux, x = diff_pe, group = grid_id, col = Conditions), alpha = 0.5) +
   scale_fill_manual(values = c('grey60', 'grey20')) +
-  scale_color_manual(values = c( 'darkgreen', 'darkred', 'darkorange', 'steelblue3')) +
+  scale_color_manual(values = c('steelblue3', 'darkred', 'darkorange',  'darkgreen')) +
   scale_shape_manual(values = c(22, 21)) +
-  xlab("Atmospheric water residual over land (mm/day)") +
-  ylab("Mean land-atmosphere exchange (mm/day)") +
+  xlab("Water residual over land (mm/day)") +
+  ylab("Mean land-atmosphere water exchange (mm/day)") +
+  scale_y_continuous(labels = axis_decimal) + 
   theme_linedraw()
 
 to_plot_nested <- to_plot[, .N, Conditions]
@@ -137,7 +140,7 @@ to_plot_nested$N[3] <- 30 # For plotting
 gg_waffle <- 
   ggplot(to_plot_nested, aes(fill = Conditions, values = N)) +
   geom_waffle(alpha = 0.5, size = 1, colour = "white", n_rows = 10) +
-  scale_fill_manual(values = c('darkgreen', 'darkred', 'darkorange', 'steelblue3')) + 
+  scale_fill_manual(values = c('steelblue3', 'darkred', 'darkorange', 'darkgreen' )) + 
   xlab("") +
   ylab("") +
   theme_linedraw() +
@@ -148,9 +151,7 @@ gg_waffle <-
         legend.position = "none") 
 
 sub_grob <- ggplotGrob(gg_waffle)
-gg_event <- gg_event + annotation_custom(sub_grob, xmin  = 2.8, xmax = 4.3, ymin = 1.2, ymax = 2.7)
-
-evap_grid <- readRDS(paste0(PATH_OUTPUT_DATA, 'grid_', region, '.rds'))
+gg_event <- gg_event + annotation_custom(sub_grob, xmin  = 2.6, xmax = 4.2, ymin = 1.1, ymax = 2.5)
 
 gg_event_map <- ggplot(to_plot) + 
   geom_tile(
@@ -190,8 +191,8 @@ gg_event_map <- ggplot(to_plot) +
 
 
 ggarrange(gg_not_event, gg_event,
-          ncol = 2, nrow = 1,
+          ncol = 1, nrow = 2,
           labels = c("A", "B", "C", "D"),
           legend = 'right', common.legend = TRUE) 
-
+ggsave(paste0(PATH_OUTPUT_FIGURES, "implications.png"), width = 9, height = 12)
 

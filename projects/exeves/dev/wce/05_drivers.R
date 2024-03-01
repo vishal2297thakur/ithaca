@@ -22,7 +22,6 @@ to_plot <- exeves_drivers[, .(lwrad = mean(std_lwrad), swrad = mean(std_swrad)),
                           .(grid_id, month(date), Conditions)]
 gg_rad <- ggplot(to_plot) +
   geom_point(aes(x = lwrad, y = swrad, col = Conditions), alpha = 0.5) + 
-  #geom_smooth(aes(x = lwrad, y = swrad, col = Conditions), method = mgcv::gam, se = 0) +
   geom_hline(yintercept = 0, col = colset_subdued_prof[3]) +
   geom_vline(xintercept = 0, col = colset_subdued_prof[3]) +
   facet_wrap(~month) +
@@ -43,7 +42,6 @@ to_plot <- exeves_drivers[, .(evap = mean(value), prec = mean(prec)),
                           .(grid_id, month(date), Conditions)] 
 gg_prec <- ggplot(to_plot) +
   geom_point(aes(x = evap, y = prec, col = Conditions), alpha = 0.7) +
-  #geom_smooth(aes(y = evap, x = prec, col = Conditions), method = mgcv::gam, se = 0) +
   facet_wrap(~month, scales = "free") +
   xlab("Evaporation (mm)") +
   ylab("Precipitation (mm)") +
@@ -59,7 +57,7 @@ gg_prec <- ggplot(to_plot) +
         legend.text = element_text(size = 12)) 
 
 ggarrange(gg_rad, NULL, gg_prec,
-                     nrow = 1, widths = c(1, 0.05, 1),
-                     labels = c("A", "", "B"),
+                     nrow = 3, 
+                     labels = c("A", "", "B"), heights = c(1, 0.05, 1),
                      legend = 'bottom', common.legend = TRUE) + bgcolor("white")  
-ggsave(paste0(PATH_OUTPUT_FIGURES, "drivers.png"), width = 15, height = 7)
+ggsave(paste0(PATH_OUTPUT_FIGURES, "drivers.png"), width = 7, height = 11)

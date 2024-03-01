@@ -245,4 +245,4 @@ spatial_plot <- spatial_changes[period == "up_to_2001"] %>%
   )
 
 ggarrange(monthly_plot, spatial_plot, nrow = 2) + bgcolor("white")      
-ggsave(paste0(PATH_OUTPUT_FIGURES, "changes_no_grid.png"), width = 12, height = 12)
+ggsave(paste0(PATH_OUTPUT_FIGURES, "changes_no_grid.png"), width = 9, height = 12)
