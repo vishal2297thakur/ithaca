@@ -59,10 +59,11 @@ ggplot(to_plot[event_day_of_first_extreme < 10 & event_day_of_first_prec_max < 1
 to_plot <- unique(exeves_prec[, .(grid_id, event_id, event_duration,
                                   event_day_of_first_extreme, 
                                   event_day_of_first_prec_max, 
-                                  month = month(date))])
+                                  month = month(date), 
+                                  period)])
 to_plot <- to_plot[!is.infinite(rowSums(to_plot)), ]
 to_plot[, mean_lag := mean(event_day_of_first_extreme - event_day_of_first_prec_max, na.rm = T), 
-        .(grid_id, event_id)]
+        .(grid_id, event_id, period)]
 
 ggplot(to_plot[mean_lag < 11 & mean_lag > - 11 & event_duration < 11 & event_duration > 1]) +
   geom_histogram(aes(x = factor(mean_lag)), stat="count", fill = 'grey80', col = 'black') +
@@ -84,6 +85,29 @@ ggplot(to_plot[mean_lag < 11 & mean_lag > - 11 & event_duration < 11 & event_dur
   facet_wrap(~factor(event_duration), scales = 'free_y') +
   theme_minimal()
 
+
+ggplot(to_plot[event_duration %in% c(3, 5, 7, 9) & month %in% c(1, 6)]) + #USE THIS!
+  geom_vline(xintercept = 0, col = 'black') +
+  geom_density(aes(x = -mean_lag, col = factor(month)), stat = "count") +
+  facet_wrap(~factor(event_duration), scales = 'free_y') +
+  theme_minimal()
+
+ggplot(to_plot[event_duration %in% c(3, 5, 7, 9) & month %in% c(1, 6)]) + #USE THIS!
+  geom_vline(xintercept = 0, col = 'black') +
+  geom_density(aes(x = -mean_lag, col = factor(month)), stat = "count") +
+  facet_wrap(~factor(period), scales = 'free_y') +
+  theme_minimal()
+
+ggplot(to_plot[event_duration %in% c(5, 7, 9) & month %in% c(1, 6)]) + #USE THIS!
+  geom_vline(xintercept = 0, col = 'black') +
+  geom_density(aes(x = event_day_of_first_prec_max, group = event_duration), stat = "count", col = 'blue') +
+  geom_density(aes(x = event_day_of_first_extreme, group = event_duration), stat = "count", col = 'red' ) +
+  facet_wrap(~factor(month), scales = 'free_y') +
+  theme_minimal()
+
+
+
+
 to_plot <- unique(exeves_prec[, .(grid_id, event_id, event_day, period,
                                   event_duration, 
                                   cumsum_diff,
@@ -98,7 +122,7 @@ ggplot(to_plot[event_duration < 11 & event_duration > 1 & event_duration %in% c(
   facet_wrap(~factor(month), scales = 'free') +
   theme_minimal()
 
-ggplot(to_plot[event_duration < 11 & event_duration > 1 & event_duration %in% c(3, 6, 10)]) +
+ggplot(to_plot[event_duration < 11 & event_duration > 1 & event_duration %in% c(3, 5, 7)]) +   #USE THIS!!!
   geom_point(aes(y = cumsum_prec, x = factor(event_day), col = factor(period))) +
   geom_line(aes(y = cumsum_prec, x = factor(event_day), group = interaction(period, event_duration), col = period)) +
   geom_hline(yintercept = 0, col = 'grey20') +

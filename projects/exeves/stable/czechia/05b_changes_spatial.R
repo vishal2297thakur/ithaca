@@ -63,12 +63,12 @@ event_lwrad_severity_period[, ratio := 1 + diff_value/value, by = .(lon, lat, pe
 event_lwrad_severity_period$variable <- "LW Radiation (ExEvEs)"
 
 ## Intensity
-event_evap_intensity_period <- exeves[!is.na(event_qr_id), .(value = round(mean(value), 2)), .(lon, lat, period)]
+event_evap_intensity_period <- exeves[!is.na(event_id), .(value = round(mean(value), 2)), .(lon, lat, period)]
 event_evap_intensity_period[, diff_value := diff(value), by = .(lon, lat)]
 event_evap_intensity_period[, ratio := 1 + diff_value/value, by = .(lon, lat, period)]
 event_evap_intensity_period$variable <- "Intensity (E)"
 
-event_prec_intensity_period <- exeves[!is.na(event_qr_id), .(value = round(mean(prec), 2)), .(lon, lat, period)]
+event_prec_intensity_period <- exeves[!is.na(event_id), .(value = round(mean(prec), 2)), .(lon, lat, period)]
 event_prec_intensity_period[, diff_value := diff(value), by = .(lon, lat)]
 event_prec_intensity_period[, ratio := 1 + diff_value/value, by = .(lon, lat, period)]
 event_prec_intensity_period$variable <- "Intensity (P)"
