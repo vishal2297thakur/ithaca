@@ -13,6 +13,19 @@ evap_annual[, evap_anomaly := evap_mean - mean(evap_mean), .(dataset)]
 evap_annual[ year < 2010, time_period := "2000-2009", ]
 evap_annual[ year >= 2010, time_period := "2010-2019", ]
 
+## Plot Anomalies  ----
+
+ggplot(evap_annual)+
+  geom_line(aes(x = year, y = evap_mean, col = dataset))+
+  scale_color_manual(values = cols_data) + 
+  theme_bw()
+
+
+ggplot(evap_annual)+
+  geom_line(aes(x = year, y = evap_anomaly, col = dataset))+
+  scale_color_manual(values = cols_data) + 
+  #  ylim(c(-50,50))+
+  theme_bw()
 
 ## Analysis  ----
 evap_annual_trend <- evap_annual[, .(lm_slope = lm(evap_mean~year)$coefficients[2], 
@@ -68,41 +81,11 @@ evap_annual_trend <- merge(evap_annual_trend, evap_global_stats_dummy, by = "dat
 ## Save data ----
 saveRDS(evap_annual_trend, paste0(PATH_SAVE_EVAP_TREND, "evap_annual_trend.rds"))  
 
-# Plots
-evap_annual_trend <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "evap_annual_trend.rds"))  
-
-## Plot trend direction ----
-ggplot(evap_annual_trend)+
-  geom_bar(aes(x = dataset, y = trend_score, fill = trend_direction), stat = "identity")+
-  geom_abline(intercept = 0, slope = 0, col = "black")+
-  scale_fill_manual(values = c("negative" = "darkblue", "positive" = "darkred", "no trend" = "gray"))+
-  labs(y = "", fill = "Trend direction")+
-  theme_bw()+
-  theme(
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank()
-  )
-
-ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES, "global_trend_direction_by_product.png"), 
-       width = 12, height = 8)
+## Save Table ----
+evap_trends <- evap_annual_trend[,.(dataset, theil_sen_slope)]
+write.table(evap_trends[order(-theil_sen_slope)], file = paste0(PATH_SAVE_EVAP_TREND_TABLES, "global_evap_trends_by_product.csv"), row.names = F)
 
 
-
-## Plot Anomalies  ----
-
-
-ggplot(evap_annual)+
-  geom_line(aes(x = year, y = evap_mean, col = dataset))+
-  scale_color_manual(values = cols_data) + 
-  theme_bw()
-
-
-ggplot(evap_annual)+
-  geom_line(aes(x = year, y = evap_anomaly, col = dataset))+
-  scale_color_manual(values = cols_data) + 
-#  ylim(c(-50,50))+
-  theme_bw()
 
 
 

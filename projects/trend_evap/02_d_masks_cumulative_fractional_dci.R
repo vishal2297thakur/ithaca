@@ -1,4 +1,4 @@
-# Create probability maps  ----
+# Cumulative fraction based on the dci index  ----
 source('source/evap_trend.R')
 source('source/graphics.R')
 
@@ -11,12 +11,13 @@ evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
 ## Analysis ----
 evap_trend_masks <- merge(evap_trend_indices, evap_mask, all.x = T, by = c("lon", "lat"))
 
-evap_trend_masks[, DCI_theil_sen_brks := cut(DCI_theil_sen, breaks = c(-1,-0.6, -0.2, 0.2, 0.6, 1))]
+evap_trend_masks[, DCI_theil_sen_brks := cut(DCI_theil_sen, breaks = c(1, 0.6, 0.2, -0.2, -0.6, -1))]
 
-evap_trend_masks[, DCI := factor(DCI_theil_sen_brks, levels = levels(unique(evap_trend_masks$DCI_theil_sen_brks)),
-                                 labels = c("negative strongly agree","negative agree", "uncertain/no trend",
-                                                     "positive agree",
-                                                     "positive strongly agree"
+factor()
+evap_trend_masks[, DCI := factor(DCI_theil_sen_brks, levels = rev(levels(unique(evap_trend_masks$DCI_theil_sen_brks))),
+                                 labels = c("positive strongly agree","positive agree", "uncertain/no trend",
+                                                     "negative agree",
+                                                     "negative strongly agree"
                                                      ), ordered = TRUE)]
 ### Land cover  ----
 land_cover_uncertainty<- evap_trend_masks[,.(trend_area = sum(area)),.(DCI, land_cover_short_class)]
@@ -110,9 +111,12 @@ ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES, "bar_biome_DCI.png"),
        width = 12, height = 8)
 
 
+ipcc_uncertainty <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "ipcc_reference_regions_dci.rds"))
+
+
 ggplot(ipcc_uncertainty) +
   geom_bar(aes(x = IPCC_ref_region, y = ipcc_fraction, fill = DCI), stat = "identity") +
-  xlab('Dataset')  +
+  xlab('IPCC reference region')  +
   ylab('Area fraction')  +
   labs(fill = 'Trend')  +
   scale_fill_manual(values = c("negative strongly agree" = "darkblue", 
