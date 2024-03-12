@@ -83,7 +83,7 @@ exeves_75[, above_low_thres_id := rleid(value_above_low_thres)]
 exeves_75[, extreme_id := rleid(extreme), .(grid_id)]
 
 exeves_75[extreme == TRUE, evap_event := TRUE, .(grid_id, above_low_thres_id)] 
-above_low_thres_ids_with_extreme <- exeves[extreme == TRUE, above_low_thres_id]
+above_low_thres_ids_with_extreme <- exeves_75[extreme == TRUE, above_low_thres_id]
 exeves_75[above_low_thres_id %in% above_low_thres_ids_with_extreme, evap_event := TRUE]
 exeves_75[, event_75_id := rleid(evap_event), .(grid_id)]
 exeves_75[evap_event != TRUE, event_75_id := NA]

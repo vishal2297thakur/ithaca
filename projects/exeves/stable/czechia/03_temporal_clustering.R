@@ -60,14 +60,14 @@ evap_acf[, ar_q05 := apply(ensemble_acf_lag_means, 1, function(x) quantile(x, 0.
 
 gg_acf <- ggplot(evap_acf, aes(x = lag)) +
   geom_hline(yintercept = 0, col = 'grey50') + 
-  geom_point(aes(y = acf_lag_means), col = colset_subdued_prof[3]) + 
-  geom_line(aes(y = acf_lag_means), col = colset_subdued_prof[3], linewidth = 0.5) +
-  geom_line(aes(y = q05), col = colset_subdued_prof[3], linetype = 3, linewidth = 0.5) +
-  geom_line(aes(y = q95), col = colset_subdued_prof[3], linetype = 3, linewidth = 0.5) +
-  geom_point(data = evap_acf_camele, aes(y = acf_lag_means), col = colset_subdued_prof[2]) + 
-  geom_line(data = evap_acf_camele, aes(y = acf_lag_means), col = colset_subdued_prof[2], linewidth = 0.5) +
-  geom_line(data = evap_acf_camele, aes(y = q05), col = colset_subdued_prof[2], linetype = 3, linewidth = 0.5) +
-  geom_line(data = evap_acf_camele, aes(y = q95), col = colset_subdued_prof[2], linetype = 3, linewidth = 0.5) +
+  geom_point(aes(y = acf_lag_means), col = colset_subdued_prof[4]) + 
+  geom_line(aes(y = acf_lag_means), col = colset_subdued_prof[4], linewidth = 0.5) +
+  geom_line(aes(y = q05), col = colset_subdued_prof[4], linetype = 3, linewidth = 0.5) +
+  geom_line(aes(y = q95), col = colset_subdued_prof[4], linetype = 3, linewidth = 0.5) +
+  geom_point(data = evap_acf_camele, aes(y = acf_lag_means), col = colset_subdued_prof[3]) + 
+  geom_line(data = evap_acf_camele, aes(y = acf_lag_means), col = colset_subdued_prof[3], linewidth = 0.5) +
+  geom_line(data = evap_acf_camele, aes(y = q05), col = colset_subdued_prof[3], linetype = 3, linewidth = 0.5) +
+  geom_line(data = evap_acf_camele, aes(y = q95), col = colset_subdued_prof[3], linetype = 3, linewidth = 0.5) +
   geom_line(aes(y = ar_mean), col = colset_subdued_prof[1], linewidth = 0.5) +
   geom_point(aes(y = ar_mean), col = colset_subdued_prof[1]) + 
   geom_line(aes(y = ar_q05), col = colset_subdued_prof[1], linetype = 3, linewidth = 0.5) +
@@ -81,26 +81,35 @@ gg_acf <- ggplot(evap_acf, aes(x = lag)) +
 sample_grid_cell <- exeves_all[grid_id == 100]
 sample_year <- 2003
 
-warm_season_start <- paste0(sample_year, '-04-01')
-warm_season_end <- paste0(sample_year, '-10-01')
+warm_season_start <- as.Date(paste0(sample_year, '-04-01'))
+warm_season_end <- as.Date(paste0(sample_year, '-10-01'))
 cold_season_start <- copy(warm_season_end)
-cold_season_end <-  paste0(sample_year + 1, '-04-01')
+cold_season_end <-  as.Date(paste0(sample_year + 1, '-04-01'))
+
+definition_names <- data.frame(
+  x = warm_season_start + lubridate::days(7),
+  y = c(0.6, 0.4, 0.2, 0),
+  text = c("Mean/Q90", "Mean/Q90*", "Q75/Q90", "Q80")
+)
 
 gg_sample_warm <- ggplot(data = sample_grid_cell[date >= warm_season_start & date <= warm_season_end]) +
   geom_point(data = sample_grid_cell[date >= warm_season_start & date <= warm_season_end & !is.na(event_id)],
-             aes(date, 0.3), col = '#a9cce0', size = 2, shape = 15) +
+             aes(date, 0.6), col = '#a9cce0', size = 2, shape = 15) +
   geom_point(data = sample_grid_cell[date >= warm_season_start & date <= warm_season_end & !is.na(event_qr_id)],
-             aes(date, 0.2), col = '#7cb47c', size = 2, shape = 15) +
+             aes(date, 0.4), col = '#7cb47c', size = 2, shape = 15) +
   geom_point(data = sample_grid_cell[date >= warm_season_start & date <= warm_season_end & !is.na(event_75_id)],
-             aes(date, 0.1), col = '#fcc47c', size = 2, shape = 15) +
+             aes(date, 0.2), col = '#fcc47c', size = 2, shape = 15) +
   geom_point(data = sample_grid_cell[date >= warm_season_start & date <= warm_season_end & !is.na(event_80_id)],
              aes(date, 0), col = '#c07878', size = 2, shape = 15) +
+  geom_point(data = sample_grid_cell[date >= warm_season_start & date <= warm_season_end & !is.na(extreme_qr_id)],
+             aes(date, evap), col = colset_subdued_prof[3], size = 4, shape = 0) +
   geom_line(aes(date, evap), col = colset_subdued_prof[3]) +
   geom_point(data = sample_grid_cell[date >= warm_season_start & date <= warm_season_end & !is.na(event_id)],
              aes(date, evap), col = colset_subdued_prof[2], size = 3, alpha = 0.5) +
   geom_point(data = sample_grid_cell[date >= warm_season_start & date <= warm_season_end & !is.na(extreme_id)],
              aes(date, evap), col = colset_subdued_prof[4]) +
   scale_x_date(expand = c(0, 0), date_breaks = "1 month", minor_breaks = NULL, date_labels = "%b") +
+  geom_text(data = definition_names, aes(x, y, label = text), cex = 2.5) +
   scale_y_continuous(labels = axis_decimal) + 
   xlab("Time (day)") + 
   ylab("Evaporation (mm/day)") +
@@ -109,13 +118,15 @@ gg_sample_warm <- ggplot(data = sample_grid_cell[date >= warm_season_start & dat
 
 gg_sample_cold <- ggplot(data = sample_grid_cell[date >= cold_season_start & date <= cold_season_end]) +
   geom_point(data = sample_grid_cell[date >= cold_season_start & date <= cold_season_end & !is.na(event_id)],
-             aes(date, 0), col = '#a9cce0', size = 2, shape = 15) +
+             aes(date, -0.05), col = '#a9cce0', size = 2, shape = 15) +
   geom_point(data = sample_grid_cell[date >= cold_season_start & date <= cold_season_end & !is.na(event_qr_id)],
-             aes(date, -0.05), col = '#7cb47c', size = 2, shape = 15) +
+             aes(date, -0.15), col = '#7cb47c', size = 2, shape = 15) +
   geom_point(data = sample_grid_cell[date >= cold_season_start & date <= cold_season_end & !is.na(event_75_id)],
-             aes(date, -0.1), col = '#fcc47c', size = 2, shape = 15) +
+             aes(date, -0.25), col = '#fcc47c', size = 2, shape = 15) +
   geom_point(data = sample_grid_cell[date >= cold_season_start & date <= cold_season_end & !is.na(event_80_id)],
-             aes(date, -0.15), col = '#c07878', size = 2, shape = 15) +
+             aes(date, -0.35), col = '#c07878', size = 2, shape = 15) +
+  geom_point(data = sample_grid_cell[date >= cold_season_start & date <= cold_season_end & !is.na(extreme_qr_id)],
+             aes(date, evap), col = colset_subdued_prof[3], size = 4, shape = 0) +
   geom_line(aes(date, evap), col = colset_subdued_prof[3]) +
   geom_point(data = sample_grid_cell[date >= cold_season_start & date <= cold_season_end & !is.na(event_id)],
              aes(date, evap), col = colset_subdued_prof[2], size = 3, alpha = 0.5) +

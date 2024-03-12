@@ -43,8 +43,8 @@ to_plot <- exeves_drivers[, .(evap = mean(value), prec = mean(prec)),
 gg_prec <- ggplot(to_plot) +
   geom_point(aes(x = evap, y = prec, col = Conditions), alpha = 0.7) +
   facet_wrap(~month, scales = "free") +
-  xlab("Evaporation (mm)") +
-  ylab("Precipitation (mm)") +
+  xlab("Evaporation (mm/day)") +
+  ylab("Precipitation (mm/day)") +
   scale_color_manual(values = colset_subdued_prof[c(4, 2)]) +
   theme_linedraw() +
   theme(axis.title = element_text(size = 12),
