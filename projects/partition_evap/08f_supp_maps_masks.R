@@ -1,5 +1,5 @@
-# Supplementary figure: Plot global map of partition classes 
-source('source/partition_prec.R')
+# Supplementary figure: Plot global map of partition classes: Needs editing
+source('source/partition_evap.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
 
@@ -7,12 +7,12 @@ library(rnaturalearth)
 library(dplyr)
 
 # Data
-prec_mask <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
-levels(prec_mask$land_cover_short_class) <- c("Barren", "Croplands", "Forests", "Grasslands", "Other", "Savannas", 
+evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
+levels(evap_mask$land_cover_short_class) <- c("Barren", "Croplands", "Forests", "Grasslands", "Other", "Savannas", 
                                             "Shrublands", "Snow/Ice", "Water" )
 
 #World and Land borders
-earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_PREC_SPATIAL,
+earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP_SPATIAL,
                             "earth_box.rds")) %>%
   st_as_sf(crs = "+proj=longlat +datum=WGS84 +no_defs")
 world_sf <- ne_countries(returnclass = "sf")
@@ -33,7 +33,7 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
 
 # Figures
 #land use
-to_plot_sf <- prec_mask[, .(lon, lat, land_cover_short_class)
+to_plot_sf <- evap_mask[, .(lon, lat, land_cover_short_class)
 ][, value := as.numeric(land_cover_short_class)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
@@ -82,18 +82,30 @@ fig_land_cover_short_class <- ggplot(to_plot_sf) +
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16))
 
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "supplement/land_cover_map.png"), width = 12, height = 8)
 
 
 #biome
-levels(prec_mask$biome_short_class) <- c("B. Forests", "Deserts", "Flooded", 
-                                         "M. Grasslands", "Mediterranean", 
-                                         "T. Forests", "T. Grasslands", 
-                                         "T/S Forests", "T/S Grasslands", "Tundra")
 
+evap_mask[grepl("Tundra", biome_class) == TRUE, biome_short_class := "Tundra"]
+evap_mask[grepl("Boreal Forests", biome_class) == TRUE, biome_short_class := "B. Forests"]
+evap_mask[grepl("Dry Broadleaf Forests", biome_class) == TRUE, biome_short_class := "T/S Dry BL Forests"]
+evap_mask[grepl("Moist Broadleaf Forests", biome_class) == TRUE, biome_short_class := "T/S Moist BL Forests"]
+evap_mask[grepl("Subtropical Coniferous Forests", biome_class) == TRUE, biome_short_class := "T/S Coni. Forests"]
+evap_mask[grepl("Temperate Conifer Forests", biome_class) == TRUE, biome_short_class := "T. Coni. Forests"]
+evap_mask[grepl("Temperate Broadleaf & Mixed Forests", biome_class) == TRUE, biome_short_class := "T. BL Forests"]
+evap_mask[grepl("Temperate Grasslands", biome_class) == TRUE, biome_short_class := "T. Grasslands"]
+evap_mask[grepl("Subtropical Grasslands", biome_class) == TRUE, biome_short_class := "T/S Grasslands"]
+evap_mask[grepl("Montane Grasslands", biome_class) == TRUE, biome_short_class := "M. Grasslands"]
+evap_mask[grepl("Flooded", biome_class) == TRUE, biome_short_class := "Flooded"]
+evap_mask[grepl("Mangroves", biome_class) == TRUE, biome_short_class := "Mangroves"]
+evap_mask[grepl("Deserts", biome_class) == TRUE, biome_short_class := "Deserts"]
+evap_mask[grepl("Mediterranean", biome_class) == TRUE, biome_short_class := "Mediterranean"]
+evap_mask[grepl("N/A", biome_class) == TRUE, biome_short_class := NA]
+evap_mask[, biome_short_class := factor(biome_short_class)]
 
-to_plot_sf <- prec_mask[, .(lon, lat, biome_short_class)
+to_plot_sf <- evap_mask[, .(lon, lat, biome_short_class)
 ][, value := as.numeric(biome_short_class)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
@@ -106,26 +118,32 @@ to_plot_sf <- to_plot_sf %>% mutate(biome_short_class =
                                                 to_plot_sf$value == 3 ~ "Flooded", 
                                                 to_plot_sf$value == 4 ~ "M. Grasslands", 
                                                 to_plot_sf$value == 5 ~ "Mediterranean", 
-                                                to_plot_sf$value == 6 ~ "T. Forests", 
-                                                to_plot_sf$value == 7 ~ "T. Grasslands", 
-                                                to_plot_sf$value == 8 ~ "T/S Forests", 
-                                                to_plot_sf$value == 9 ~ "T/S Grasslands", 
-                                                to_plot_sf$value == 10 ~ "Tundra"
+                                                to_plot_sf$value == 6 ~ "T. Grasslands", 
+                                                to_plot_sf$value == 7 ~ "T/S Grasslands", 
+                                                to_plot_sf$value == 8 ~ "Tundra",
+                                                to_plot_sf$value == 9 ~ "T/S Dry BL Forests", 
+                                                to_plot_sf$value == 10 ~ "T/S Moist BL Forests", 
+                                                to_plot_sf$value == 11 ~ "T/S Coni. Forests",
+                                                to_plot_sf$value == 12 ~ "T. Coni. Forests",
+                                                to_plot_sf$value == 13 ~ "T. BL Forests",
+                                                to_plot_sf$value == 14 ~ "Mangroves"
                                                 ))
 
 to_plot_sf$biome_short_class <- factor(to_plot_sf$biome_short_class, 
-                                           levels = c("B. Forests", "Deserts", "Flooded", 
+                                           levels = c("B. Forests", "Deserts", "Flooded", "Mangroves",
                                                       "M. Grasslands", "Mediterranean", 
-                                                      "T. Forests", "T. Grasslands", 
-                                                      "T/S Forests", "T/S Grasslands", "Tundra"), ordered = TRUE)
+                                                      "T. Coni. Forests", "T. BL Forests", 
+                                                      "T. Grasslands", 
+                                                      "T/S Coni. Forests", "T/S Dry BL Forests", "T/S Moist BL Forests",
+                                                      "T/S Grasslands", "Tundra"), ordered = TRUE)
 fig_biome_short_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = biome_short_class, fill = biome_short_class)) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
-  scale_fill_manual(values = colset_biome_short[c(2, 8, 10, 9, 6, 1, 7, 5, 4, 3)]) + 
+  scale_fill_manual(values = colset_biome) + 
   #labels = levels(to_plot_sf$rel_dataset_agreement)) +
-  scale_color_manual(values = colset_biome_short[c(2, 8, 10, 9, 6, 1, 7, 5, 4, 3)],
-                     #labels = levels(to_plot_sf$rel_dataset_agreement),
+  scale_color_manual(values = colset_biome,
+  #                   labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Biome") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -142,14 +160,14 @@ fig_biome_short_class <- ggplot(to_plot_sf) +
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16))
 
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "supplement/biome_map.png"), width = 12, height = 8)
 
 #elevation
-levels(prec_mask$elev_class) <- c("0-100", "100-400", "400-800", "800-1500", "1500-3000", "3000+")
+levels(evap_mask$elev_class) <- c("0-100", "100-400", "400-800", "800-1500", "1500-3000", "3000+")
 
 
-to_plot_sf <- prec_mask[, .(lon, lat, elev_class)
+to_plot_sf <- evap_mask[, .(lon, lat, elev_class)
 ][, value := as.numeric(elev_class)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
@@ -191,24 +209,24 @@ fig_elev_class <- ggplot(to_plot_sf) +
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16))
 
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "supplement/elev_map.png"), width = 12, height = 8)
 
 
-#prec_quantile
-levels(prec_mask$prec_quant) <- c("0-0.1", "0.1-0.2", "0.2-0.3", "0.3-0.4", 
+#evap_quantile
+levels(evap_mask$evap_quant) <- c("0-0.1", "0.1-0.2", "0.2-0.3", "0.3-0.4", 
                                   "0.4-0.5", "0.5-0.6", "0.6-0.7", "0.7-0.8", 
                                   "0.8-0.9", "0.9-1")
 
 
-to_plot_sf <- prec_mask[, .(lon, lat, prec_quant)
-][, value := as.numeric(prec_quant)]
+to_plot_sf <- evap_mask[, .(lon, lat, evap_quant)
+][, value := as.numeric(evap_quant)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-to_plot_sf <- to_plot_sf %>% mutate(prec_quant = 
+to_plot_sf <- to_plot_sf %>% mutate(evap_quant = 
                                       case_when(to_plot_sf$value == 1 ~ "0-0.1", 
                                                 to_plot_sf$value == 2 ~ "0.1-0.2", 
                                                 to_plot_sf$value == 3 ~ "0.2-0.3", 
@@ -220,20 +238,20 @@ to_plot_sf <- to_plot_sf %>% mutate(prec_quant =
                                                 to_plot_sf$value == 9 ~ "0.8-0.9", 
                                                 to_plot_sf$value == 10 ~ "0.9-1"))
 
-to_plot_sf$prec_quant <- factor(to_plot_sf$prec_quant, 
+to_plot_sf$evap_quant <- factor(to_plot_sf$evap_quant, 
                                 levels = c("0-0.1", "0.1-0.2", "0.2-0.3", "0.3-0.4", 
                                            "0.4-0.5", "0.5-0.6", "0.6-0.7", "0.7-0.8", 
                                            "0.8-0.9", "0.9-1"), ordered = TRUE)
-fig_prec_quant_class <- ggplot(to_plot_sf) +
+fig_evap_quant_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(color = prec_quant, fill = prec_quant)) +
+  geom_sf(aes(color = evap_quant, fill = evap_quant)) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
   scale_fill_manual(values = c(colset_prec_quant)) + 
   #labels = levels(to_plot_sf$rel_dataset_agreement)) +
   scale_color_manual(values = c(colset_prec_quant), 
                      #labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") + 
-  labs(x = NULL, y = NULL, fill = "Precipitataion\nquantile") +
+  labs(x = NULL, y = NULL, fill = "Evaporation\nquantile") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
@@ -248,5 +266,8 @@ fig_prec_quant_class <- ggplot(to_plot_sf) +
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16))
 
-ggsave(paste0(PATH_SAVE_PARTITION_PREC_FIGURES,
-              "supplement/prec_quant_map.png"), width = 12, height = 8)
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
+              "supplement/evap_quant_map.png"), width = 12, height = 8)
+
+
+

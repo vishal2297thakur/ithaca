@@ -148,7 +148,7 @@ spatial_weight <- function(x){
 #' @param nc_out a character string with the file path for the saved file.
 #' @return No return value, called to save a file
 
-save_nc <- function(dummie_nc, nc_out){
+save_nc <- function(dummie_nc, nc_out, name_def = "tp", longname_def = "Total precipitation"){
   lon <- xFromCol(dummie_nc) %>% round(., 4)
   lat <- yFromRow(dummie_nc) %>% round(., 4)
   time <- getZ(dummie_nc)
@@ -178,11 +178,11 @@ save_nc <- function(dummie_nc, nc_out){
                        units = "days since 1970-01-01 00:00:0.0",
                        calendar = "standard",
                        unlim = TRUE)
-  deftp <- ncvar_def(name = "tp", units = "mm", 
+  deftp <- ncvar_def(name = name_def, units = "mm", 
                      list(deflon, deflat, deftime), 
                      missval = -9999,
                      compression = 4,
-                     longname = "Total monthly precipitation",
+                     longname = longname_def,
                      prec = "float")
   ncoutput <- nc_create(nc_out, list(deftp), force_v4 = TRUE, verbose = FALSE)
   ncvar_put(ncoutput, deftp, tp)

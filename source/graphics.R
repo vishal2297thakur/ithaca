@@ -14,6 +14,11 @@ colset_mid_qual <- colset_mid[c(11, 2, 4, 6,  1, 8, 10, 5, 7, 3, 9, 12)]
 colset_agreement <- colset_mid_qual[c(1, 4, 3, 2, 5)]
 colset_land_cover_short <- colset_mid_qual[c(12, 8, 3, 11, 13, 6, 9, 5, 10)] #[Bar, Crop, For, Grass, Other, Sava, Shrub, Snow, Water]
 colset_biome_short <- colset_mid_qual[c(3, 13, 10, 11, 8, 4, 12, 9, 7, 5)] #[B.Forest, Desert, Flooded, M.Grassland, Mediterranean, T.Forests, T.Grassland, T/S Forests, T/S Grassland, Tundra]
+colset_biome <- c("B. Forests" = "#4D648D", "Deserts" = "#EBB582", "Flooded" = "#337BAE","Mangroves" = "#064470", "M. Grasslands" = "#D24136","Mediterranean" = "#F4CC70",
+                  "T. Coni. Forests" = "#32520B", "T. BL Forests" = "#739F3D", "T. Grasslands" = "#785A46" ,
+                  "T/S Coni. Forests" = "#576b16", "T/S Dry BL Forests" = "#ACBD78", "T/S Moist BL Forests" = "#97BA23",
+                  "T/S Grasslands" = "#E38B75", "Tundra" = "#97B8C2"
+                  ) # "B. Forests", "Deserts", "Flooded", "Mangroves", "M. Grasslands", "Mediterranean", "T. Coni. Forests", "T. BL Forests", "T. Grasslands", "T/S Coni. Forests", "T/S Dry BL Forests", "T/S Moist BL Forests","T/S Grasslands", "Tundra"
 colset_elev <- colset_mid[c(3, 12, 10, 11, 8, 4)]
 colset_elev_mono <- rev(sequential_hcl(n = 8, "YlOrBr"))[3:8]
 colset_prec_quant <- rev(sequential_hcl(n = 14, "Blues"))[3:12]
