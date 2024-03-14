@@ -1,6 +1,5 @@
 # Correlation between datasets for different masks ----
 source('source/evap_trend.R')
-source('source/graphics.R')
 
 ## libraries ----
 library(ggcorrplot)

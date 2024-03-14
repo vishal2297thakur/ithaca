@@ -13,7 +13,6 @@ evap_trend_masks <- merge(evap_trend_indices, evap_mask, all.x = T, by = c("lon"
 
 evap_trend_masks[, DCI_theil_sen_brks := cut(DCI_theil_sen, breaks = c(1, 0.6, 0.2, -0.2, -0.6, -1))]
 
-factor()
 evap_trend_masks[, DCI := factor(DCI_theil_sen_brks, levels = rev(levels(unique(evap_trend_masks$DCI_theil_sen_brks))),
                                  labels = c("positive strongly agree","positive agree", "uncertain/no trend",
                                                      "negative agree",

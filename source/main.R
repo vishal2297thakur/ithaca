@@ -37,7 +37,7 @@ PREC_GLOBAL_DATASETS <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", 
 
 
 EVAP_GLOBAL_DATASETS <- c("bess", "camele", "era5-land", "etmonitor", "etsynthesis", "fldas", "gldas-clsm", "gldas-noah", 
-                          "gldas-vic", "gleam", "jra55","mod16a", "merra2", "terraclimate")
+                          "gldas-vic", "gleam", "jra55","merra2", "mod16a", "terraclimate")
 
 # Types
 PREC_DATASETS_OBS <- c("cpc", "cru-ts", "em-earth", "ghcn", "gpcc", "precl", "udel")

@@ -39,7 +39,11 @@ cdo_info_fnc(fname)
 
 ## 3. plot map to see if it looks okay ----
 data <- brick(fname) 
-pRecipe::plot_map(data[[12]])
+pRecipe::plot_map(data[[40]])
+
+test <- pRecipe::tabular(data)
+test2 <- brick_to_dt(data)
+
 
 ## 4. Check projection ----
 # projection = lonlat

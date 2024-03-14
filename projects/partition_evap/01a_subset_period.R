@@ -1,7 +1,7 @@
 # Reads and subsets data as netcdf files for the specified period.
-
 source('source/main.R')
 source('source/geo_functions.R')
+source('projects/partition_evap/00_initialize.R')
 
 load("~/shared/data_projects/ithaca/misc/evap_fnames_2000_2019_full_record.Rdata") # Created by database/07_dataset_fnames_evap.R
 

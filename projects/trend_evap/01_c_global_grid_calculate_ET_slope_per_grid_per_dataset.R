@@ -63,6 +63,7 @@ evap_trend[, slope_percent := theil_sen_slope/mean_evap*100]
 evap_trend <- evap_trend[complete.cases(evap_trend)]
 evap_trend <- evap_trend[,dataset_count := .N,.(lon, lat)]
 evap_trend_complete_only <- evap_trend[dataset_count >= n_datasets_2000_2019,]
+
 ## save data----
 saveRDS(evap_trend, paste0(PATH_SAVE_EVAP_TREND, "global_grid_per_dataset_evap_slope.rds"))  
 saveRDS(evap_trend_complete_only , paste0(PATH_SAVE_EVAP_TREND, "global_grid_per_dataset_evap_slope_intersection_lat_lon.rds"))  

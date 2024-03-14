@@ -2,7 +2,7 @@
 source('source/evap_trend.R')
 
 ## Data ----
-### Input data generated in 01_d
+### Input data generated in 01_e
 evap_trend<- readRDS(paste0(PATH_SAVE_EVAP_TREND, "global_grid_uncertainty_dataset_leftout.rds"))
 
 evap_trend_no_etsynthesis <- evap_trend[dataset_leftout == "etsynthesis"]

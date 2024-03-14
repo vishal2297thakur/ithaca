@@ -10,6 +10,9 @@ evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
 
 ## Analysis ----
 evap_trend_masks <- merge(evap_trend_indices, evap_mask, all.x = T, by = c("lon", "lat"))
+evap_trend_masks[, trend := factor(trend)]
+levels(evap_trend_masks$trend)
+
 evap_trend_masks[, trend := factor(trend, levels = c("positive likely","positive probable", "no trend",
                                                      "negative probable",
                                                      "negative likely",
@@ -76,15 +79,15 @@ KG_3_uncertainty <- KG_3_uncertainty[trend == "uncertain"]
 
 ## Read uncertainty data from previous analysis from 02_c ----
 
-land_cover <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "land_cover_uncertainty.rds"))
+land_cover <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "land_cover_uncertainty_N14.rds"))
 land_cover <- land_cover[trend == "uncertain"]
-biome <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "biomes_uncertainty.rds"))
+biome <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "biomes_uncertainty_N14.rds"))
 biome <- biome[trend == "uncertain"]
-elev <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "elevation_uncertainty.rds"))
+elev <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "elevation_uncertainty_N14.rds"))
 elev <- elev[trend == "uncertain"]
-IPCC <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "ipcc_reference_regions_uncertainty.rds"))
+IPCC <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "ipcc_reference_regions_uncertainty_N14.rds"))
 IPCC <- IPCC[trend == "uncertain"]
-KG_3 <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "KG_3_uncertainty.rds"))
+KG_3 <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "KG_3_uncertainty_N14.rds"))
 KG_3 <- KG_3[trend == "uncertain"]
 
 ## Merge data and calculate difference and ratios ----

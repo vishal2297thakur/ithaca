@@ -16,7 +16,7 @@ datasets <- evap_mean_datasets[, unique(dataset)]
 
 
 ## Plotting evap means ----
-ggplot(evap_mean_datasets[dataset %in% c(datasets[1:14])])+
+ggplot(evap_mean_datasets)+
   geom_tile(aes(x = lon, y = lat, col = evap_mean))+
   scale_color_binned(type = "viridis", 
                     breaks = c(-50,0, 0.5, seq(100, 700, 150), 1000, 2000, 2800), 

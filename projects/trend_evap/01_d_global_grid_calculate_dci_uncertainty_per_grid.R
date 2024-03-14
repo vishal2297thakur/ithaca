@@ -4,12 +4,11 @@
 
 source('source/evap_trend.R')
 source('source/geo_functions.R')
-source('source/graphics.R')
 
 ## Data ----
 ### Input data generated in 01_c
-evap_trend <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "global_grid_per_dataset_evap_slope_intersection_lat_lon.rds"))  
-
+evap_trend <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "global_grid_per_dataset_evap_slope.rds"))  
+evap_trend <- evap_trend[dataset_count >= 12]
 
 ## Analysis 
 ### DCI ----
@@ -18,6 +17,7 @@ evap_trend_dci <- evap_trend[,.(DCI_theil_sen = sum(theil_sen_slope/abs(theil_se
 
 
 ### probability groups ----
+
 evap_trend_pos <- evap_trend[trend_direction == "positive significant", .(N_pos_theil_sen = .N), .(lon,lat)]
 evap_trend_neg <- evap_trend[trend_direction == "negative significant", .(N_neg_theil_sen = .N), .(lon,lat)]
 evap_trend_ins_pos <- evap_trend[trend_direction == "positive", .(N_ins_pos_theil_sen = .N), .(lon,lat)]
@@ -33,12 +33,15 @@ evap_trend_summary[is.na(N_ins_pos_theil_sen), N_ins_pos_theil_sen:= 0]
 evap_trend_summary[is.na(N_ins_neg_theil_sen), N_ins_neg_theil_sen:= 0]
 
 evap_trend_summary[, count:= sum(N_pos_theil_sen, N_neg_theil_sen, N_ins_pos_theil_sen, N_ins_neg_theil_sen, na.rm = T),.(lon,lat)]
-evap_trend_summary[, trend:= "no trend",]
-evap_trend_summary[N_pos_theil_sen > 5 & N_neg_theil_sen == 0, trend:= "positive likely",]
-evap_trend_summary[N_pos_theil_sen > 1 & N_pos_theil_sen <= 5 & N_neg_theil_sen == 0, trend:= "positive probable",]
+evap_trend_summary[, threshold_likely := 0.33*count,.(lon,lat)]
+evap_trend_summary[, threshold_probable := 1,.(lon,lat)]
 
-evap_trend_summary[N_neg_theil_sen > 5  & N_pos_theil_sen == 0, trend:= "negative likely",]
-evap_trend_summary[N_neg_theil_sen > 1 & N_neg_theil_sen <= 5 & N_pos_theil_sen == 0, trend:= "negative probable",]
+evap_trend_summary[, trend:= "no trend",]
+evap_trend_summary[N_pos_theil_sen > threshold_likely & N_neg_theil_sen == 0, trend:= "positive likely",]
+evap_trend_summary[N_pos_theil_sen >= threshold_probable & N_pos_theil_sen <= threshold_likely & N_neg_theil_sen == 0, trend:= "positive probable",]
+
+evap_trend_summary[N_neg_theil_sen > threshold_likely  & N_pos_theil_sen == 0, trend:= "negative likely",]
+evap_trend_summary[N_neg_theil_sen >= threshold_probable & N_neg_theil_sen <= threshold_likely & N_pos_theil_sen == 0, trend:= "negative probable",]
 evap_trend_summary[N_neg_theil_sen > 0 & N_pos_theil_sen > 0, trend:= "uncertain",]
 
 grid_cell_area <- unique(evap_trend_summary[, .(lon, lat)]) %>% grid_area() # m2
@@ -55,6 +58,5 @@ notrend_area/land_area
 evap_trend_lon_lat <- merge(evap_trend_summary, evap_trend_dci)
 
 ## Save data ----
-evap_trend_lon_lat <- evap_trend_lon_lat[count >= n_datasets_2000_2019]
 saveRDS(evap_trend_lon_lat, paste0(PATH_SAVE_EVAP_TREND, "global_grid_slope_indices.rds"))
 

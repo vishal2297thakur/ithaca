@@ -48,7 +48,7 @@ for(dataset_A in datasets){
     }
     
     dummy <- merge(dummy_common, dummy_b, by = "land_cover_short_class", all = T)
-    dummy <- merge(dummy, dummy_c, by = "land_cover_short_class", all = T)
+    dummy <- merge(dummy, dummy_a, by = "land_cover_short_class", all = T)
     dummy <- merge(dummy, dummy_insig, by = "land_cover_short_class", all = T)
     dummy[, dataset_A := dataset_A]
     dummy[, dataset_B := dataset_B]
@@ -101,7 +101,7 @@ for(dataset_A in datasets){
     }
     
     dummy <- merge(dummy_common, dummy_b, by = "biome_class", all = T)
-    dummy <- merge(dummy, dummy_c, by = "biome_class", all = T)
+    dummy <- merge(dummy, dummy_a, by = "biome_class", all = T)
     dummy <- merge(dummy, dummy_insig, by = "biome_class", all = T)
     dummy[, dataset_A := dataset_A]
     dummy[, dataset_B := dataset_B]
@@ -170,7 +170,7 @@ for(dataset_A in datasets){
     }
     
     dummy <- merge(dummy_common, dummy_b, by = "elev_class", all = T)
-    dummy <- merge(dummy, dummy_c, by = "elev_class", all = T)
+    dummy <- merge(dummy, dummy_a, by = "elev_class", all = T)
     dummy <- merge(dummy, dummy_insig, by = "elev_class", all = T)
     dummy[, dataset_A := dataset_A]
     dummy[, dataset_B := dataset_B]
@@ -223,7 +223,7 @@ for(dataset_A in datasets){
     }
     
     dummy <- merge(dummy_common, dummy_b, by = "IPCC_ref_region", all = T)
-    dummy <- merge(dummy, dummy_c, by = "IPCC_ref_region", all = T)
+    dummy <- merge(dummy, dummy_a, by = "IPCC_ref_region", all = T)
     dummy <- merge(dummy, dummy_insig, by = "IPCC_ref_region", all = T)
     dummy[, dataset_A := dataset_A]
     dummy[, dataset_B := dataset_B]
@@ -276,7 +276,7 @@ for(dataset_A in datasets){
     }
     
     dummy <- merge(dummy_common, dummy_b, by = "KG_class_3", all = T)
-    dummy <- merge(dummy, dummy_c, by = "KG_class_3", all = T)
+    dummy <- merge(dummy, dummy_a, by = "KG_class_3", all = T)
     dummy <- merge(dummy, dummy_insig, by = "KG_class_3", all = T)
     dummy[, dataset_A := dataset_A]
     dummy[, dataset_B := dataset_B]
