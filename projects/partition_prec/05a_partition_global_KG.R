@@ -80,6 +80,8 @@ write.csv(partition_KG_sd, paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG
 write.csv(partition_KG_datasets[, -2], paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_datasets_global.csv"))
 saveRDS(datasets_KG[, .(lon, lat, dataset, prec_volume_year)] , paste0(PATH_SAVE_PARTITION_PREC, "prec_dataset_volume.rds"))
 
+
+
 ## Antarctica
 13.82 * 10^6 * c(150, 200) * MM_TO_KM
 13.82 * 10^6 * 175 * MM_TO_KM

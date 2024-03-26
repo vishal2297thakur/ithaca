@@ -40,6 +40,8 @@ prec_datasets[, prec_mean := round(prec_mean, 2)][, prec_sd := round(prec_sd, 2)
 ## Save data 
 saveRDS(prec_datasets, paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.rds"))
 saveRDS(prec_volume, paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
+write.csv(prec_datasets, paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datasets.csv"))
+
 
 ## Validation
 for(dataset_count in 1:n_datasets_2000_2019){
