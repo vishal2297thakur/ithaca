@@ -34,3 +34,4 @@ prec_masks <- merge(masks_global, prec_stats[, .(lon, lat, prec_quant, rel_datas
 
 ## Save data
 saveRDS(prec_masks, paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
+write.csv(prec_masks, paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.csv"))

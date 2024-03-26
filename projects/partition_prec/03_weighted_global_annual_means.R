@@ -31,3 +31,4 @@ colnames(prec_annual)[1] <- "dataset"
 prec_annual[, prec_volume := GLOBAL_AREA * M2_TO_KM2 * prec_mean * MM_TO_KM]
 
 saveRDS(prec_annual, paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_mean.rds"))
+write.csv(prec_annual, paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_mean.csv"))
