@@ -1,7 +1,7 @@
 # Transforms datasets from brick to a single data table (large memory requirements)
 
 source('source/partition_evap.R')
-source('source/geo_functions_evap.R')
+source('source/geo_functions.R')
 
 ## Data 
 evap_2000_2019 <- lapply(EVAP_FNAMES_2000_2019, brick)

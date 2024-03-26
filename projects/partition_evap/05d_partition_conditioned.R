@@ -2,7 +2,7 @@
 
 source('source/partition_evap.R')
 source('source/graphics.R')
-source('source/geo_functions_evap.R')
+source('source/geo_functions.R')
 
 library(ggthemes)
 library(scales)
@@ -21,7 +21,7 @@ datasets_KG <- merge(climate_KG, evap_datasets, by = c("lon", "lat"))
 datasets_KG[, evap_volume_year := 12 * area * 10 ^ (-9) * evap_mean * 0.001][, evap_mean := NULL] # km3
 
 land_cover_class <- merge(evap_mask[, .(lat, lon, evap_quant_dataset_agreement , land_cover_short_class, KG_class_1_name)], evap_grid[, .(lon, lat, evap_volume_year)], by = c("lon", "lat"))
-biome_class <- merge(evap_mask[, .(lat, lon, evap_quant_dataset_agreement , biome_short_class, KG_class_1_name)], evap_grid[, .(lon, lat, evap_volume_year)], by = c("lon", "lat"))
+biome_class <- merge(evap_mask[, .(lat, lon, evap_quant_dataset_agreement , biome_class, KG_class_1_name)], evap_grid[, .(lon, lat, evap_volume_year)], by = c("lon", "lat"))
 elevation_class <- merge(evap_mask[, .(lat, lon, evap_quant_dataset_agreement , elev_class, KG_class_1_name)], evap_grid[, .(lon, lat, evap_volume_year)], by = c("lon", "lat"))
 evap_quant <- merge(evap_mask[, .(lat, lon, evap_quant_dataset_agreement , evap_quant, KG_class_1_name)], evap_grid[, .(lon, lat, evap_volume_year)], by = c("lon", "lat"))
 
@@ -29,10 +29,8 @@ evap_quant <- merge(evap_mask[, .(lat, lon, evap_quant_dataset_agreement , evap_
 ### Climate
 datasets_KG[, .(area = round(sum(area), 2)), .(dataset, dataset_type)] #Antarctica 13.66 million km2
 dataset_partition_KG <- datasets_KG[, .(evap_sum = round(sum(evap_volume_year), 0)), .(KG_class_1_name, dataset, dataset_type)]
-#dataset_partition_KG[(dataset == 'cmorph' |                       #Remove as they do not cover the whole planet
-#                        dataset == 'persiann' | 
-#                        dataset == 'chirps') & 
-#                       (KG_class_1_name == 'Polar' | KG_class_1_name == 'Continental'), evap_sum := NA]
+
+
 #### Mean
 partition_KG_global <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
                                      fun = mean, na.rm = TRUE)
@@ -75,6 +73,23 @@ land_cover_agreement[, land_cover_sum := sum(evap_sum), land_cover_short_class]
 land_cover_agreement[, land_cover_fraction := evap_sum / land_cover_sum]
 
 ### Biome types
+biome_class[grepl("Tundra", biome_class) == TRUE, biome_short_class := "Tundra"]
+biome_class[grepl("Boreal Forests", biome_class) == TRUE, biome_short_class := "B. Forests"]
+biome_class[grepl("Dry Broadleaf Forests", biome_class) == TRUE, biome_short_class := "T/S Dry BL Forests"]
+biome_class[grepl("Moist Broadleaf Forests", biome_class) == TRUE, biome_short_class := "T/S Moist BL Forests"]
+biome_class[grepl("Subtropical Coniferous Forests", biome_class) == TRUE, biome_short_class := "T/S Coni. Forests"]
+biome_class[grepl("Temperate Conifer Forests", biome_class) == TRUE, biome_short_class := "T. Coni. Forests"]
+biome_class[grepl("Temperate Broadleaf & Mixed Forests", biome_class) == TRUE, biome_short_class := "T. BL Forests"]
+biome_class[grepl("Temperate Grasslands", biome_class) == TRUE, biome_short_class := "T. Grasslands"]
+biome_class[grepl("Subtropical Grasslands", biome_class) == TRUE, biome_short_class := "T/S Grasslands"]
+biome_class[grepl("Montane Grasslands", biome_class) == TRUE, biome_short_class := "M. Grasslands"]
+biome_class[grepl("Flooded", biome_class) == TRUE, biome_short_class := "Flooded"]
+biome_class[grepl("Mangroves", biome_class) == TRUE, biome_short_class := "Mangroves"]
+biome_class[grepl("Deserts", biome_class) == TRUE, biome_short_class := "Deserts"]
+biome_class[grepl("Mediterranean", biome_class) == TRUE, biome_short_class := "Mediterranean"]
+biome_class[grepl("N/A", biome_class) == TRUE, biome_short_class := NA]
+biome_class[, biome_short_class := factor(biome_short_class)]
+
 biome_evap <- biome_class[, .(evap_sum = sum(evap_volume_year)), .(KG_class_1_name, biome_short_class)]
 biome_evap <- biome_evap[complete.cases(biome_evap)]
 biome_evap <- biome_evap[order(KG_class_1_name, biome_short_class), ]
@@ -147,10 +162,10 @@ fig_biome_partition_evap_volume <- ggplot(biome_evap) +
   theme_light() + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 
-biome_agreement$biome_short_class <- factor(biome_agreement$biome_short_class, 
-                                                  levels = c("T/S Forests", "T/S Grasslands", "T. Forests", 
-                                                             "B. Forests", "T. Grasslands", "Deserts", "Tundra", 
-                                                             "Flooded", "M. Grasslands", "Mediterranean", NA))
+#biome_agreement$biome_short_class <- factor(biome_agreement$biome_short_class, 
+#                                                  levels = c("T/S Forests", "T/S Grasslands", "T. Forests", 
+#                                                             "B. Forests", "T. Grasslands", "Deserts", "Tundra", 
+#                                                             "Flooded", "M. Grasslands", "Mediterranean", NA))
 fig_biome_partition_fraction <- ggplot(biome_agreement) +
   geom_bar(aes(x = biome_short_class, y = biome_fraction, fill = evap_quant_dataset_agreement ), stat = "identity") +
   xlab('Biome class')  +
@@ -206,7 +221,7 @@ gg_fig_1 <- ggarrange(fig_land_cover_partition_evap_volume, fig_biome_partition_
                     labels = c('a', 'b', 'c', 'd'), align = 'hv',
                     common.legend = T, legend = 'right', 
                     nrow = 2, ncol = 2)
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_volume_climate.png"), width = 10, height = 10)
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_volume_climate_conditioned.png"), width = 10, height = 10)
 
 ### Figure 2
 gg_fig_2 <- ggarrange(fig_land_cover_partition_fraction,fig_biome_partition_fraction,
@@ -214,5 +229,5 @@ gg_fig_2 <- ggarrange(fig_land_cover_partition_fraction,fig_biome_partition_frac
                     labels = c('a', 'b', 'c', 'd'), align = 'hv',
                     common.legend = T, legend = 'right', 
                     nrow = 2, ncol = 2)
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_fraction_agreement.png"), width = 10, height = 10)
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "partition_fraction_agreement_conditioned.png"), width = 10, height = 10)
 

@@ -1,5 +1,4 @@
 # Estimates stats for dataset agreement classes
-source('source/partition_evap.R')
 
 ## Data 
 source('source/partition_evap.R')
