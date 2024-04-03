@@ -9,8 +9,6 @@ prec_dataset_means <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_datase
 prec_grid <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_mean_volume_grid.rds"))
 prec_annual <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_global_annual_mean.rds"))
 
-prec_annual <- prec_annual[dataset %in% datasets_used] #After revision
-
 ## Variables
 climate_KG <- merge(prec_mask[, .(lat, lon, KG_class_1_name)], 
                     prec_grid[, .(lon, lat, area)], by = c("lon", "lat"), all = TRUE)
@@ -58,6 +56,11 @@ colnames(partition_KG_datasets)[1] <- c("Dataset")
 partition_KG_datasets <- merge(partition_KG_datasets, dataset_means[, .(Dataset, Global)], by = "Dataset")
 #partition_KG_datasets[, diff_mean := round(Global - mean(Global, na.rm = TRUE), 0)]
 
+partition_KG_datasets[, mean(Global)]
+partition_KG_datasets[Dataset %in% datasets_no_outliers, mean(Global)]
+partition_KG_datasets[Dataset %in% datasets_no_overlap, mean(Global)]
+partition_KG_datasets[Dataset %in% datasets_no_overlap & Dataset %in% datasets_no_outliers, mean(Global)]
+
 ### St. Dev
 partition_KG_global_sd <- dcast(dataset_partition_KG, . ~ KG_class_1_name, 
                                 fun = sd, na.rm = TRUE)
@@ -76,6 +79,8 @@ write.csv(partition_KG, paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_gl
 write.csv(partition_KG_sd, paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_sd_global.csv"))
 write.csv(partition_KG_datasets[, -2], paste0(PATH_SAVE_PARTITION_PREC_TABLES, "partition_KG_datasets_global.csv"))
 saveRDS(datasets_KG[, .(lon, lat, dataset, prec_volume_year)] , paste0(PATH_SAVE_PARTITION_PREC, "prec_dataset_volume.rds"))
+
+
 
 ## Antarctica
 13.82 * 10^6 * c(150, 200) * MM_TO_KM

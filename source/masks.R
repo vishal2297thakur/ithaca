@@ -28,3 +28,6 @@ masks_dir_ecoregions <- "/mnt/shared/data/geodata/masks/final/biomes"
 
 # Sediment
 masks_dir_sed <- "/mnt/shared/data/geodata/masks/final/sediment"
+
+# IPCC reference region version 4
+masks_dir_IPCC <- "/mnt/shared/data/geodata/masks/final/IPCC_reference_regions_v4"

@@ -1,7 +1,4 @@
-install.packages('splitstackshape')
-
 library(igraph)
-require(splitstackshape)
 
 prec_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_datasets.rds"))
 prec_masks <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_masks.rds"))
@@ -9,80 +6,118 @@ family_tree <- read_csv('../../shared/data_projects/ithaca/partition_prec/datase
 
 grid_continental <- prec_masks[KG_class_1_name == "Continental", .(lon, lat)]
 prec_datasets_continental <- prec_datasets[grid_continental, on = .(lon, lat)]
+
 prec_datasets_mean <- prec_datasets_continental[, .(prec = mean(prec, na.rm = TRUE)), .(dataset)]
+prec_datasets_mean[prec_datasets_mean == 'ncep-doe'] <- 'doe'
+prec_datasets_mean[prec_datasets_mean == 'ncep-ncar'] <- 'ncar'
+prec_datasets_mean[prec_datasets_mean == 'era5-land'] <- 'era5'
+prec_datasets_mean[prec_datasets_mean == 'gpm-imerg'] <- 'gpm'
+
 prec_annual <- prec_datasets_continental[, .(prec = mean(prec, na.rm = TRUE)), .(dataset, year)]
+prec_annual[prec_annual == 'ncep-doe'] <- 'doe'
+prec_annual[prec_annual == 'ncep-ncar'] <- 'ncar'
+prec_annual[prec_annual == 'era5-land'] <- 'era5'
+prec_annual[prec_annual == 'gpm-imerg'] <- 'gpm'
 
 rownames(family_tree) <- colnames(family_tree)
-families <- as.factor(c("chirps", "ncep", "cpc", "cpc", "cru", "era5", "era5", "cpc", "cpc", "merged", 
-                        "jra55", "cpc", "merged", "ncep", "ncep", "cpc", "precl"))
-dataset_meta <- data.table(name = names(family_tree))
-dataset_meta$family <- families
+family <- as.factor(c("chirps", "ncep", "cpc", "cpc", "cru", "era5", "era5", "cpc", "cpc", "merged", 
+                      "jra55", "cpc", "merged", "ncep", "ncep", "cpc", "precl"))
+dataset_families <- data.table(name = colnames(family_tree), family = family)
+network_cols <- colset_mid[c(4, 3, 5, 7, 9, 11, 6, 2)]
 
-#Correlation
+## Families
+family_network <- graph_from_adjacency_matrix(data.matrix(family_tree), 
+                                              mode = 'directed', 
+                                              diag = FALSE)
+family_network_dt <- merge(ggnetwork(family_network), dataset_families, by = 'name')
+family_network_dt[family_network_dt == 'ncep-doe'] <- 'doe'
+family_network_dt[family_network_dt == 'ncep-ncar'] <- 'ncar'
+family_network_dt[family_network_dt == 'era5-land'] <- 'era5'
+family_network_dt[family_network_dt == 'gpm-imerg'] <- 'gpm'
+
+set.seed(1) 
+fig_families <- ggplot(family_network_dt, aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_edges(arrow = arrow(length = unit(6, "pt"), type = "closed"), col = "grey30") +
+  scale_fill_manual(values = network_cols) +
+  scale_color_manual(values = network_cols) +
+  geom_nodes(aes(col = family), size = 6) +
+  geom_nodes(aes(col = family), size = 8, alpha = 0.4) +
+  geom_nodetext(aes(label = name)) +
+  theme_blank() +
+  theme(panel.border = element_rect(fill = NA, size = 0.3)) +
+  guides(fill = "none", col = 'none') 
+
+## Correlation
 data_for_cor <- dcast(prec_annual, year ~ dataset, value.var = 'prec')
+data_for_cor <- data_for_cor[, c(1:6, 8:15, 7, 16:18)]
 cor_matrix <- cor(data_for_cor[, -1], use = 'pairwise.complete.obs') + 1
-cor_matrix[cor_matrix < quantile(cor_matrix, 0.8)] <- 0
+cor_matrix[cor_matrix < quantile(cor_matrix, 0.7)] <- 0
 
 cor_network <- graph_from_adjacency_matrix(cor_matrix, 
-                                    mode = 'undirected', 
-                                    diag = FALSE)
-cor_network <- set_vertex_attr(cor_network, 'family', value = families)
-colrs <- c("gray50", "tomato", "gold", "darkred", "steelblue", "lightgreen", "darkblue", "brown")
-V(cor_network)$color <- colrs[as.numeric(V(cor_network)$family)]
+                                           mode = 'undirected', 
+                                           diag = FALSE)
+cor_network_dt <- merge(ggnetwork(cor_network), dataset_families, by = 'name')
+set.seed(1) 
+fig_correlation <- ggplot(cor_network_dt, aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_edges(arrow = arrow(length = unit(6, "pt"), type = "closed"), col = "grey30") +
+  scale_fill_manual(values = network_cols) +
+  scale_color_manual(values = network_cols) +
+  geom_nodes(aes(col = family), size = 6) +
+  geom_nodes(aes(col = family), size = 8, alpha = 0.4) +
+  geom_nodetext(aes(label = name)) +
+  theme_blank() +
+  theme(panel.border = element_rect(fill = NA, size = 0.3)) +
+  guides(fill = "none", col = 'none') 
 
-set.seed(1)
-plot(cor_network,
-     edge.arrow.size = .2,
-     layout = layout.auto(cor_network))
-
-# Distance
+## Distance
 abs_distance <- abs(dist(prec_datasets_mean[!dataset %in% c('cmorph', 'persiann', 'chirps')]$prec))
 names(abs_distance) <- prec_datasets_mean[!dataset %in% c('cmorph', 'persiann', 'chirps')]$dataset
-abs_distance[abs_distance > quantile(abs_distance, 0.3)] <- 0 
-#abs_distance[abs_distance > quantile(abs_distance, 0.2)] <- 0 
+abs_distance <- 1 + 1 / abs_distance
+abs_distance[abs_distance < quantile(abs_distance, 0.6)] <- 0 
 
-distance_network <- graph_from_adjacency_matrix(data.matrix(1 + 1/abs_distance), 
-                                   mode = 'undirected', 
-                                   diag = FALSE)
+distance_network <- graph_from_adjacency_matrix(data.matrix(abs_distance), 
+                                                mode = 'undirected', 
+                                                diag = FALSE)
+distance_network_dt <- merge(ggnetwork(distance_network), dataset_families, by = 'name')
+network_cols <- colset_mid[c(3, 5, 7, 9, 11, 6, 2, 4)]
+set.seed(1) 
+fig_distance <- ggplot(distance_network_dt, aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_edges(arrow = arrow(length = unit(6, "pt"), type = "closed"), col = "grey30") +
+  scale_fill_manual(values = network_cols) +
+  scale_color_manual(values = network_cols) +
+  geom_nodes(aes(col = family), size = 6) +
+  geom_nodes(aes(col = family), size = 8, alpha = 0.4) +
+  geom_nodetext(aes(label = name)) +
+  theme_blank() +
+  theme(panel.border = element_rect(fill = NA, size = 0.3)) +
+  guides(fill = "none", col = 'none') 
 
-families <- as.factor(c("ncep", "cpc", "cru", "era5", "era5", "cpc", "cpc", "merged", "jra55", "cpc", "merged", "ncep", "ncep", "precl"))
-distance_network <- set_vertex_attr(distance_network, 'family', value = families)
-colrs <- c("tomato", "gold", "darkred",   "steelblue", "lightgreen", "darkblue", "brown")
-V(distance_network)$color <- colrs[as.numeric(V(distance_network)$family)]
-
-# Combination
+## Combination
 cor_matrix_global <- cor_matrix[!rownames(cor_matrix) %in% c("chirps", "cmorph", "persiann"), ] 
 cor_matrix_global <- cor_matrix_global[, !colnames(cor_matrix_global) %in% c("chirps", "cmorph", "persiann")] 
 family_tree_global <- family_tree[!rownames(family_tree) %in% c("chirps", "cmorph", "persiann"), ] 
 family_tree_global <- family_tree_global[, !colnames(family_tree_global) %in% c("chirps", "cmorph", "persiann")] 
 
-dataset_agreement <- as.matrix(abs_distance) * cor_matrix_global 
-dataset_agreement_network <- graph_from_adjacency_matrix(dataset_agreement, weighted = TRUE, 
-                                                         mode = 'undirected', 
-                                                         diag = FALSE)
-
-families <- as.factor(c("ncep", "cpc", "cru", "era5", "era5", "cpc", "cpc", "merged", "jra55", "cpc", "merged", "ncep", "ncep", "precl"))
-dataset_agreement_network <- set_vertex_attr(dataset_agreement_network, 'family', value = families)
-colrs <- c("tomato", "gold", "darkred",   "steelblue", "lightgreen", "darkblue", "brown")
-V(dataset_agreement_network)$color <- colrs[as.numeric(V(dataset_agreement_network)$family)]
-
-plot(dataset_agreement_network,
-     edge.arrow.size = .2,
-     layout = layout.auto(distance_network))
-
 dataset_agreement <- as.matrix(abs_distance) * cor_matrix_global * data.matrix(family_tree_global)
 dataset_agreement[dataset_agreement < 0] <- 0 
 dataset_agreement_network <- graph_from_adjacency_matrix(dataset_agreement, weighted = TRUE, 
-                                                mode = 'directed', 
-                                                diag = FALSE)
+                                                         mode = 'directed', 
+                                                         diag = FALSE)
+dataset_agreement_network_dt <- merge(ggnetwork(dataset_agreement_network, layout = layout.auto(distance_network)), 
+                                      dataset_families, by = 'name')
 
-families <- as.factor(c("ncep", "cpc", "cru", "era5", "era5", "cpc", "cpc", "merged", "jra55", "cpc", "merged", "ncep", "ncep", "precl"))
-dataset_agreement_network <- set_vertex_attr(dataset_agreement_network, 'family', value = families)
-colrs <- c("tomato", "gold", "darkred",   "steelblue", "lightgreen", "darkblue", "brown")
-V(dataset_agreement_network)$color <- colrs[as.numeric(V(dataset_agreement_network)$family)]
+set.seed(1) 
+fig_combination <- ggplot(dataset_agreement_network_dt, aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_edges(arrow = arrow(length = unit(6, "pt"), type = "closed"), col = "grey30") +
+  scale_fill_manual(values = network_cols) +
+  scale_color_manual(values = network_cols) +
+  geom_nodes(aes(col = family), size = 6) +
+  geom_nodes(aes(col = family), size = 8, alpha = 0.4) +
+  geom_nodetext(aes(label = name)) +
+  theme_blank() +
+  theme(panel.border = element_rect(fill = NA, size = 0.3)) +
+  guides(fill = "none", col = 'none') 
 
-plot(dataset_agreement_network,
-     edge.arrow.size = .2,
-     layout = layout.auto(distance_network))
-
+ggarrange(fig_families, fig_correlation, fig_distance, fig_combination, 
+          ncol = 2, nrow = 2, labels = c('a', 'b', 'c', 'd'), hjust = -2.1, vjust = 2.5)
 

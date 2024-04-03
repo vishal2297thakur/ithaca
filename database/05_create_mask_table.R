@@ -21,6 +21,7 @@ shape_mask_dt  <- data.table(shape_mask_df)
 fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level2.shp")
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
+shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
 shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_2')
@@ -30,6 +31,7 @@ shape_mask_dt <- merge(shape_mask_dt, shape_mask_df, by = c('lon', 'lat'), all =
 fname_shape <- list.files(path = PATH_MASKS_KOPPEN, full.names = TRUE, pattern = "climate_beck_level1.shp")
 shape_mask <- st_read(paste0(fname_shape[1]))
 shape_mask <- st_make_valid(shape_mask)
+shape_mask_raster <- rasterize(shape_mask, prec_era5[[1]])
 shape_mask_df <- shape_mask_raster %>% as.data.frame(xy = TRUE, long = TRUE, na.rm = TRUE)
 shape_mask_df <- subset(shape_mask_df, select = c('x', 'y', 'value'))
 colnames(shape_mask_df) <- c('lon', 'lat', 'KG_class_3')
@@ -83,6 +85,8 @@ shape_mask_df$elev_class <- factor(shape_mask_df$elev_class,
                                    labels = c("0-100", "100-400", "400-800", "800-1500", "1500-3000", "3000+"), 
                                    ordered =TRUE)
 shape_mask_dt <- merge(shape_mask_dt, shape_mask_df, by = c('lon', 'lat'), all = TRUE)
+
+### IPCC
 
 ### Extra masks
 shape_mask_dt[KG_class_1 == 'A', KG_class_1_name := factor("Tropical")]

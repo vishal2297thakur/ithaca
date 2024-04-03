@@ -1,5 +1,8 @@
 # Estimates the mean cross-correlation coefficient at each grid cell
 
+source('source/partition_prec.R')
+source('source/geo_functions.R')
+
 prec_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_datasets.rds"))
 prec_stats <- readRDS(paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
 

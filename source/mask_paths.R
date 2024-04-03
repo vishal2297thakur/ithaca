@@ -13,3 +13,8 @@ PATH_MASKS_KOPPEN <- paste0(PATH_MASK, "climate") # Koeppen-Geiger Beck et al. 2
 PATH_MASKS_COUNTRY <- paste0(PATH_MASK, "country_borders") #library(maptools)
 PATH_MASKS_BIOME <- paste0(PATH_MASK, "biomes")
 PATH_MASKS_SEDIMENT <- paste0(PATH_MASK, "sediment")
+
+
+# Spatial Polygon
+
+PATH_MASKS_IPCC <- paste0(PATH_MASK, "IPCC_reference_regions_v4")

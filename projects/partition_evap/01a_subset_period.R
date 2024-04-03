@@ -1,9 +1,9 @@
 # Reads and subsets data as netcdf files for the specified period.
-
 source('source/main.R')
-source('source/geo_functions_evap.R')
+source('source/geo_functions.R')
+source('projects/partition_evap/00_initialize.R')
 
-load("~/shared/data_projects/ithaca/misc/evap_fnames_2000_2019_full_record.Rdata") # Created by database/06_dataset_fnames.R
+load("~/shared/data_projects/ithaca/misc/evap_fnames_2000_2019_full_record.Rdata") # Created by database/07_dataset_fnames_evap.R
 
 registerDoParallel(cores = N_CORES - 1)
 n_datasets_2000_2019 <- length(EVAP_FNAMES_2000_2019_FULL_RECORD)
@@ -16,7 +16,7 @@ foreach(dataset_count = 1:n_datasets_2000_2019) %dopar% {
   nc_out <- paste0(PATH_SAVE_PARTITION_EVAP_RAW,
                    EVAP_FNAMES_SHORT_2000_2019_FULL_RECORD[[dataset_count]],
                    "_e_mm_land_200001_201912_025_yearly.nc")
-  save_nc(result, nc_out)
+  save_nc(result, nc_out, name_def = "e", longname_def = "Total evaporation")
 } 
 
 EVAP_FNAMES_2000_2019 <- list.files(path = PATH_SAVE_PARTITION_EVAP_RAW, full.names = TRUE)

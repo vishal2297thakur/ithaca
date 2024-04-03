@@ -57,7 +57,7 @@ fig_families <- ggplot(family_network_dt, aes(x = x, y = y, xend = xend, yend = 
 data_for_cor <- dcast(prec_annual, year ~ dataset, value.var = 'prec')
 data_for_cor <- data_for_cor[, c(1:6, 8:15, 7, 16:18)]
 cor_matrix <- cor(data_for_cor[, -1], use = 'pairwise.complete.obs') + 1
-cor_matrix[cor_matrix < quantile(cor_matrix, 0.8)] <- 0
+cor_matrix[cor_matrix < quantile(cor_matrix, 0.7)] <- 0
 
 cor_network <- graph_from_adjacency_matrix(cor_matrix, 
                                     mode = 'undirected', 
@@ -79,7 +79,7 @@ fig_correlation <- ggplot(cor_network_dt, aes(x = x, y = y, xend = xend, yend = 
 abs_distance <- abs(dist(prec_datasets_mean[!dataset %in% c('cmorph', 'persiann', 'chirps')]$prec))
 names(abs_distance) <- prec_datasets_mean[!dataset %in% c('cmorph', 'persiann', 'chirps')]$dataset
 abs_distance <- 1 + 1 / abs_distance
-abs_distance[abs_distance < quantile(abs_distance, 0.7)] <- 0 
+abs_distance[abs_distance < quantile(abs_distance, 0.6)] <- 0 
 
 distance_network <- graph_from_adjacency_matrix(data.matrix(abs_distance), 
                                    mode = 'undirected', 
