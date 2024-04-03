@@ -1,4 +1,4 @@
-#Determine number of data sets on each grid cell (large memory requirements)
+# Sensitivity to referential data
 source("source/uncertainty_prec.R")
 
 install.packages(setdiff("rnaturalearth", rownames(installed.packages())))
@@ -6,26 +6,42 @@ library(rnaturalearth)
 library(sf)
 library(stars)
 
-## Data
-prec_data <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_data.rds"))
+registerDoParallel(cores = 32)
 
-lonlat <- copy(prec_data)
+## Data
+prec_data <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "t_metric.rds"))
+
+bootstrap_data <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC,
+                                "t_metric_bootstrap.rds"))
 
 ## Analysis
-lonlat <- lonlat[, .(prec = mean(prec, na.rm = TRUE)), .(lon, lat, dataset)]
-lonlat <- lonlat[, .(n_datasets = .N), .(lon, lat)]
+prec_data <- prec_data[order(prec_data$t_prec, decreasing = TRUE)
+                       ][, head(.SD, 3), .(lon, lat)
+                         ][, coord_id := .GRP, by = c("lon", "lat")]
 
-prec_data <- prec_data[lonlat[n_datasets == MIN_N_DATASETS, .(lon, lat)],
-                       on = .(lon, lat)]
+bootstrap_data <- bootstrap_data[order(bootstrap_data$t_prec, decreasing = TRUE)
+                                 ][, head(.SD, 3), .(lon, lat, combination_idx)]
 
-## Save data
-saveRDS(prec_data, paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_data_roi.rds"))
+bootstrap_data <- bootstrap_data[unique(prec_data[, .(lon, lat, coord_id)]),
+                                 on = .(lon,lat)]
 
-## Figure
+COORD_IDX <- max(prec_data$coord_id)
+
+prec_bootstrap <- foreach (idx = 1:COORD_IDX, .combine = rbind) %dopar% {
+  dummie_all <- prec_data[coord_id == idx, dataset]
+  dummie_test <- bootstrap_data[coord_id == idx]
+  dummie <- dummie_test[, .(first_check = ifelse(Reduce("|", dummie_all %in% dataset), 1, 0)),
+                   .(lon, lat, combination_idx)]
+  dummie <- dummie[, .(pct = 1 - sum(first_check/84)), .(lon, lat)]
+  
+}
+
+## Plot
 ### Borders and labels
 earth_box <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
                             "earth_box.rds")) %>%
   st_as_sf(crs = "+proj=longlat +datum=WGS84 +no_defs")
+
 world_sf <- ne_countries(returnclass = "sf")
 
 labs_y <- data.frame(lon = -162, lat = c(55, 25, -5, -35, -65))
@@ -41,39 +57,36 @@ labs_x$label <- ifelse(labs_x$lon == 0, "°", ifelse(labs_x$lon > 0, "°E", "°W
 labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
 labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
-### Map data
-to_plot_sf <- lonlat[n_datasets > 1] %>% 
+
+###
+to_plot_sensitivity <- prec_bootstrap[, .(lon, lat, pct)] %>%
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-col_vals <- rev(c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99",
-                           "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6",
-                           "#6a3d9a", "#ffff99"))
-
-### Map
-p00 <- ggplot(to_plot_sf) +
-  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(color = as.factor(n_datasets), fill = as.factor(n_datasets))) +
+p01 <- ggplot(to_plot_sensitivity) +
+  geom_sf(data = world_sf, fill = "gray69", color = "gray69") +
+  geom_sf(aes(color = pct, fill = pct)) +
   geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
-  labs(x = NULL, y = NULL, fill = "Number of\nData Sets") +
+  scale_fill_binned(type = "viridis", breaks = c(0, .05, .1, .2, .5, 1)) +
+  scale_color_binned(type = "viridis", breaks = c(0, .05, .1, .2, .5, 1), guide = "none") +
+  #scale_fill_viridis_c() +
+  #scale_color_viridis_c(guide = "none") +
+  labs(x = NULL, y = NULL, fill = "p-value") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
-  scale_fill_manual(values = col_vals) +
-  scale_color_manual(values = col_vals, guide = "none") +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray23", size = 4) +
   geom_sf_text(data = labs_x, aes(label = label), color = "gray23", size = 4) +
   theme_bw() +
   theme(panel.background = element_rect(fill = NA),
         panel.border = element_blank(),
         axis.ticks.length = unit(0, "cm"),
-        panel.grid.major = element_line(colour = "gray69"),
+        panel.grid.major = element_line(colour = "gray69", linetype = "dashed"),
         axis.text = element_blank(), 
         axis.title = element_text(size = 16), 
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16))
 
-### Save
-ggsave(plot = p00, paste0(PATH_SAVE_UNCERTAINTY_PREC_FIGURES,
-                          "n_datasets.png"), width = 4.5*GOLDEN_RATIO,
-       height = 4.5)
+ggsave(plot = p01,
+       paste0(PATH_SAVE_UNCERTAINTY_PREC_FIGURES, "dataset_sensitivity.png"),
+       width = 4.5*GOLDEN_RATIO, height = 4.5)
