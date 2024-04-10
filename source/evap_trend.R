@@ -88,3 +88,42 @@ evap_trends_lon_lat <- function(x) {
 }
 
 
+evap_trends_lon_lat_boot <- function(x) {
+  no_cores <- detectCores() - 1
+  if (no_cores < 1 | is.na(no_cores))(no_cores <- 1)
+  registerDoParallel(cores = no_cores)
+  if (length(unique(x$lon)) > length(unique(x$lat))) {
+    x <- split(x, by = "lon")
+  } else {
+    x <- split(x, by = "lat")
+  }
+  
+  dummie <- foreach (idx = 1:length(x), .combine = rbind, .packages = c("openair")) %dopar% {
+    dummie_row <- x[[idx]]
+    dummie_row <- dummie_row[, TheilSen(.SD, pollutant = "evap", autocor = TRUE, plot = F, silent = T)$data$main.data[1,c(10,12,16,17)]
+    , 
+    .(lon, lat)]
+  }
+  return(dummie)
+}
+
+
+evap_trends_boot <- function(x) {
+  no_cores <- detectCores() - 1
+  if (no_cores < 1 | is.na(no_cores))(no_cores <- 1)
+  registerDoParallel(cores = no_cores)
+  if (length(unique(x$lon)) > length(unique(x$lat))) {
+    x <- split(x, by = "lon")
+  } else {
+    x <- split(x, by = "lat")
+  }
+  
+  dummie <- foreach (idx = 1:length(x), .combine = rbind, .packages = c("openair")) %dopar% {
+    dummie_row <- x[[idx]]
+    dummie_row <- dummie_row[, TheilSen(.SD, pollutant = "evap", autocor = TRUE, plot = F, silent = T)$data$main.data[1,c(10,12,16,17)]
+                             , 
+                             .(lon, lat, dataset)]
+  }
+  return(dummie)
+}
+
