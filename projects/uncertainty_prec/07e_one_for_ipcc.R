@@ -1,12 +1,12 @@
 # Best data set per ipcc region
 source("source/uncertainty_prec.R")
 
-registerDoParallel(cores = N_CORES - 1)
+registerDoParallel(cores = N_CORES)
+
 ## Data
 prec_data <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "t_metric.rds"))
 
-prec_masks <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
-                             "pRecipe_masks.rds"))
+prec_masks <- pRecipe_masks()
 
 ## Analysis
 ### Prepare mask and merge
@@ -14,8 +14,9 @@ prec_masks <- prec_masks[, .(lon, lat, ipcc_region)]
 prec_masks <- prec_masks[complete.cases(prec_masks)]
 
 lonlat_area <- unique(prec_masks[, .(lon, lat)]) %>% .[, val := 1] %>%
-  rasterFromXYZ(res = c(0.25, 0.25)) %>% area() %>% tabular() %>%
-  .[, .(lon, lat, area = value)]
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>% area() %>%
+  tabular() %>% .[, .(lon, lat, area = value)]
 
 prec_masks <- merge(prec_masks, lonlat_area, by = c("lon", "lat"))
 

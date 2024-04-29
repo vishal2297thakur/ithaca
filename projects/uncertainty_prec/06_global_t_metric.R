@@ -4,8 +4,8 @@ source("source/uncertainty_prec.R")
 ## Data
 prec_data <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_data_roi.rds"))
 
-PREC_REPS <- c("cmap", "cpc", "cru-ts", "em-earth", "era5-land", "fldas",
-               "gpcp", "jra55", "precl")
+PREC_REPS <- c("cmap", "cpc", "cru-ts-v4-07", "gpcp-v3-2", "em-earth",
+               "era5-land", "ncep-doe")
 
 ## Analysis
 prec_median <- prec_data[dataset %in% PREC_REPS]

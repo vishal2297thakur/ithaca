@@ -1,14 +1,8 @@
 # Maps
 source("source/uncertainty_prec.R")
 
-install.packages(setdiff("rnaturalearth", rownames(installed.packages())))
-library(rnaturalearth)
-library(sf)
-library(stars)
-
 ## Data
-prec_masks <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
-                             "pRecipe_masks.rds"))
+prec_masks <- pRecipe_masks()
 
 ### Borders and labels
 earth_box <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
@@ -16,11 +10,7 @@ earth_box <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
   st_as_sf(crs = "+proj=longlat +datum=WGS84 +no_defs")
 
 world_sf <- ne_countries(returnclass = "sf")
-borders_sf <- read_sf("~/shared/data/geodata/world_borders/border_shapefile.shp")
-ipcc_sf <- read_sf("~/shared/data/geodata/ipcc_v4/IPCC-WGI-reference-regions-v4.shp")
 basin_sf <- read_sf("~/shared/data/geodata/major_basins/Major_Basins_of_the_World.shp")
-kg_sf <- read_sf("~/shared/data/geodata/kg_classes/shapefile_kg.shp")
-kg_sf <- kg_sf[kg_sf$layer != "Ocean",]
 
 labs_y <- data.frame(lon = -162, lat = c(55, 25, -5, -35, -65))
 labs_y_labels <- seq(60, -60, -30)
@@ -44,9 +34,9 @@ DATASETS <- c(unique(prec_data$dataset), NA) %>% as.factor()
 levels(DATASETS) <- c(levels(DATASETS), "Others")
 DATASETS[is.na(DATASETS)] <- "Others"
 
-TOP_DATASETS <- c("cmap", "cru-ts", "em-earth", "era5-land", "fldas", "gpcp",
-                  "gpm-imerg", "merra2", "mswep", "persiann", "precl",
-                  "terraclimate") %>%
+TOP_DATASETS <- c("cmap", "cru-ts-v4-07", "em-earth", "era5-land", "fldas",
+                  "gpcp-v3-2", "gpm-imerg-v7", "merra2-land", "mswep-v2-8",
+                  "persiann-cdr", "precl", "terraclimate") %>%
   factor(levels(DATASETS))
 ###
 prec_data <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
@@ -79,27 +69,32 @@ p01 <- ggplot(to_plot_basin) +
   geom_sf(aes(color = name, fill = name)) +
   geom_sf(data = basin_sf, fill = NA, color = "gray23") +
   geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
-  scale_fill_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+  scale_fill_manual(values = c("cmap" = "#e31a1c", "cru-ts-v4-07" = "#b15928",
                                "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
-                               "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
-                               "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
-                               "mswep" = "#cab2d6", "Others" = "gray23",
-                               "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                               "fldas" = "#ffff99", "gpcp-v3-2" = "#fdbf6f",
+                               "gpm-imerg-v7" = "#1f78b4",
+                               "merra2-land" = "#b2df8a",
+                               "mswep-v2-8" = "#cab2d6", "Others" = "gray23",
+                               "persiann-cdr" = "#a6cee3", "precl" = "#fb9a99",
                                "terraclimate" = "#6a3d9a"),
                     drop = FALSE,
-                    labels = c("cmap" = "CMAP", "cru-ts" = "CRU TS v4.06",
+                    labels = c("cmap" = "CMAP", "cru-ts-v4-07" = "CRU TS v4.07",
                                "em-earth" = "EM-Earth", "era5-land" = "ERA5-Land",
-                               "fldas" = "FLDAS", "gpcp" = "GPCP v3.2",
-                               "gpm-imerg" = "GPM-IMERG v7", "merra2" = "MERRA-2",
-                               "mswep" = "MSWEP v2.8", "persiann" = "PERSIANN-CDR",
-                               "precl" = "PREC/L", "terraclimate" = "TerraClimate")) +
-  scale_color_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                               "fldas" = "FLDAS", "gpcp-v3-2" = "GPCP v3.2",
+                               "gpm-imerg-v7" = "GPM-IMERG v7",
+                               "merra2-land" = "MERRA-2 Land",
+                               "mswep-v2-8" = "MSWEP v2.8",
+                               "persiann-cdr" = "PERSIANN-CDR",
+                               "precl" = "PREC/L",
+                               "terraclimate" = "TerraClimate")) +
+  scale_color_manual(values = c("cmap" = "#e31a1c", "cru-ts-v4-07" = "#b15928",
                                 "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
-                                "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
-                                "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
-                                "mswep" = "#cab2d6", "Others" = "gray23",
-                                "persiann" = "#a6cee3", "precl" = "#fb9a99",
-                                "terraclimate" = "#6a3d9a"),
+                                "fldas" = "#ffff99", "gpcp-v3-2" = "#fdbf6f",
+                                "gpm-imerg-v7" = "#1f78b4",
+                                "merra2-land" = "#b2df8a",
+                                "mswep-v2-8" = "#cab2d6", "Others" = "gray23",
+                                "persiann-cdr" = "#a6cee3", "precl" = "#fb9a99",
+                                "terraclimate" = "#6a3d9a"), drop = FALSE,
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Dataset") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -122,8 +117,8 @@ p02 <- ggplot(to_plot_t_metric) +
   geom_sf(aes(color = prec_t, fill = prec_t)) +
   geom_sf(data = basin_sf, fill = NA, color = "gray23") +
   geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
-  scale_fill_viridis_c(limits = c(0, 1), option = "H", direction = -1) +
-  scale_color_viridis_c(limits = c(0, 1), option = "H", guide = "none",
+  scale_fill_viridis_c(limits = c(0.5, 1), option = "H", direction = -1) +
+  scale_color_viridis_c(limits = c(0.5, 1), option = "H", guide = "none",
                         direction = -1) +
   labs(x = NULL, y = NULL, fill = "T-metric") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +

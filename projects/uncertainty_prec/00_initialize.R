@@ -6,7 +6,7 @@ PREC_NAMES_SHORT_2001_2019_FULL_RECORD <-  c("cmap", "cmorph", "cpc", "cru-ts",
                                              "em-earth", "era5", "era5-land",
                                              "fldas", "gpcc", "gpcp",
                                              "gpm-imerg", "gsmap", "jra55",
-                                             "merra2", "mswep", "ncep-doe",
+                                             "merra2-land", "mswep", "ncep-doe",
                                              "ncep-ncar", "persiann", "precl",
                                              "terraclimate")
 

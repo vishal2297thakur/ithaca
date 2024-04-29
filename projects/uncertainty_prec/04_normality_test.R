@@ -1,15 +1,9 @@
 # Test for normality on each grid cell
 source("source/uncertainty_prec.R")
 
-install.packages(setdiff(c("LMoFit", "rnaturalearth"),
-                         rownames(installed.packages())))
+install.packages(setdiff(c("lmom"), rownames(installed.packages())))
 
-library(ggpubr)
-library(LMoFit)
-library(rnaturalearth)
-library(scales)
-library(sf)
-library(stars)
+library(lmom)
 
 ## Data
 prec_data <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_data_roi.rds"))
@@ -20,9 +14,11 @@ prec_data <- prec_data[, date := year(date)
                          .(lon, lat, dataset, date)
                          ][, prec := mean(prec), .(lon, lat, dataset)]
 
-l_moments <- prec_data[, as.list(get_sample_lmom(prec)), .(lon, lat)]
+l_moments <- prec_data[, as.list(samlmu(prec)), .(lon, lat)]
 
-saveRDS(l_moments, paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_data_l_moments.rds"))
+saveRDS(l_moments, paste0(PATH_SAVE_UNCERTAINTY_PREC,
+                          "prec_data_l_moments.rds"))
+
 ## Figure
 ### Borders and labels
 earth_box <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
@@ -45,12 +41,12 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
 ### Map data
-to_plot_st3 <- l_moments[, .(lon, lat, st3)] %>% 
+to_plot_st3 <- l_moments[, .(lon, lat, t_3)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-to_plot_st4 <- l_moments[, .(lon, lat, st4)] %>% 
+to_plot_st4 <- l_moments[, .(lon, lat, t_4)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
@@ -58,7 +54,7 @@ to_plot_st4 <- l_moments[, .(lon, lat, st4)] %>%
 ### Map
 p01 <- ggplot(to_plot_st3) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(fill = st3), color = NA) +
+  geom_sf(aes(fill = t_3), color = NA) +
   geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
   scale_fill_gradientn(colours = c("#2d004b", "#542788" , "#8073ac", "#b2abd2",
                                             "#d8daeb", "#f7f7f7", "#fee0b6",
@@ -83,7 +79,7 @@ p01 <- ggplot(to_plot_st3) +
 
 p02 <- ggplot(to_plot_st4) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(fill = st4), color = NA) +
+  geom_sf(aes(fill = t_4), color = NA) +
   geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
   scale_fill_gradientn(colours = c("#2d004b", "#542788" , "#8073ac", "#b2abd2",
                                             "#d8daeb", "#f7f7f7", "#fee0b6",

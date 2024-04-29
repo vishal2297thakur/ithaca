@@ -2,11 +2,12 @@
 source("source/uncertainty_prec.R")
 
 ## Data
-masks <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
-                        "pRecipe_masks.rds"))
+masks <- pRecipe_masks()
 
 ## Analysis
-areas <- masks[, .(lon, lat, value = 1)] %>% rasterFromXYZ() %>% area() %>%
+areas <- masks[, .(lon, lat, value = 1)] %>% 
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>% area() %>%
   as.data.frame(xy = TRUE, na.rm = TRUE)
 setnames(areas, c("lon", "lat", "cell_area"))
 

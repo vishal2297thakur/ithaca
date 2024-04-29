@@ -4,7 +4,7 @@ source("source/uncertainty_prec.R")
 ## Data
 load(paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_names_2001_2019_full_record.rda"))
 
-registerDoParallel(cores = N_CORES - 1)
+registerDoParallel(cores = N_CORES)
 
 ## Analysis
 n_datasets_2001_2019 <- length(PREC_NAMES_2001_2019_FULL_RECORD)

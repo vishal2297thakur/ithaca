@@ -1,22 +1,22 @@
 #Determine number of data sets on each grid cell (large memory requirements)
 source("source/uncertainty_prec.R")
 
-install.packages(setdiff("rnaturalearth", rownames(installed.packages())))
-library(rnaturalearth)
-library(sf)
-library(stars)
-
 ## Data
 prec_data <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_data.rds"))
 
-lonlat <- copy(prec_data)
-
 ## Analysis
-lonlat <- lonlat[, .(prec = mean(prec, na.rm = TRUE)), .(lon, lat, dataset)]
+lonlat <- prec_data[, .(prec = mean(value, na.rm = TRUE)), .(lon, lat, dataset)]
+
+zero_check <- prec_data[, .(checker = sum(value, na.rm = TRUE)),
+                        .(lon, lat, dataset)]
+
+lonlat <- lonlat[zero_check[checker > 0, .(lon, lat, dataset)],
+                 on = .(lon, lat, dataset)]
 lonlat <- lonlat[, .(n_datasets = .N), .(lon, lat)]
 
 prec_data <- prec_data[lonlat[n_datasets == MIN_N_DATASETS, .(lon, lat)],
                        on = .(lon, lat)]
+setnames(prec_data, "value", "prec")
 
 ## Save data
 saveRDS(prec_data, paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_data_roi.rds"))
@@ -49,8 +49,8 @@ to_plot_sf <- lonlat[n_datasets > 1] %>%
 
 col_vals <- rev(c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99",
                            "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6",
-                           "#6a3d9a", "#ffff99"))
-
+                           "#6a3d9a"))
+                           
 ### Map
 p00 <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
