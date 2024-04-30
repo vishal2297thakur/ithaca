@@ -8,7 +8,7 @@ library(stars)
 library(viridis)
 
 ## Data
-prec_month <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "t_metric_month.rds"))
+prec_month <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "t_metric.rds"))
 
 ## Analysis
 t_max <- prec_month[, .SD[which.max(t_prec)], by = .(lon, lat)]
