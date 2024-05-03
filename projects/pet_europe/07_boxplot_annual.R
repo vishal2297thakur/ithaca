@@ -64,13 +64,8 @@ p1 <- ggplot(data = slope_dt[variable == "PET" & outlier == "FALSE"]) +
                                               EOP ="green1", PT = "brown", PM = "blue1", CO2 = "yellow3"  )
   ) +
   facet_grid2(rows = vars(basin_type),cols = vars(variable), scales = "free", independent = "all", 
-<<<<<<< HEAD
               labeller = labeller(basin_type = c(energy_limited = "Energy-Limited", mixed = "Mixed", water_Limited = "Water-limited")))+ 
   theme_bw()+
-=======
-              labeller = labeller(basin_type = c(energy_limited = "Energy-Limited", mixed = "Mixed", water_limited = "Water-Limited"))) + 
-  theme_bw() +
->>>>>>> 0045d9c4f25f75e6f83322f53bd4dc5c9e8bf95b
   theme(
     axis.text.y = element_text(size = 18, color = "black"),  
     axis.text.x = element_blank(), 
@@ -176,7 +171,7 @@ p4 <- ggplot(data = slope_dt[variable == "TWS" & outlier == "FALSE"]) +
 #Arranging boxplot 
 p7 <- ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2, common.legend = TRUE, legend = "bottom")
 p8 <- annotate_figure(p7, left = text_grob("Slope (mm/year)", color = "black", rot = 90, size = 18))
-
+p8
 #Saving plot  
 ggsave(file = paste0(SAVE_PATH, "boxplot.png"), p8 , width = 13, height = 13, units = "in", dpi = 300)
 

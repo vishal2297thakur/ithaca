@@ -50,7 +50,7 @@ levels(seasonal_slope_dt$variable) <- c(twsc = "TWSC", pet = "PET", aet = "AET",
 
 ##############################################
 # Boxplots for AET and Q for summer season
-#############################################
+##############################################
 p1 <- ggplot(data = seasonal_slope_dt[variable == "AET" & outlier == "FALSE" & season == "MAM"]) +
     geom_boxplot(aes( fill = pet_method, y = sen_slope), na.rm = TRUE, outlier.shape = NA, width = 0.1) +
     labs(y = NULL, x = NULL) +

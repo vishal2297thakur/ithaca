@@ -21,14 +21,9 @@ yearly_dt <- monthly_dt[, .(value = sum(value, na.rm = TRUE)), by = .(basin, pet
 #averaging the TWS by diving 12 
 yearly_dt[variable == "tws", value := value/12]
 
-<<<<<<< HEAD
+
 #slope computation
 slope_dt <- yearly_dt[, .(sen_slope = sens.slope(value, conf.level = 0.95)[[1]]) , by = .(basin, pet_method,variable)]
-=======
-#slope aggrement for entire period
-slope_dt <- yearly_dt[, .(sen_slope = sens.slope(value, conf.level = 0.95)[[1]]), by = .(basin, pet_method, variable)]
->>>>>>> 0045d9c4f25f75e6f83322f53bd4dc5c9e8bf95b
-
 
 slope_dt <- dcast(slope_dt, basin + pet_method ~ variable, value.var = c( "sen_slope"))
 
@@ -55,7 +50,7 @@ slope_dt$pet_method <- factor(slope_dt$pet_method, levels = pet_method_order)
 #changing name of pet methods and hydrological components  
 levels(slope_dt$pet_method) <- c(pet_th = "TH", pet_br = "BR" , pet_bc = "BC", pet_od = "OD", 
                                  pet_mb = "MB", pet_hm = "HM", pet_hs = "HS", pet_jh = "JH", 
-                                 pet_eop =" EOP", pet_pt = "PT", pet_pm = "PM", pet_co2 = "CO2"  )
+                                 pet_eop = "EOP", pet_pt = "PT", pet_pm = "PM", pet_co2 = "CO2"  )
 
 # Plotting upset plot for different hydrological components 
 p1 <- upset(slope_dt,
@@ -72,7 +67,7 @@ p1 <- upset(slope_dt,
                                                EOP = "green1", PT = "brown", PM = "lightblue1", CO2 = "yellow3" ),
                   )+
                   geom_text(aes(label=after_stat(count)), stat = "count", position = position_fill(vjust = .5))+ #!!aes_percentage(relative_to='intersection')
-                  ylab('Cathments')+
+                  ylab('Catchments')+
                   theme(axis.text.y = element_blank(),
                         axis.ticks.y = element_blank(),
                         legend.text = element_text(size = 10), 
