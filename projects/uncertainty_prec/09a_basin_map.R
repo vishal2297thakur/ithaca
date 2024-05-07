@@ -1,0 +1,146 @@
+# Maps
+source("source/uncertainty_prec.R")
+
+## Data
+prec_masks <- pRecipe_masks()
+
+### Borders and labels
+earth_box <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
+                            "earth_box.rds")) %>%
+  st_as_sf(crs = "+proj=longlat +datum=WGS84 +no_defs")
+
+world_sf <- ne_countries(returnclass = "sf")
+basin_sf <- read_sf("~/shared/data/geodata/major_basins/Major_Basins_of_the_World.shp")
+
+labs_y <- data.frame(lon = -162, lat = c(55, 25, -5, -35, -65))
+labs_y_labels <- seq(60, -60, -30)
+labs_y$label <- ifelse(labs_y_labels == 0, "°",
+                       ifelse(labs_y_labels > 0, "°N", "°S"))
+labs_y$label <- paste0(abs(labs_y_labels), labs_y$label)
+labs_y <- st_as_sf(labs_y, coords = c("lon", "lat"),
+                   crs = "+proj=longlat +datum=WGS84 +no_defs")
+
+labs_x <- data.frame(lon = seq(120, -120, -60), lat = -80)
+labs_x$label <- ifelse(labs_x$lon == 0, "°", ifelse(labs_x$lon > 0, "°E", "°W"))
+labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
+labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
+                   crs = "+proj=longlat +datum=WGS84 +no_defs")
+
+###
+prec_data <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+                          "basin_ranking.csv"))
+
+DATASETS <- c(unique(prec_data$dataset), NA) %>% as.factor()
+levels(DATASETS) <- c(levels(DATASETS), "Others")
+DATASETS[is.na(DATASETS)] <- "Others"
+
+TOP_DATASETS <- c("cmap", "cru-ts-v4-07", "em-earth", "era5-land", "fldas",
+                  "gpcp-v3-2", "gpm-imerg-v7", "merra2-land", "mswep-v2-8",
+                  "persiann-cdr", "precl", "terraclimate") %>%
+  factor(levels(DATASETS))
+###
+prec_data <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+                          "basin_ranking.csv"))
+
+prec_data <- prec_data[, .SD[which.max(prec_t)], by = .(basin_name)]
+
+prec_data <- merge(prec_masks[basin_name != "Tana", .(lon, lat, basin_name)],
+                   prec_data, by = "basin_name")
+
+prec_data <- prec_data[!(dataset %in% TOP_DATASETS), dataset := "Others"
+                       ][, .(lon, lat, prec_t,
+                             dataset = factor(dataset, levels(DATASETS)))]
+
+to_plot_basin <- prec_data[, .(lon, lat, name = as.numeric(dataset))] %>%
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+  st_as_stars() %>% st_as_sf()
+
+to_plot_basin$name <- levels(DATASETS)[to_plot_basin$name] %>%
+  factor(levels(DATASETS))
+
+to_plot_t_metric <- prec_data[, .(lon, lat, prec_t)] %>%
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+  st_as_stars() %>% st_as_sf()
+
+p01 <- ggplot(to_plot_basin) +
+  geom_sf(data = world_sf, fill = "gray69", color = "gray69") +
+  geom_sf(aes(color = name, fill = name)) +
+  geom_sf(data = basin_sf, fill = NA, color = "gray23") +
+  geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
+  scale_fill_manual(values = c("cmap" = "#e31a1c", "cru-ts-v4-07" = "#b15928",
+                               "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                               "fldas" = "#ffff99", "gpcp-v3-2" = "#fdbf6f",
+                               "gpm-imerg-v7" = "#1f78b4",
+                               "merra2-land" = "#b2df8a",
+                               "mswep-v2-8" = "#cab2d6", "Others" = "gray23",
+                               "persiann-cdr" = "#a6cee3", "precl" = "#fb9a99",
+                               "terraclimate" = "#6a3d9a"),
+                    drop = FALSE,
+                    labels = c("cmap" = "CMAP", "cru-ts-v4-07" = "CRU TS v4.07",
+                               "em-earth" = "EM-Earth", "era5-land" = "ERA5-Land",
+                               "fldas" = "FLDAS", "gpcp-v3-2" = "GPCP v3.2",
+                               "gpm-imerg-v7" = "GPM-IMERG v7",
+                               "merra2-land" = "MERRA-2 Land",
+                               "mswep-v2-8" = "MSWEP v2.8",
+                               "persiann-cdr" = "PERSIANN-CDR",
+                               "precl" = "PREC/L",
+                               "terraclimate" = "TerraClimate")) +
+  scale_color_manual(values = c("cmap" = "#e31a1c", "cru-ts-v4-07" = "#b15928",
+                                "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                                "fldas" = "#ffff99", "gpcp-v3-2" = "#fdbf6f",
+                                "gpm-imerg-v7" = "#1f78b4",
+                                "merra2-land" = "#b2df8a",
+                                "mswep-v2-8" = "#cab2d6", "Others" = "gray23",
+                                "persiann-cdr" = "#a6cee3", "precl" = "#fb9a99",
+                                "terraclimate" = "#6a3d9a"), drop = FALSE,
+                     guide = "none") +
+  labs(x = NULL, y = NULL, fill = "Dataset") +
+  coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray23", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray23", size = 4) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA),
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray69", linetype = "dashed"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16),
+        legend.position="bottom")
+
+p02 <- ggplot(to_plot_t_metric) +
+  geom_sf(data = world_sf, fill = "gray69", color = "gray69") +
+  geom_sf(aes(color = prec_t, fill = prec_t)) +
+  geom_sf(data = basin_sf, fill = NA, color = "gray23") +
+  geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
+  scale_fill_viridis_c(limits = c(0.5, 1), option = "H", direction = -1) +
+  scale_color_viridis_c(limits = c(0.5, 1), option = "H", guide = "none",
+                        direction = -1) +
+  labs(x = NULL, y = NULL, fill = "T-metric") +
+  coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray23", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray23", size = 4) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA),
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray69", linetype = "dashed"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16),
+        legend.position = "bottom",
+        legend.key.width = unit(dev.size()[2]/5, "inches"),
+        legend.key.height = unit(dev.size()[2]/10, "inches"))
+
+###
+p00 <- ggarrange(p01, p02, ncol = 2, nrow = 1, labels = c("(a)", "(b)"))
+
+ggsave(plot = p00,
+       paste0(PATH_SAVE_UNCERTAINTY_PREC_FIGURES, "basin_first_rank.png"),
+       width = 5*GOLDEN_RATIO*2, height = 5)

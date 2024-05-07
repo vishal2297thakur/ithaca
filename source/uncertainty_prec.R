@@ -5,6 +5,10 @@ library(data.table)
 # plotting
 library(ggplot2)
 library(ggpubr)
+library(rnaturalearth)
+library(scales)
+library(sf)
+library(stars)
 
 # geospatial
 library(pRecipe)
@@ -72,7 +76,7 @@ PREC_NAME <- "prec"
 PREC_NAME_SHORT <- "tp"
 
 ## Parallelization
-N_CORES <- detectCores()
+N_CORES <- 32
 
 ## Other
 M2_TO_KM2 <- 10 ^ (-6)
