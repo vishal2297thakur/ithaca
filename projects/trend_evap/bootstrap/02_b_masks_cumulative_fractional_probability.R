@@ -7,6 +7,7 @@ source('source/graphics.R')
 ### Input Data generated in projects/trend_evap/bootstrap/01_d
 evap_trend_indices <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "global_grid_slope_indices_opp_allowed_bootstrap.rds"))
 ### Input Data generated in projects/partition_evap/04
+PATH_SAVE_PARTITION_EVAP <- paste0(PATH_SAVE, "partition_evap/")
 evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
 
 ## Analysis all grids----

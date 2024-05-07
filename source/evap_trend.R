@@ -1,5 +1,5 @@
 source("source/main.R")
-source("source/partition_evap.R")
+#source("source/partition_evap.R")
 
 #Input ---- ####
 
@@ -11,8 +11,8 @@ PATH_SAVE_EVAP_TREND_RAW <- paste0(PATH_SAVE, "evap_trend/raw/")
 PATH_SAVE_EVAP_TREND_SPATIAL <- paste0(PATH_SAVE, "evap_trend/spatial/")
 PATH_SAVE_EVAP_TREND_FIGURES <- paste0(PATH_SAVE, "evap_trend/figures/")
 PATH_SAVE_EVAP_TREND_TABLES <- paste0(PATH_SAVE, "evap_trend/tables/")
-PATH_SAVE_EVAP_TREND_FIGURES_SUPP <- paste0(PATH_SAVE, "evap_trend/figures/SUPPLEMENT")
-PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE <- paste0(PATH_SAVE, "evap_trend/figures/Exploration")
+PATH_SAVE_EVAP_TREND_FIGURES_SUPP <- paste0(PATH_SAVE, "evap_trend/figures/SUPPLEMENT/")
+PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE <- paste0(PATH_SAVE, "evap_trend/figures/Exploration/")
 
 # Colors---- ####
 ## Color for datasets ####

@@ -42,7 +42,7 @@ evap_stats[, evap_quant_dataset_agreement := ordered(quantcut(std_quant_range, c
 
 
 evap_masks <- merge(masks_global, evap_stats[, .(lon, lat, evap_quant, rel_dataset_agreement, #Merges only complete cases
-                               std_quant_range, evap_quant_dataset_agreement)], by = c("lon", "lat"))
+                               std_quant_range, ens_mean_q25, ens_mean_q75, evap_quant_dataset_agreement)], by = c("lon", "lat"))
 
 
 

@@ -4,9 +4,9 @@ source('source/evap_trend.R')
 library("openair")
 
 ## Data  ----
+PATH_SAVE_PARTITION_EVAP <- paste0(PATH_SAVE, "partition_evap/")
 evap_annual <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_global_annual_mean.rds"))
 evap_annual <- evap_annual[!(dataset == "etmonitor" & year == 2000), ]
-evap_annual_test <- evap_annual[!(year < 2003), ]
 
 evap_annual[, evap_anomaly := evap_mean - mean(evap_mean), .(dataset)]
 evap_annual[ year < 2010, time_period := "2000-2009", ]

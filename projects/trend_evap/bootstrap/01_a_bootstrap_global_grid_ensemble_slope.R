@@ -6,6 +6,7 @@ library(openair)
 
 ## Data ----
 ### Input Data generated in projects/partition_evap/01_b
+PATH_SAVE_PARTITION_EVAP <- paste0(PATH_SAVE, "partition_evap/")
 evap_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_datasets.rds"))
 
 ## Analysis ----

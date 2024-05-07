@@ -12,6 +12,7 @@ PATH_SAVE_EVAP_TREND_TABLES <- paste0(PATH_SAVE, "evap_trend/tables/")
 PATH_SAVE_EVAP_TREND_FIGURES_SUPP <- paste0(PATH_SAVE, "evap_trend/figures/SUPPLEMENT/")
 PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE <- paste0(PATH_SAVE, "evap_trend/figures/Exploration/")
 
+
 dir.create(PATH_SAVE_EVAP_TREND, showWarnings = FALSE)
 dir.create(PATH_SAVE_EVAP_TREND_RAW, showWarnings = FALSE)
 dir.create(PATH_SAVE_EVAP_TREND_SPATIAL, showWarnings = FALSE)

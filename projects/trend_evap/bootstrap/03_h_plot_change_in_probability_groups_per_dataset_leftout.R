@@ -10,7 +10,7 @@ biome_uncertainty <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "biome_probability_gro
 elev_uncertainty <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "elev_probability_groups_dataset_leftout_N14_bootstrap.rds"))
 ipcc_uncertainty <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "ipcc_probability_groups_dataset_leftout_N14_bootstrap.rds"))
 KG_3_uncertainty <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "KG_3_probability_groups_dataset_leftout_N14_bootstrap.rds"))
-global <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "global_stats_probability_group_contribution_dataset_leftout.rds"))
+global <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "global_stats_probability_group_contribution_dataset_leftout_bootstrap.rds"))
 
 global[, rank_data := rank(diff_area_fraction), .(trend)]
 global[trend == "uncertain" & diff_area_fraction > 0.02, dataset := "opposing"]
