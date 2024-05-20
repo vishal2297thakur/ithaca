@@ -23,49 +23,41 @@ kg_sf <- read_sf("~/shared/data/geodata/kg_classes/shapefile_kg.shp")
 kg_sf <- kg_sf[kg_sf$layer != "Ocean",]
   
 labs_y <- data.frame(lon = -162, lat = c(55, 25, -5, -35, -65))
-
 labs_y_labels <- seq(60, -60, -30)
-
 labs_y$label <- ifelse(labs_y_labels == 0, "°",
                        ifelse(labs_y_labels > 0, "°N", "°S"))
-
 labs_y$label <- paste0(abs(labs_y_labels), labs_y$label)
-
 labs_y <- st_as_sf(labs_y, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
 labs_x <- data.frame(lon = seq(120, -120, -60), lat = -80)
-
 labs_x$label <- ifelse(labs_x$lon == 0, "°", ifelse(labs_x$lon > 0, "°E", "°W"))
-
 labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
-
 labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
 ### Countries
-prec_month <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
-                           "country_month.csv"))
+prec_data <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+                           "country_ranking.csv"))
 
-DATASETS <- c(unique(prec_month$dataset), NA) %>% as.factor()
+DATASETS <- c(unique(prec_data$dataset), NA) %>% as.factor()
 levels(DATASETS) <- c(levels(DATASETS), "Others")
 DATASETS[is.na(DATASETS)] <- "Others"
 
-TOP_DATASETS <- c("gpm-imerg", "mswep", "merra2", "gsmap", "em-earth", "gpcp",
-                  "era5-land", "precl", "persiann", "terraclimate", "gpcc", "cpc") %>%
+TOP_DATASETS <- c("cmap", "cru-ts", "em-earth", "era5-land", "fldas", "gpcp",
+                  "gpm-imerg", "merra2", "mswep", "persiann", "precl",
+                  "terraclimate") %>%
   factor(levels(DATASETS))
 
-prec_month <- prec_month[, .SD[which.max(prec_t)], by = .(country)
+prec_data <- prec_data[, .SD[which.max(prec_t)], by = .(country)
                          ][country != ""]
-
-prec_month <- merge(prec_masks[, .(lon, lat, country)], prec_month,
+prec_data <- merge(prec_masks[, .(lon, lat, country)], prec_data,
                     by = "country")
-
-prec_month <- prec_month[!(dataset %in% TOP_DATASETS), dataset := "Others"
+prec_data <- prec_data[!(dataset %in% TOP_DATASETS), dataset := "Others"
                          ][, .(lon, lat, dataset = factor(dataset,
                                                           levels(DATASETS)))]
 
-to_plot_country <- prec_month[, .(lon, lat, name = as.numeric(dataset))] %>%
+to_plot_country <- prec_data[, .(lon, lat, name = as.numeric(dataset))] %>%
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
@@ -78,24 +70,27 @@ p01 <- ggplot(to_plot_country) +
   geom_sf(aes(color = name, fill = name)) +
   geom_sf(data = world_sf, fill = NA, color = "gray23") +
   geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
-  scale_fill_manual(values = c("gpm-imerg" = "#1f78b4", "mswep" = "#cab2d6",
-                               "merra2" = "#b2df8a", "gsmap" = "#a6cee3",
-                               "em-earth" = "#ff7f00", "gpcp" = "#fdbf6f",
-                               "era5-land" = "#33a02c", "precl" = "#fb9a99",
-                               "persiann" = "#e31a1c", "Others" = "gray23",
-                               "terraclimate" = "#6a3d9a", "gpcc" = "#ffff99", "cpc" = "#b15928"),
-                    labels = c("gpm-imerg" = "GPM-IMERG v7", "precl"= "PREC/L", "cpc" = "CPC-Global",
-                               "mswep" = "MSWEP v2.8", "merra2" = "MERRA-2",
-                               "gsmap" = "GSMaP v8", "em-earth" = "EM-Earth",
-                               "gpcp" = "GPCP v3.2", "era5-land" = "ERA5-Land",
-                               "persiann" = "PERSIANN-CDR", "gpcc" = "GPCC v2020",
-                               "terraclimate" = "TerraClimate")) +
-  scale_color_manual(values = c("gpm-imerg" = "#1f78b4", "mswep" = "#cab2d6",
-                                "merra2" = "#b2df8a", "gsmap" = "#a6cee3",
-                                "em-earth" = "#ff7f00", "gpcp" = "#fdbf6f",
-                                "era5-land" = "#33a02c", "precl" = "#fb9a99",
-                                "persiann" = "#e31a1c", "Others" = "gray23",
-                                "terraclimate" = "#6a3d9a", "gpcc" = "#ffff99", "cpc" = "#b15928"),
+  scale_fill_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                               "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                               "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
+                               "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
+                               "mswep" = "#cab2d6", "Others" = "gray23",
+                               "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                               "terraclimate" = "#6a3d9a"),
+                    drop = FALSE,
+                    labels = c("cmap" = "CMAP", "cru-ts" = "CRU TS v4.06",
+                               "em-earth" = "EM-Earth", "era5-land" = "ERA5-Land",
+                               "fldas" = "FLDAS", "gpcp" = "GPCP v3.2",
+                               "gpm-imerg" = "GPM-IMERG v7", "merra2" = "MERRA-2",
+                               "mswep" = "MSWEP v2.8", "persiann" = "PERSIANN-CDR",
+                               "precl" = "PREC/L", "terraclimate" = "TerraClimate")) +
+  scale_color_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                                "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                                "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
+                                "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
+                                "mswep" = "#cab2d6", "Others" = "gray23",
+                                "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                                "terraclimate" = "#6a3d9a"),
                      guide = "none") +
   geom_sf(data = world_sf, fill = NA, color = "gray23") +
   labs(x = NULL, y = NULL, fill = "Dataset") +
@@ -114,12 +109,12 @@ p01 <- ggplot(to_plot_country) +
         legend.title = element_text(size = 16))
 
 ###
-prec_month <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
-                           "ipcc_month.csv"))
+prec_data <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+                           "ipcc_ranking.csv"))
 
-prec_month <- prec_month[, .SD[which.max(prec_t)], by = .(ipcc_region)]
+prec_data <- prec_data[, .SD[which.max(prec_t)], by = .(ipcc_region)]
 
-prec_month <- merge(prec_masks[ipcc_short_region != "NAO" &
+prec_data <- merge(prec_masks[ipcc_short_region != "NAO" &
                                  ipcc_short_region != "EAO" &
                                  ipcc_short_region != "SOO" &
                                  ipcc_short_region != "SIO" &
@@ -129,14 +124,14 @@ prec_month <- merge(prec_masks[ipcc_short_region != "NAO" &
                                  ipcc_short_region != "NPO" &
                                  ipcc_short_region != "EPO" &
                                  ipcc_short_region != "SPO",
-                               .(lon, lat, ipcc_region)], prec_month,
+                               .(lon, lat, ipcc_region)], prec_data,
                     by = "ipcc_region")
 
-prec_month <- prec_month[!(dataset %in% TOP_DATASETS), dataset := "Others"
+prec_data <- prec_data[!(dataset %in% TOP_DATASETS), dataset := "Others"
                          ][, .(lon, lat, dataset = factor(dataset,
                                  levels(DATASETS)))]
 
-to_plot_ipcc <- prec_month[, .(lon, lat, name = as.numeric(dataset))] %>%
+to_plot_ipcc <- prec_data[, .(lon, lat, name = as.numeric(dataset))] %>%
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
@@ -152,24 +147,27 @@ p02 <- ggplot(to_plot_ipcc) +
   geom_sf_text(data = ipcc_sf, aes(label = Acronym), size = 2,
                fontface = "bold") +
   geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
-  scale_fill_manual(values = c("gpm-imerg" = "#1f78b4", "mswep" = "#cab2d6",
-                               "merra2" = "#b2df8a", "gsmap" = "#a6cee3",
-                               "em-earth" = "#ff7f00", "gpcp" = "#fdbf6f",
-                               "era5-land" = "#33a02c", "precl" = "#fb9a99",
-                               "persiann" = "#e31a1c", "Others" = "gray23",
-                               "terraclimate" = "#6a3d9a", "gpcc" = "#ffff99", "cpc" = "#b15928"),
-                    labels = c("gpm-imerg" = "GPM-IMERG v7", "precl"= "PREC/L", "cpc" = "CPC-Global",
-                               "mswep" = "MSWEP v2.8", "merra2" = "MERRA-2",
-                               "gsmap" = "GSMaP v8", "em-earth" = "EM-Earth",
-                               "gpcp" = "GPCP v3.2", "era5-land" = "ERA5-Land",
-                               "persiann" = "PERSIANN-CDR", "gpcc" = "GPCC v2020",
-                               "terraclimate" = "TerraClimate")) +
-  scale_color_manual(values = c("gpm-imerg" = "#1f78b4", "mswep" = "#cab2d6",
-                                "merra2" = "#b2df8a", "gsmap" = "#a6cee3",
-                                "em-earth" = "#ff7f00", "gpcp" = "#fdbf6f",
-                                "era5-land" = "#33a02c", "precl" = "#fb9a99",
-                                "persiann" = "#e31a1c", "Others" = "gray23",
-                                "terraclimate" = "#6a3d9a", "gpcc" = "#ffff99", "cpc" = "#b15928"),
+  scale_fill_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                               "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                               "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
+                               "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
+                               "mswep" = "#cab2d6", "Others" = "gray23",
+                               "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                               "terraclimate" = "#6a3d9a"),
+                    drop = FALSE,
+                    labels = c("cmap" = "CMAP", "cru-ts" = "CRU TS v4.06",
+                               "em-earth" = "EM-Earth", "era5-land" = "ERA5-Land",
+                               "fldas" = "FLDAS", "gpcp" = "GPCP v3.2",
+                               "gpm-imerg" = "GPM-IMERG v7", "merra2" = "MERRA-2",
+                               "mswep" = "MSWEP v2.8", "persiann" = "PERSIANN-CDR",
+                               "precl" = "PREC/L", "terraclimate" = "TerraClimate")) +
+  scale_color_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                                "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                                "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
+                                "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
+                                "mswep" = "#cab2d6", "Others" = "gray23",
+                                "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                                "terraclimate" = "#6a3d9a"),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Dataset") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -187,19 +185,19 @@ p02 <- ggplot(to_plot_ipcc) +
         legend.title = element_text(size = 16))
 
 ###
-prec_month <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
-                           "basin_month.csv"))
+prec_data <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+                           "basin_ranking.csv"))
 
-prec_month <- prec_month[, .SD[which.max(prec_t)], by = .(basin_name)]
+prec_data <- prec_data[, .SD[which.max(prec_t)], by = .(basin_name)]
 
-prec_month <- merge(prec_masks[, .(lon, lat, basin_name)], prec_month,
-                    by = "basin_name")
+prec_data <- merge(prec_masks[basin_name != "Tana", .(lon, lat, basin_name)],
+                   prec_data, by = "basin_name")
 
-prec_month <- prec_month[!(dataset %in% TOP_DATASETS), dataset := "Others"
+prec_data <- prec_data[!(dataset %in% TOP_DATASETS), dataset := "Others"
                          ][, .(lon, lat, dataset = factor(dataset,
                                                           levels(DATASETS)))]
 
-to_plot_basin <- prec_month[, .(lon, lat, name = as.numeric(dataset))] %>%
+to_plot_basin <- prec_data[, .(lon, lat, name = as.numeric(dataset))] %>%
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
@@ -212,24 +210,27 @@ p03 <- ggplot(to_plot_basin) +
   geom_sf(aes(color = name, fill = name)) +
   geom_sf(data = basin_sf, fill = NA, color = "gray23") +
   geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
-  scale_fill_manual(values = c("gpm-imerg" = "#1f78b4", "mswep" = "#cab2d6",
-                               "merra2" = "#b2df8a", "gsmap" = "#a6cee3",
-                               "em-earth" = "#ff7f00", "gpcp" = "#fdbf6f",
-                               "era5-land" = "#33a02c", "precl" = "#fb9a99",
-                               "persiann" = "#e31a1c", "Others" = "gray23",
-                               "terraclimate" = "#6a3d9a", "gpcc" = "#ffff99", "cpc" = "#b15928"),
-                    labels = c("gpm-imerg" = "GPM-IMERG v7", "precl"= "PREC/L", "cpc" = "CPC-Global",
-                               "mswep" = "MSWEP v2.8", "merra2" = "MERRA-2",
-                               "gsmap" = "GSMaP v8", "em-earth" = "EM-Earth",
-                               "gpcp" = "GPCP v3.2", "era5-land" = "ERA5-Land",
-                               "persiann" = "PERSIANN-CDR", "gpcc" = "GPCC v2020",
-                               "terraclimate" = "TerraClimate")) +
-  scale_color_manual(values = c("gpm-imerg" = "#1f78b4", "mswep" = "#cab2d6",
-                                "merra2" = "#b2df8a", "gsmap" = "#a6cee3",
-                                "em-earth" = "#ff7f00", "gpcp" = "#fdbf6f",
-                                "era5-land" = "#33a02c", "precl" = "#fb9a99",
-                                "persiann" = "#e31a1c", "Others" = "gray23",
-                                "terraclimate" = "#6a3d9a", "gpcc" = "#ffff99", "cpc" = "#b15928"),
+  scale_fill_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                               "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                               "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
+                               "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
+                               "mswep" = "#cab2d6", "Others" = "gray23",
+                               "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                               "terraclimate" = "#6a3d9a"),
+                    drop = FALSE,
+                    labels = c("cmap" = "CMAP", "cru-ts" = "CRU TS v4.06",
+                               "em-earth" = "EM-Earth", "era5-land" = "ERA5-Land",
+                               "fldas" = "FLDAS", "gpcp" = "GPCP v3.2",
+                               "gpm-imerg" = "GPM-IMERG v7", "merra2" = "MERRA-2",
+                               "mswep" = "MSWEP v2.8", "persiann" = "PERSIANN-CDR",
+                               "precl" = "PREC/L", "terraclimate" = "TerraClimate")) +
+  scale_color_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                                "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                                "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
+                                "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
+                                "mswep" = "#cab2d6", "Others" = "gray23",
+                                "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                                "terraclimate" = "#6a3d9a"),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Dataset") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -247,21 +248,21 @@ p03 <- ggplot(to_plot_basin) +
         legend.title = element_text(size = 16))
 
 ###
-prec_month <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
-                           "kg_class_month.csv"))
+prec_data <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+                           "kg_ranking.csv"))
 
-prec_month <- prec_month[KG_class != "Ocean" & KG_class != "EF",
+prec_data <- prec_data[KG_class != "Ocean" & KG_class != "EF",
                          .SD[which.max(prec_t)], by = .(KG_class)]
 
-prec_month <- merge(prec_masks[country_short != "ATA" & lat >= -60,
-                               .(lon, lat, KG_class)], prec_month,
+prec_data <- merge(prec_masks[country_short != "ATA" & lat >= -60,
+                               .(lon, lat, KG_class)], prec_data,
                     by = "KG_class")
 
-prec_month <- prec_month[!(dataset %in% TOP_DATASETS), dataset := "Others"
+prec_data <- prec_data[!(dataset %in% TOP_DATASETS), dataset := "Others"
                          ][, .(lon, lat, dataset = factor(dataset,
                                                           levels(DATASETS)))]
 
-to_plot_kg <- prec_month[, .(lon, lat, name = as.numeric(dataset))] %>%
+to_plot_kg <- prec_data[, .(lon, lat, name = as.numeric(dataset))] %>%
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
@@ -274,24 +275,27 @@ p04 <- ggplot(to_plot_kg) +
   geom_sf(aes(color = name, fill = name)) +
   geom_sf(data = kg_sf, fill = NA, color = "gray23") +
   geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
-  scale_fill_manual(values = c("gpm-imerg" = "#1f78b4", "mswep" = "#cab2d6",
-                               "merra2" = "#b2df8a", "gsmap" = "#a6cee3",
-                               "em-earth" = "#ff7f00", "gpcp" = "#fdbf6f",
-                               "era5-land" = "#33a02c", "precl" = "#fb9a99",
-                               "persiann" = "#e31a1c", "Others" = "gray23",
-                               "terraclimate" = "#6a3d9a", "gpcc" = "#ffff99", "cpc" = "#b15928"),
-                    labels = c("gpm-imerg" = "GPM-IMERG v7", "precl"= "PREC/L", "cpc" = "CPC-Global",
-                               "mswep" = "MSWEP v2.8", "merra2" = "MERRA-2",
-                               "gsmap" = "GSMaP v8", "em-earth" = "EM-Earth",
-                               "gpcp" = "GPCP v3.2", "era5-land" = "ERA5-Land",
-                               "persiann" = "PERSIANN-CDR", "gpcc" = "GPCC v2020", "gpcc" = "GPCC v2020",
-                               "terraclimate" = "TerraClimate")) +
-  scale_color_manual(values = c("gpm-imerg" = "#1f78b4", "mswep" = "#cab2d6",
-                                "merra2" = "#b2df8a", "gsmap" = "#a6cee3",
-                                "em-earth" = "#ff7f00", "gpcp" = "#fdbf6f",
-                                "era5-land" = "#33a02c", "precl" = "#fb9a99",
-                                "persiann" = "#e31a1c", "Others" = "gray23",
-                                "terraclimate" = "#6a3d9a", "gpcc" = "#ffff99", "cpc" = "#b15928"),
+  scale_fill_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                               "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                               "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
+                               "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
+                               "mswep" = "#cab2d6", "Others" = "gray23",
+                               "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                               "terraclimate" = "#6a3d9a"),
+                    drop = FALSE,
+                    labels = c("cmap" = "CMAP", "cru-ts" = "CRU TS v4.06",
+                               "em-earth" = "EM-Earth", "era5-land" = "ERA5-Land",
+                               "fldas" = "FLDAS", "gpcp" = "GPCP v3.2",
+                               "gpm-imerg" = "GPM-IMERG v7", "merra2" = "MERRA-2",
+                               "mswep" = "MSWEP v2.8", "persiann" = "PERSIANN-CDR",
+                               "precl" = "PREC/L", "terraclimate" = "TerraClimate")) +
+  scale_color_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                                "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                                "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
+                                "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
+                                "mswep" = "#cab2d6", "Others" = "gray23",
+                                "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                                "terraclimate" = "#6a3d9a"),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Dataset") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -314,4 +318,5 @@ p00 <- ggarrange(p01, p02, p03, p04, ncol = 2, nrow = 2, common.legend = TRUE,
 
 ggsave(plot = p00,
        paste0(PATH_SAVE_UNCERTAINTY_PREC_FIGURES,
-              "best_maps.png"), width = 4.5*GOLDEN_RATIO*2, height = 4.5*2)
+              "maps_first_rank.png"), width = 4.5*GOLDEN_RATIO*2,
+       height = 4.5*2)
