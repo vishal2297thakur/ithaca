@@ -31,57 +31,31 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
 ## Global map of ensemble trend  ----
 ### Data ----
 ### Input Data generated in projects/trend_evap/bootstrap/01_a
-evap_trend_grid_ensemble <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "evap_trend_ensemble_grid_bootstrap.rds"))  
-
-evap_trend_grid_ensemble[, slope_brk:= cut(slope, breaks = c(min(slope), -5, -3, -0.1, 0.1, 3, 5, max(slope)))]
-evap_trend_grid_ensemble[, slope_percent_brk:= cut(slope_percent, breaks = c(-5, -2, -1, -0.1, 0.1, 1, 2, 10))]
-
-cols_grid_ensemble <- c("darkblue", 
-                                  "steelblue3",
-                                  "steelblue1", 
-                                  "gray80",
-                                  "gold",
-                                  "darkorange",
-                                  "darkred"
-)
-
-### Map ----
-to_plot_sf <- evap_trend_grid_ensemble[, .(lon, lat, slope_percent_brk)
-][, value := as.numeric(slope_percent_brk)]
-to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
-  rasterFromXYZ(res = c(0.25, 0.25),
-                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
-  st_as_stars() %>% st_as_sf()
-
-fig_ensemble_trend <- ggplot(to_plot_sf) +
-  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(color = as.factor(value), fill = as.factor(value))) +
-  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
-  scale_fill_manual(values = cols_grid_ensemble, labels = levels(evap_trend_grid_ensemble$slope_percent_brk)) +
-  scale_color_manual(values = cols_grid_ensemble,
-                     guide = "none") +
-  labs(x = NULL, y = NULL, fill = "ET slope\n[%/year]") +
-  coord_sf(expand = FALSE, crs = "+proj=robin") +
-  scale_y_continuous(breaks = seq(-60, 60, 30)) +
-  geom_sf_text(data = labs_y, aes(label = label), color = "gray20", size = 3) +
-  geom_sf_text(data = labs_x, aes(label = label), color = "gray20", size = 3) +
-  theme_bw() +
-  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
-        panel.border = element_blank(),
-        axis.ticks.length = unit(0, "cm"),
-        panel.grid.major = element_line(colour = "gray60"),
-        axis.text = element_blank(), 
-        axis.title = element_text(size = 16), 
-        legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 16))
-
-ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE, "map_evap_ensemble_trend.png"), 
-       width = 12, height = 8)
-
-## Table of range of trends ----
-
+### Input Data generated in projects/trend_evap/bootstrap/01_b
 evap_annual_trend <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "evap_annual_trend_bootstrap.rds"))  
+evap_annual_trend[p > 0.1 , trend_direction_v2 := "p > 0.1"]
+evap_annual_trend[slope > 0 & p <= 0.1 , trend_direction_v2 := "positive p <= 0.1"]
+evap_annual_trend[slope > 0 & p < 0.05 , trend_direction_v2 := "positive p < 0.05"]
+evap_annual_trend[slope > 0 & p < 0.01 , trend_direction_v2 := "positive p < 0.01"]
+evap_annual_trend[slope < 0 & p <= 0.1 , trend_direction_v2 := "negative p <= 0.1"]
+evap_annual_trend[slope < 0 & p < 0.05 , trend_direction_v2 := "negative p < 0.05"]
+evap_annual_trend[slope < 0 & p < 0.01 , trend_direction_v2 := "negative p < 0.01"]
+## Table of range of trends ----
 evap_annual_trend[, .(dataset, slope)][order(-slope),]
+
+fig_trend <- ggplot(evap_annual_trend)+
+  geom_segment(aes(x = dataset, y = lower, yend = upper))+
+  geom_point(aes(x = dataset, y = slope, col = as.factor(trend_direction_v2)), size = 4)+
+  geom_abline(intercept = 0, slope = 0, col = "black")+
+  scale_color_manual(values = c("p > 0.1" = "gray", 
+                               "negative p <= 0.1" = "royalblue1", 
+                               "positive p < 0.01" = "darkred",
+                               "positive p < 0.05" = "firebrick3",
+                               "positive p <= 0.1" = "lightcoral"))+
+  labs(y = "ET trend [mm/year/year]", color = "Trend significance", x = "Dataset")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
+
 
 ## folds of Q25 Q75 ----
 
@@ -131,7 +105,8 @@ fig_Q75Q25_fold <- ggplot(to_plot_sf) +
         axis.text = element_blank(), 
         axis.title = element_text(size = 16), 
         legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 16))
+        legend.title = element_text(size = 16),
+        legend.position = "bottom")
 
 ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE, "map_evap_folds_Q75_Q25.png"), 
        width = 15, height = 10)
@@ -172,17 +147,21 @@ fig_sign_agreement <- ggplot(to_plot_sf) +
         axis.text = element_blank(), 
         axis.title = element_text(size = 16), 
         legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 16))
+        legend.title = element_text(size = 16),
+        legend.position = "bottom")
 
 ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE, "map_sign_agreement_Q75_Q25.png"), 
        width = 12, height = 8)
 
+## ggarrange ----
 
-ggarrange(fig_ensemble_trend, NULL ,fig_Q75Q25_fold, fig_sign_agreement, align = "hv", 
-          ncol = 2, nrow = 2, labels = c("a", "b", "c", "d"))
+ggmaps <- ggarrange(fig_Q75Q25_fold, fig_sign_agreement, align = "hv", 
+                    ncol = 2, nrow = 1, labels = c("b", "c"))
+ggarrange(fig_trend, ggmaps, align = "hv", 
+          ncol = 1, nrow = 2, labels = c("a", ""), heights = c(0.8, 1.6), widths = c(0.9, 1.3))
 
 ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_MAIN, "fig1_maps_evap_trend_overview.png"), 
-       width = 12, height = 8)
+       width = 14, height = 12)
 
 ## Stats for text ----
 
