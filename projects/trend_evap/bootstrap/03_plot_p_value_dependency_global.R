@@ -31,7 +31,7 @@ evap_trend_range <- merge(evap_trend_range, dummy, all = T)
 dummy <- evap_annual_trend[p <= 0.2 , .(trend_min = min(slope), trend_max = max(slope), p_val = "p < 0.2")]
 
 evap_trend_range <- merge(evap_trend_range, dummy, all = T)
-dummy <- evap_annual_trend[, .(trend_min = min(slope), trend_max = max(slope), p_val = "p >= 0.2")]
+dummy <- evap_annual_trend[, .(trend_min = min(slope), trend_max = max(slope), p_val = "all")]
 
 evap_trend_range <- merge(evap_trend_range, dummy, all = T)
 
@@ -50,10 +50,10 @@ ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES, "magnitude_slope_p_val_threshold_boo
 
 data_sel <- subset(evap_index, select = c("DCI_0_01","DCI_0_05","DCI_0_1", "DCI_0_2", "DCI_all", "lon", "lat"))
 setnames(data_sel, old = c("DCI_0_01","DCI_0_05","DCI_0_1", "DCI_0_2", "DCI_all"), 
-         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p >= 0.2"))
+         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
 
 data_sel_melt <- melt(data_sel, 
-                      measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p >= 0.2"), 
+                      measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"), 
                       id.vars = c("lon", "lat"))
 ##### Figure 2.1 gg ----
 
@@ -67,7 +67,7 @@ ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES, "boxplot_DCI_p_val_threshold_bootstr
 ### Figure 2.2 DCI area fraction ----
 #### Figure 2.2 prep ----
 
-data_sel_melt[, DCI_brk := cut(value, c(-1.01, -0.75,-0.5,-0.15, 0.15,0.5, 0.75,1))]
+data_sel_melt[, DCI_brk := cut(value, c(-1.01, -0.75,-0.5,-0.07, 0.07,0.5, 0.75,1))]
 grid_cell_area <- unique(data_sel_melt[, .(lon, lat)]) %>% grid_area() # m2
 data_sel_melt <- grid_cell_area[data_sel_melt, on = .(lon, lat)]
 
@@ -107,7 +107,7 @@ ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES, "boxplot_max_DCI_trend_direction_p_v
 
 data_sel_DCI <- subset(evap_index, select = c("pDCI_max","trendDCI_max","DCI_max", "lon", "lat"))
 
-data_sel_DCI[, DCI_brk := cut(DCI_max, c(-1.01, -0.75,-0.5,-0.15, 0.15,0.5, 0.75,1))]
+data_sel_DCI[, DCI_brk := cut(DCI_max, c(-1.01, -0.75,-0.5,-0.07, 0.07,0.5, 0.75,1))]
 grid_cell_area <- unique(data_sel_DCI[, .(lon, lat)]) %>% grid_area() # m2
 data_sel_DCI <- grid_cell_area[data_sel_DCI, on = .(lon, lat)]
 
@@ -137,9 +137,9 @@ data_sel_trend <- subset(evap_index, select = c("trend_0_01","trend_0_05", "tren
 data_sel_trend  <- grid_cell_area[data_sel_trend, on = .(lon, lat)]
 
 setnames(data_sel_trend, old = c("trend_0_01","trend_0_05", "trend_0_1","trend_0_2","trend_all"), 
-         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p >= 0.2"))
+         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
 
-data_sel_trend_melt <- melt(data_sel_trend, measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p >= 0.2"))
+data_sel_trend_melt <- melt(data_sel_trend, measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
 
 data_sel_trend_area <- data_sel_trend_melt[, .(trend_area = sum(area)), .(value, variable)] 
 data_sel_trend_area[, total_area := sum(trend_area), variable]
@@ -151,7 +151,7 @@ ggplot(data_sel_trend_area)+
   geom_bar(aes(x = variable, y = fraction, fill = value), stat = "identity")+
   scale_fill_manual(values = c ("darkblue", "gray90", "yellow","darkred"))+
   theme_bw()+
-  labs(x = "p-value threshold", y = "area fraction [-]", fill = "significant trend direction")
+  labs(x = "p-value threshold", y = "area fraction [-]", fill = "Significant\nTrend Direction")
 ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES, "bar_area_fraction_significant_trend_p_val_threshold_bootstrap.png"), 
        width = 8, height = 8)
 
@@ -176,6 +176,44 @@ p_val_opposing[order(p_val_opposing)]
 
 ### Figure 5 Number of significant trends over p ----
 ### Product selection: Trend or no trend
+
+#### Figure 5 prep ----
+evap_index[, N_sum_0_01:= N_pos_0_01+N_neg_0_01]
+evap_index[, N_sum_0_05:= N_pos_0_05+N_neg_0_05]
+evap_index[, N_sum_0_1:= N_pos_0_1+N_neg_0_1]
+evap_index[, N_sum_0_2:= N_pos_0_2+N_neg_0_2]
+evap_index[, N_sum_all:= N_pos_all+N_neg_all]
+
+evap_sel <- subset(evap_index, select = c("N_sum_0_01", "N_sum_0_05", 
+                                          "N_sum_0_1", "N_sum_0_2", "N_sum_all",
+                                          "lat", "lon", "area"))
+
+setnames(evap_sel , old = c("N_sum_0_01", "N_sum_0_05", 
+                            "N_sum_0_1", "N_sum_0_2", "N_sum_all"), 
+         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
+
+data_melt <- melt(evap_sel, measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
+
+data_melt[, N_sum_brk := cut(round(value), c(-0.1, 0.9, 3, 6, 9, 12, 14))]
+data_melt[N_sum_brk == "(-0.1,0.9]", N_sum_brk := "[0,1)"]
+data_melt[N_sum_brk == "(0.9,3]", N_sum_brk := "[1,3]"]
+
+N_sig_area <- data_melt[,.(N_sig_area = sum(area)), .(N_sum_brk, variable)]
+N_sig_area[, variable_area := sum(N_sig_area), variable]
+N_sig_area[, fraction := N_sig_area/variable_area]
+N_sig_area[, N_sum_brk:= factor(N_sum_brk, levels = c("[0,1)", "[1,3]",
+                                                      "(3,6]", "(6,9]",
+                                                      "(9,12]","(12,14]"))]
+
+ggplot(N_sig_area)+
+  geom_bar(aes(x = variable, y = fraction, fill = N_sum_brk), stat = "identity")+
+  theme_bw()+
+  labs( fill = "N Significant\nSlopes", x = 'p-value threshold', y = "area fraction")+
+  scale_fill_manual(values = c("gray90", "lightblue", "steelblue1","royalblue1", "royalblue3", "darkblue"))
+
+ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES, "bar_area_fraction_N_significant_trend_p_val_threshold_bootstrap.png"), 
+       width = 8, height = 8)
+#### Figure 5 gg ---
 
 ### Figure 6 Difference of significant negative and positive trends over sum of trends over p ----
 ### Product selection: Trend direction
