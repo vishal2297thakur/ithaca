@@ -20,6 +20,8 @@ land_cover <- merge(evap_mask[, .(lat, lon, land_cover_short_class)],
                                     evap_index[, .(lon, lat, DCI_0_01, DCI_0_05, DCI_0_1, DCI_0_2, DCI_all)], 
                                     by = c("lon", "lat"))
 
+land_cover  <- land_cover[land_cover_short_class != "Other"]
+
 setnames(land_cover, old = c("DCI_0_01","DCI_0_05","DCI_0_1", "DCI_0_2", "DCI_all"), 
          new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
 
@@ -61,6 +63,9 @@ land_cover <- merge(evap_mask[, .(lat, lon, land_cover_short_class)],
 
 land_cover  <- grid_cell_area[land_cover, on = .(lon, lat)]
 
+land_cover  <- land_cover[land_cover_short_class != "Other"]
+
+
 setnames(land_cover, old = c("trend_0_01","trend_0_05", "trend_0_1","trend_0_2","trend_all"), 
          new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
 
@@ -96,6 +101,7 @@ land_cover <- merge(evap_mask[, .(lat, lon, land_cover_short_class)],
 
 land_cover  <- grid_cell_area[land_cover, on = .(lon, lat)]
 
+land_cover  <- land_cover[land_cover_short_class != "Other"]
 
 setnames(land_cover , old = c("N_sum_0_01", "N_sum_0_05", 
                             "N_sum_0_1", "N_sum_0_2", "N_sum_all"), 
@@ -137,6 +143,8 @@ ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_MAIN, "fig5_land_use_area_fraction_tr
 evap_signal <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "land_use_ranked_datasets_signal_booster_p_thresholds_bootstrap.rds"))
 evap_opposers <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "land_use_datasets_opposing_p_thresholds_bootstrap.rds"))
 
+evap_signal <- evap_signal[land_cover_short_class != "Other"]
+evap_opposers <- evap_opposers[land_cover_short_class != "Other"]
 #### Ranked data products
 
 no_trenders <- evap_signal[variable %in%

@@ -52,10 +52,14 @@ fig_trend <- ggplot(evap_annual_trend)+
                                "positive p < 0.01" = "darkred",
                                "positive p < 0.05" = "firebrick3",
                                "positive p <= 0.1" = "lightcoral"))+
-  labs(y = "ET trend [mm/year/year]", color = "Trend significance", x = "Dataset")+
+  labs(y = expression(paste("ET trend [mm year"^-2,"]")), color = "Trend significance", x = "Dataset")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
 
+
+Q25_global <- evap_annual_trend[, quantile(slope, 0.25)]
+Q75_global <- evap_annual_trend[, quantile(slope, 0.75)]
+Q75_global/Q25_global
 
 ## folds of Q25 Q75 ----
 
@@ -66,15 +70,13 @@ evap_trend_min_max <- evap_trend[dataset_count >= 12,.(max = max(slope), min = m
 
 evap_trend_min_max[abs(Q25) > Q75, fold := abs(Q25)/abs(Q75)]
 evap_trend_min_max[abs(Q25) <= Q75, fold := abs(Q75)/abs(Q25)]
-evap_trend_min_max[, fold_brk := cut(fold, breaks = c(1, 2, 4, 8, Inf))]
+evap_trend_min_max[, fold_brk := cut(fold, breaks = c(1, 3.4, Inf))]
+evap_trend_min_max[, fold_brk_detailed := cut(fold, breaks = c(1, 2, 4, 8, Inf))]
 
 
 ### Map ----
 
-cols_grid_fold <- c("lightblue", 
-                                  "royalblue3",
-                                  "darkblue", 
-                                  "gold")
+cols_grid_fold <- c("royalblue3","gold")
                                 
 
 
@@ -92,7 +94,7 @@ fig_Q75Q25_fold <- ggplot(to_plot_sf) +
   scale_fill_manual(values = cols_grid_fold, labels = levels(evap_trend_min_max$fold_brk)) +
   scale_color_manual(values = cols_grid_fold,
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Quartile fold [-]") +
+  labs(x = NULL, y = NULL, fill = "Quartile   \nfold [-]") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray20", size = 3) +
@@ -106,7 +108,8 @@ fig_Q75Q25_fold <- ggplot(to_plot_sf) +
         axis.title = element_text(size = 16), 
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16),
-        legend.position = "bottom")
+        legend.position = "bottom")+
+  guides(fill = guide_legend(nrow = 2, byrow = TRUE))
 
 ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE, "map_evap_folds_Q75_Q25.png"), 
        width = 15, height = 10)
@@ -134,7 +137,7 @@ fig_sign_agreement <- ggplot(to_plot_sf) +
   scale_fill_manual(values = cols_grid_agreement, labels = levels(evap_trend_min_max$sign)) +
   scale_color_manual(values = cols_grid_agreement,
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Q25 and Q75\nsigns") +
+  labs(x = NULL, y = NULL, fill = "Q25 and Q75   \nsigns") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray20", size = 3) +
@@ -148,7 +151,9 @@ fig_sign_agreement <- ggplot(to_plot_sf) +
         axis.title = element_text(size = 16), 
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16),
-        legend.position = "bottom")
+        legend.position = "bottom")+
+  guides(fill = guide_legend(nrow = 2, byrow = TRUE))
+
 
 ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE, "map_sign_agreement_Q75_Q25.png"), 
        width = 12, height = 8)
@@ -158,34 +163,34 @@ ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE, "map_sign_agreement_Q75_Q25.
 ggmaps <- ggarrange(fig_Q75Q25_fold, fig_sign_agreement, align = "hv", 
                     ncol = 2, nrow = 1, labels = c("b", "c"))
 ggarrange(fig_trend, ggmaps, align = "hv", 
-          ncol = 1, nrow = 2, labels = c("a", ""), heights = c(0.8, 1.6), widths = c(0.9, 1.3))
+          ncol = 1, nrow = 2, labels = c("a", ""), heights = c(0.6, 1.0), widths = c(0.3, 1))
 
 ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_MAIN, "fig1_maps_evap_trend_overview.png"), 
-       width = 14, height = 12)
+       width = 12, height = 8)
 
 ## Stats for text ----
 
 ### Area of positive and negative trends
 
 #### Ensemble ----
-grid_cell_area <- unique(evap_trend_grid_ensemble[, .(lon, lat)]) %>% grid_area() # m2
-evap_trend_grid_ensemble <- grid_cell_area[evap_trend_grid_ensemble, on = .(lon, lat)]
-
-total_area <- evap_trend_grid_ensemble[, sum(area)]
-pos_trend <- evap_trend_grid_ensemble[slope >= 0, sum(area)]
-neg_trend <- evap_trend_grid_ensemble[slope < 0, sum(area)]
-
-pos_area_fraction <- pos_trend/total_area
-neg_area_fraction <- neg_trend/total_area
-
-pos_trend_1 <- evap_trend_grid_ensemble[slope_percent >= 1, sum(area)]
-neg_trend_1 <- evap_trend_grid_ensemble[slope_percent < -1, sum(area)]
-
-pos_area_fraction_more_than1 <- pos_trend_1/total_area
-neg_area_fraction_more_than1 <- neg_trend_1/total_area
+# grid_cell_area <- unique(evap_trend_grid_ensemble[, .(lon, lat)]) %>% grid_area() # m2
+# evap_trend_grid_ensemble <- grid_cell_area[evap_trend_grid_ensemble, on = .(lon, lat)]
+# 
+# total_area <- evap_trend_grid_ensemble[, sum(area)]
+# pos_trend <- evap_trend_grid_ensemble[slope >= 0, sum(area)]
+# neg_trend <- evap_trend_grid_ensemble[slope < 0, sum(area)]
+# 
+# pos_area_fraction <- pos_trend/total_area
+# neg_area_fraction <- neg_trend/total_area
+# 
+# pos_trend_1 <- evap_trend_grid_ensemble[slope_percent >= 1, sum(area)]
+# neg_trend_1 <- evap_trend_grid_ensemble[slope_percent < -1, sum(area)]
+# 
+# pos_area_fraction_more_than1 <- pos_trend_1/total_area
+# neg_area_fraction_more_than1 <- neg_trend_1/total_area
 
 #### Folds ----
-
+grid_cell_area <- unique(evap_trend_min_max [, .(lon, lat)]) %>% grid_area() # m2
 evap_trend_min_max <- grid_cell_area[evap_trend_min_max, on = .(lon, lat)]
 total_area <- evap_trend_min_max[, sum(area)]
 evap_trend_min_max[, sum(area)/total_area, .(fold_brk)]

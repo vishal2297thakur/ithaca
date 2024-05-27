@@ -178,7 +178,7 @@ fig_map_more_sig_trends <- ggplot(to_plot_sf) +
   scale_fill_manual(values = cols_sig_trends, labels = levels(evap_index$more_sig_trends)) +
   scale_color_manual(values = cols_sig_trends,
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "More Trends\nare Significant") +
+  labs(x = NULL, y = NULL, fill = "Most Trends\nare Significant") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray20", size = 3) +
