@@ -1,4 +1,4 @@
-# Supplementary figure: Plot global map of partition classes: Needs editing
+# Supplementary figure: Masks ----
 source('source/partition_evap.R')
 source('source/geo_functions.R')
 source('source/graphics.R')
@@ -6,18 +6,23 @@ source('source/graphics.R')
 library(rnaturalearth)
 library(dplyr)
 
-# Data
+# Data ----
 evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
 levels(evap_mask$land_cover_short_class) <- c("Barren", "Croplands", "Forests", "Grasslands", "Other", "Savannas", 
                                             "Shrublands", "Snow/Ice", "Water" )
+ipcc_sf <- read_sf("~/shared/data/geodata/ipcc_v4/IPCC-WGI-reference-regions-v4.shp")
+IPCC_list <- evap_mask[, unique(as.character(IPCC_ref_region))]
+IPCC_list <- IPCC_list[!is.na(IPCC_list)]
 
-#World and Land borders
+ipcc_sf_terr <- ipcc_sf[ipcc_sf$Acronym %in% IPCC_list,]
+
+# World and Land borders -----
 earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP_SPATIAL,
                             "earth_box.rds")) %>%
   st_as_sf(crs = "+proj=longlat +datum=WGS84 +no_defs")
 world_sf <- ne_countries(returnclass = "sf")
 
-#Labels
+## Labels ----
 labs_y <- data.frame(lon = -170, lat = c(55, 25, -5, -35, -65))
 labs_y_labels <- seq(60, -60, -30)
 labs_y$label <- ifelse(labs_y_labels == 0, "°", ifelse(labs_y_labels > 0, "°N", "°S"))
@@ -31,8 +36,8 @@ labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
 labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
-# Figures
-#land use
+# Figures ----
+## land use ----
 to_plot_sf <- evap_mask[, .(lon, lat, land_cover_short_class)
 ][, value := as.numeric(land_cover_short_class)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
@@ -61,13 +66,11 @@ to_plot_sf$land_cover_short_class <- factor(to_plot_sf$land_cover_short_class,
 fig_land_cover_short_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = land_cover_short_class, fill = land_cover_short_class)) +
-  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
+  geom_sf(data = earth_box, fill = NA, color = "gray", lwd = 0.1) +
   scale_fill_manual(values = colset_land_cover_short) + 
-  #labels = levels(to_plot_sf$rel_dataset_agreement)) +
   scale_color_manual(values = colset_land_cover_short,
-                     #labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Land use") +
+  labs(x = NULL, y = NULL, fill = "Land cover") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
@@ -86,7 +89,7 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "supplement/land_cover_map.png"), width = 12, height = 8)
 
 
-#biome
+## biome ----
 
 evap_mask[grepl("Tundra", biome_class) == TRUE, biome_short_class := "Tundra"]
 evap_mask[grepl("Boreal Forests", biome_class) == TRUE, biome_short_class := "B. Forests"]
@@ -139,11 +142,9 @@ to_plot_sf$biome_short_class <- factor(to_plot_sf$biome_short_class,
 fig_biome_short_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = biome_short_class, fill = biome_short_class)) +
-  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
+  geom_sf(data = earth_box, fill = NA, color = "gray", lwd = 0.1) +
   scale_fill_manual(values = colset_biome) + 
-  #labels = levels(to_plot_sf$rel_dataset_agreement)) +
   scale_color_manual(values = colset_biome,
-  #                   labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Biome") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -163,7 +164,7 @@ fig_biome_short_class <- ggplot(to_plot_sf) +
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "supplement/biome_map.png"), width = 12, height = 8)
 
-#elevation
+## elevation ----
 levels(evap_mask$elev_class) <- c("0-100", "100-400", "400-800", "800-1500", "1500-3000", "3000+")
 
 
@@ -188,11 +189,9 @@ to_plot_sf$elev_class <- factor(to_plot_sf$elev_class,
 fig_elev_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = elev_class, fill = elev_class)) +
-  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
+  geom_sf(data = earth_box, fill = NA, color = "gray", lwd = 0.1) +
   scale_fill_manual(values = rev(c(colset_elev_mono))) + 
-  #labels = levels(to_plot_sf$rel_dataset_agreement)) +
   scale_color_manual(values = rev(c(colset_elev_mono)), 
-                     #labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "Elevation") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -213,7 +212,7 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "supplement/elev_map.png"), width = 12, height = 8)
 
 
-#evap_quantile
+## evap_quantile ----
 levels(evap_mask$evap_quant) <- c("0-0.1", "0.1-0.2", "0.2-0.3", "0.3-0.4", 
                                   "0.4-0.5", "0.5-0.6", "0.6-0.7", "0.7-0.8", 
                                   "0.8-0.9", "0.9-1")
@@ -245,11 +244,9 @@ to_plot_sf$evap_quant <- factor(to_plot_sf$evap_quant,
 fig_evap_quant_class <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = evap_quant, fill = evap_quant)) +
-  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 3) +
+  geom_sf(data = earth_box, fill = NA, color = "gray", lwd = 0.1) +
   scale_fill_manual(values = c(colset_prec_quant)) + 
-  #labels = levels(to_plot_sf$rel_dataset_agreement)) +
   scale_color_manual(values = c(colset_prec_quant), 
-                     #labels = levels(to_plot_sf$rel_dataset_agreement),
                      guide = "none") + 
   labs(x = NULL, y = NULL, fill = "Evaporation\nquantile") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
@@ -269,5 +266,51 @@ fig_evap_quant_class <- ggplot(to_plot_sf) +
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "supplement/evap_quant_map.png"), width = 12, height = 8)
 
+## IPCC ----
+evap_mask[, IPCC_ref_region := as.factor(IPCC_ref_region)]
 
+to_plot_sf <- evap_mask[, .(lon, lat, IPCC_ref_region)
+][, value := as.numeric(IPCC_ref_region)]
 
+to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+  st_as_stars() %>% st_as_sf()
+
+fig_ipcc <- ggplot(to_plot_sf) +
+  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
+  geom_sf(data = earth_box, fill = NA, color = "gray", lwd = 0.1) +
+  geom_sf(data = ipcc_sf_terr , fill = "gold", color = "gray23", alpha = 0.4) +
+  geom_sf_text(data = ipcc_sf_terr, aes(label = Acronym), size = 3,
+               fontface = "bold") +
+  labs(x = NULL, y = NULL, fill = "") +
+  coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray40", size = 4) +
+  theme_bw() +
+  ggtitle("IPCC reference regions v4")+
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16))
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
+              "supplement/ipcc_map.png"), width = 9, height = 6)
+
+## Composite figure ----
+ggarrange(fig_land_cover_short_class, fig_biome_short_class, fig_elev_class, fig_evap_quant_class, align = "hv",
+          labels = c("a", "b", "c", "d"))
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
+              "supplement/masks_maps.png"), width = 15, height = 8)
+
+ggarrange(fig_evap_quant_class, fig_ipcc, align = "hv",
+          labels = c("a", "b"), nrow = 2)
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
+              "supplement/masks_evapquant_ipcc.png"), width = 8, height = 8)

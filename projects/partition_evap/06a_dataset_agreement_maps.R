@@ -13,7 +13,30 @@ levels(evap_mask$evap_quant_dataset_agreement) <- c("High", "Above average", "Av
                                                      "Below average", "Low")
 
 
+distribution <- as.data.table(readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "distribution_agreement_gridwise.rds")))
+distribution <-  distribution[!is.na(agreement_index),]
+distribution[, summary(agreement_index)]
 
+### Relative dataset agreement at quantile 0.1, 0.3, 0.7. 0.9
+quant_thr_0_1 <- quantile(distribution$agreement_index, c(0.1))
+quant_thr_0_3 <- quantile(distribution$agreement_index, c(0.3))
+quant_thr_0_7 <- quantile(distribution$agreement_index, c(0.7))
+quant_thr_0_9 <- quantile(distribution$agreement_index, c(0.9))
+
+
+distribution[agreement_index <= quant_thr_0_1, agreement_fac := ordered(1, labels = "low")] 
+distribution[agreement_index > quant_thr_0_1 & agreement_index <= quant_thr_0_3, agreement_fac := ordered(3, labels = "below average")]
+distribution[agreement_index > quant_thr_0_3 & agreement_index <= quant_thr_0_7, agreement_fac := ordered(4, labels = "average")]
+distribution[agreement_index > quant_thr_0_7 & agreement_index <= quant_thr_0_9, agreement_fac := ordered(5, labels = "above average")]
+distribution[agreement_index > quant_thr_0_9, agreement_fac := ordered(7, labels = "high")]
+
+distribution[, ai_brk := cut(agreement_index, breaks = c(0, 0.1, 0.25, 0.5, 1))]
+
+
+
+cols_ai_brk <- c("lightblue", "royalblue2","darkblue","gold")
+
+cols_ai_brk <- c(colset_prec_quant[1], colset_prec_quant[5], colset_prec_quant[9], colset_RdBu_5[3])
 ## World and Land borders
 earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP_SPATIAL,
                             "earth_box.rds")) %>%
@@ -35,6 +58,41 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
 ## Figures
+
+### distribution index
+to_plot_sf <- distribution[, .(lon, lat, agreement_fac)
+][, value := as.numeric(agreement_fac)]
+to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+  st_as_stars() %>% st_as_sf()
+
+fig_distribution_index <- ggplot(to_plot_sf) +
+  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
+  geom_sf(aes(color = as.factor(value), fill = as.factor(value))) +
+  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
+  scale_fill_manual(values = colset_RdBu_5, labels = levels(distribution$agreement_fac)) +
+  scale_color_manual(values = colset_RdBu_5,
+                     guide = "none") +
+  labs(x = NULL, y = NULL, fill = "Distribution\nAgreement") +
+  coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray40", size = 4) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16))
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
+              "distribution_index_map.png"), width = 12, height = 8)
+
+
 ### Q75 - Q25
 
 evap_mask[, Qdiff := ens_mean_q75-ens_mean_q25]
@@ -55,7 +113,7 @@ fig_quantile_range <- ggplot(to_plot_sf) +
   scale_fill_manual(values = colset_prec_quant[c(1,3,5,7,9)], labels = levels(evap_mask$Qdiff_brk)) +
   scale_color_manual(values = colset_prec_quant[c(1,3,5,7,9)],
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Quantile\nRange [mm/year]") +
+  labs(x = NULL, y = NULL, fill = "Quartile\nRange [mm/year]") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
@@ -90,7 +148,7 @@ fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
   scale_color_manual(values = rev(colset_RdBu_5),
                      labels = levels(evap_mask$rel_dataset_agreement),
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
+  labs(x = NULL, y = NULL, fill = "Quartile\nAgreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
@@ -125,7 +183,7 @@ fig_evap_quant_dataset_agreement <- ggplot(to_plot_sf) +
   scale_color_manual(values = rev(colset_RdBu_5),
                      labels = levels(evap_mask$evap_quant_dataset_agreement),
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Dataset\nAgreement") +
+  labs(x = NULL, y = NULL, fill = "Quartile\nAgreement\nper Evap. Quantile") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
@@ -153,12 +211,15 @@ dev.off()
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "evap_quant_dataset_agreement_map.png"), width = 12, height = 8)
 
-gg_agreement_v2 <- ggarrange(fig_quantile_range, fig_rel_dataset_agreement, fig_evap_quant_dataset_agreement,
-                          labels = c('a', 'b', 'c'), common.legend = TRUE,
+
+
+gg_agreement_v2 <- ggarrange(fig_quantile_range, fig_rel_dataset_agreement, 
+                             fig_evap_quant_dataset_agreement, fig_distribution_index, 
+                          labels = c('a', 'b', 'c', 'd'), common.legend = FALSE,
                           legend = 'right', align = 'hv',
                           nrow = 2, ncol = 2)
 
-jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "dataset_range_agreement_maps.png"), 
+jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "fig1_main_dataset_range_agreement_maps.png"), 
      width = 24, height = 12, res = 300, units = 'in')
 gg_agreement_v2
 dev.off()

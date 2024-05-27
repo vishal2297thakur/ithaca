@@ -325,6 +325,6 @@ gh <- ggarrange(fig_g_ninos_landuse, fig_h_ninos_biome, common.legend = T,
 
 ggarrange(ab, cd, ef, gh, align = "hv", nrow = 4)
 
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "fig_3_main_SQR_aridity_indices.png"), 
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "fig4_main_SQR_aridity_indices.png"), 
        width = 8, height = 12)
 
