@@ -42,19 +42,34 @@ fig_signal_none <- ggplot(no_trenders[rank_datasets < 6])+
   geom_tile(aes(x = rank_datasets, y = variable, fill = dataset))+
   scale_fill_manual(values = cols_data)+
   labs(x = "Top no trenders", fill = "Dataset", y = "")+
-  theme_minimal()
+  theme_minimal()+
+  theme(axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16))
 
 fig_signal_pos <- ggplot(pos_signal[rank_datasets < 6])+
   geom_tile(aes(x = rank_datasets, y = variable, fill = dataset))+
   scale_fill_manual(values = cols_data)+
   labs(x = "Top Positiive\nSignal Boosters", fill = "Dataset", y = "")+
-  theme_minimal()
+  theme_minimal()+
+  theme(axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16))
 
 fig_signal_neg <- ggplot(neg_signal[rank_datasets < 6])+
   geom_tile(aes(x = rank_datasets, y = variable, fill = dataset))+
   scale_fill_manual(values = cols_data)+
   labs(x = "Top Negative\nSignal Boosters", fill = "Dataset", y = "")+
-  theme_minimal()
+  theme_minimal()+
+  theme(axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16))
 
 
 fig_opposers <- ggplot(evap_opposers)+
@@ -62,7 +77,12 @@ fig_opposers <- ggplot(evap_opposers)+
   geom_tile(data = evap_opposers[rank_opp < 6], aes(x = rank_opp, y = variable, fill = dataset_leftout))+
   scale_fill_manual(values = cols_data)+
   labs(x = "Top opposers", fill = "Dataset", y = "")+
-  theme_minimal()
+  theme_minimal()+
+  theme(axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16))
 
 
 ggarrange(fig_opposers, fig_signal_pos, fig_signal_neg, fig_signal_none, align = "hv",
