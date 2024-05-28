@@ -1,0 +1,153 @@
+# Maps
+source("source/uncertainty_prec.R")
+
+install.packages(setdiff("rnaturalearth", rownames(installed.packages())))
+library(rnaturalearth)
+library(sf)
+library(stars)
+
+## Data
+prec_masks <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
+                             "pRecipe_masks.rds"))
+
+### Borders and labels
+earth_box <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC_SPATIAL,
+                            "earth_box.rds")) %>%
+  st_as_sf(crs = "+proj=longlat +datum=WGS84 +no_defs")
+
+world_sf <- ne_countries(returnclass = "sf")
+borders_sf <- read_sf("~/shared/data/geodata/world_borders/border_shapefile.shp")
+ipcc_sf <- read_sf("~/shared/data/geodata/ipcc_v4/IPCC-WGI-reference-regions-v4.shp")
+basin_sf <- read_sf("~/shared/data/geodata/major_basins/Major_Basins_of_the_World.shp")
+kg_sf <- read_sf("~/shared/data/geodata/kg_classes/shapefile_kg.shp")
+kg_sf <- kg_sf[kg_sf$layer != "Ocean",]
+
+labs_y <- data.frame(lon = -162, lat = c(55, 25, -5, -35, -65))
+labs_y_labels <- seq(60, -60, -30)
+labs_y$label <- ifelse(labs_y_labels == 0, "°",
+                       ifelse(labs_y_labels > 0, "°N", "°S"))
+labs_y$label <- paste0(abs(labs_y_labels), labs_y$label)
+labs_y <- st_as_sf(labs_y, coords = c("lon", "lat"),
+                   crs = "+proj=longlat +datum=WGS84 +no_defs")
+
+labs_x <- data.frame(lon = seq(120, -120, -60), lat = -80)
+labs_x$label <- ifelse(labs_x$lon == 0, "°", ifelse(labs_x$lon > 0, "°E", "°W"))
+labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
+labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
+                   crs = "+proj=longlat +datum=WGS84 +no_defs")
+
+###
+prec_data <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+                          "kg_ranking.csv"))
+
+DATASETS <- c(unique(prec_data$dataset), NA) %>% as.factor()
+levels(DATASETS) <- c(levels(DATASETS), "Others")
+DATASETS[is.na(DATASETS)] <- "Others"
+
+TOP_DATASETS <- c("cmap", "cru-ts", "em-earth", "era5-land", "fldas", "gpcp",
+                  "gpm-imerg", "merra2", "mswep", "persiann", "precl",
+                  "terraclimate") %>%
+  factor(levels(DATASETS))
+###
+prec_data <- fread(paste0(PATH_SAVE_UNCERTAINTY_PREC_TABLES,
+                          "kg_ranking.csv"))
+
+prec_data <- prec_data[KG_class != "Ocean" & KG_class != "EF",
+                       .SD[which.max(prec_t)], by = .(KG_class)]
+
+prec_data <- merge(prec_masks[country_short != "ATA" & lat >= -60,
+                              .(lon, lat, KG_class)], prec_data,
+                   by = "KG_class")
+
+prec_data <- prec_data[!(dataset %in% TOP_DATASETS), dataset := "Others"
+                       ][, .(lon, lat, prec_t,
+                             dataset = factor(dataset, levels(DATASETS)))]
+
+to_plot_kg <- prec_data[, .(lon, lat, name = as.numeric(dataset))] %>%
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+  st_as_stars() %>% st_as_sf()
+
+to_plot_kg$name <- levels(DATASETS)[to_plot_kg$name] %>%
+  factor(levels(DATASETS))
+
+to_plot_t_metric <- prec_data[, .(lon, lat, prec_t)] %>%
+  rasterFromXYZ(res = c(0.25, 0.25),
+                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+  st_as_stars() %>% st_as_sf()
+
+p01 <- ggplot(to_plot_kg) +
+  geom_sf(data = world_sf, fill = "gray69", color = "gray69") +
+  geom_sf(aes(color = name, fill = name)) +
+  geom_sf(data = kg_sf, fill = NA, color = "gray23") +
+  geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
+  scale_fill_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                               "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                               "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
+                               "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
+                               "mswep" = "#cab2d6", "Others" = "gray23",
+                               "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                               "terraclimate" = "#6a3d9a"),
+                    drop = FALSE,
+                    labels = c("cmap" = "CMAP", "cru-ts" = "CRU TS v4.06",
+                               "em-earth" = "EM-Earth", "era5-land" = "ERA5-Land",
+                               "fldas" = "FLDAS", "gpcp" = "GPCP v3.2",
+                               "gpm-imerg" = "GPM-IMERG v7", "merra2" = "MERRA-2",
+                               "mswep" = "MSWEP v2.8", "persiann" = "PERSIANN-CDR",
+                               "precl" = "PREC/L", "terraclimate" = "TerraClimate")) +
+  scale_color_manual(values = c("cmap" = "#e31a1c", "cru-ts" = "#b15928",
+                                "em-earth" = "#ff7f00", "era5-land" = "#33a02c",
+                                "fldas" = "#ffff99", "gpcp" = "#fdbf6f",
+                                "gpm-imerg" = "#1f78b4", "merra2" = "#b2df8a",
+                                "mswep" = "#cab2d6", "Others" = "gray23",
+                                "persiann" = "#a6cee3", "precl" = "#fb9a99",
+                                "terraclimate" = "#6a3d9a"),
+                     guide = "none") +
+  labs(x = NULL, y = NULL, fill = "Dataset") +
+  coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray23", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray23", size = 4) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA),
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray69", linetype = "dashed"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16),
+        legend.position="bottom")
+
+p02 <- ggplot(to_plot_t_metric) +
+  geom_sf(data = world_sf, fill = "gray69", color = "gray69") +
+  geom_sf(aes(color = prec_t, fill = prec_t)) +
+  geom_sf(data = kg_sf, fill = NA, color = "gray23") +
+  geom_sf(data = earth_box, fill = NA, color = "gray23", lwd = 2) +
+  scale_fill_viridis_c(limits = c(0, 1), option = "H", direction = -1) +
+  scale_color_viridis_c(limits = c(0, 1), option = "H", guide = "none",
+                        direction = -1) +
+  labs(x = NULL, y = NULL, fill = "T-metric") +
+  coord_sf(expand = FALSE, crs = "+proj=robin") +
+  scale_y_continuous(breaks = seq(-60, 60, 30)) +
+  geom_sf_text(data = labs_y, aes(label = label), color = "gray23", size = 4) +
+  geom_sf_text(data = labs_x, aes(label = label), color = "gray23", size = 4) +
+  theme_bw() +
+  theme(panel.background = element_rect(fill = NA),
+        panel.border = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray69", linetype = "dashed"),
+        axis.text = element_blank(), 
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16),
+        legend.position = "bottom",
+        legend.key.width = unit(dev.size()[2]/5, "inches"),
+        legend.key.height = unit(dev.size()[2]/10, "inches"))
+
+###
+p00 <- ggarrange(p01, p02, ncol = 2, nrow = 1, labels = c("(a)", "(b)"))
+
+ggsave(plot = p00,
+       paste0(PATH_SAVE_UNCERTAINTY_PREC_FIGURES, "kg_first_rank.png"),
+       width = 5*GOLDEN_RATIO*2, height = 5)

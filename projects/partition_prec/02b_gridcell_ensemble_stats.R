@@ -32,3 +32,4 @@ prec_ens_stats[, std_quant_range := round((ens_mean_q75 - ens_mean_q25) / ens_me
 prec_ens_stats[, ens_mean_cv := round(ens_mean_sd / ens_mean_mean, 2)]
 
 saveRDS(prec_ens_stats, paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.rds"))
+write.csv(prec_ens_stats, paste0(PATH_SAVE_PARTITION_PREC, "prec_ensemble_stats.csv"))
