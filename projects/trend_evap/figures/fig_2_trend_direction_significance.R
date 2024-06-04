@@ -1,13 +1,12 @@
-# Figure 3 - results depend product selection ----
+# Figure 2 - results depend product selection ----
 ## Opposing map
 ## N insig vs N sig map
 source('source/evap_trend.R')
-source('source/geo_functions.R')
 
 library(rnaturalearth)
 
 # Data
-evap_index <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "global_grid_DCI_trend_groups_p_thresholds_bootstrap.rds"))
+evap_index <- readRDS(paste0(PATH_SAVE_EVAP_TREND_TABLES, "data_fig_2_a_c_d_grid_trend_stats.rds"))
 
 # Map preparation -----
 ## World and Land borders ----
@@ -35,19 +34,6 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
 
 
 ## Maps of p-value when grid becomes opposing ----
-
-evap_index[p_val_opposing == "1", p_val_opposing := "no opposing\ntrends"]
-evap_index[p_val_opposing == ">0.2", p_val_opposing := "p <= 1"]
-evap_index[p_val_opposing == "<=0.01", p_val_opposing := "p < 0.01"]
-evap_index[p_val_opposing == "<=0.05", p_val_opposing := "p < 0.05"]
-evap_index[p_val_opposing == "<=0.1", p_val_opposing := "p < 0.1"]
-evap_index[p_val_opposing == "<=0.2", p_val_opposing := "p < 0.2"]
-
-evap_index[, p_val_opposing := as.factor(p_val_opposing)]
-
-evap_index[, p_val_opposing := factor(p_val_opposing, levels = 
-                                        c("p < 0.01", "p < 0.05", "p < 0.1", "p < 0.2", "p <= 1", "no opposing\ntrends"))]
-
 to_plot_sf <- evap_index[, .(lon, lat, p_val_opposing)
 ][, value := as.numeric(p_val_opposing)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
@@ -79,26 +65,7 @@ fig_map_opposing <- ggplot(to_plot_sf) +
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16))
 
-grid_cell_area <- unique(evap_index[, .(lon, lat)]) %>% grid_area() # m2
-evap_index <- grid_cell_area[evap_index, on = .(lon, lat)]
-p_val_opposing <- evap_index[,.(p_area = sum(area)), (p_val_opposing)]
-p_val_opposing[, total_area := sum(p_area)]
-p_val_opposing[, fraction := p_area/total_area]
-
-p_val_opposing
-p_val_opposing[order(p_val_opposing)]
-
-
 ## When more trends become significant ----
-
-evap_index[N_none_0_2 >= 7, more_sig_trends := "p <= 1" ]
-evap_index[N_none_0_2 < 7, more_sig_trends := "p < 0.2" ]
-evap_index[N_none_0_1 < 7, more_sig_trends := "p < 0.1" ]
-evap_index[N_none_0_05 < 7, more_sig_trends := "p < 0.05" ]
-evap_index[N_none_0_01 < 7, more_sig_trends := "p < 0.01" ]
-evap_index[, more_sig_trends := as.factor(more_sig_trends) ]
-evap_index[, more_sig_trends := factor(more_sig_trends, levels = 
-                                        c("p < 0.01", "p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))]
 
 to_plot_sf <- evap_index[, .(lon, lat, more_sig_trends)
 ][, value := as.numeric(more_sig_trends)]
@@ -131,20 +98,9 @@ fig_map_more_sig_trends <- ggplot(to_plot_sf) +
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16))
 
-sig_trends <- evap_index[,.(p_area = sum(area)), (more_sig_trends)]
-sig_trends[, total_area := sum(p_area)]
-sig_trends[, fraction := p_area/total_area]
 
-sig_trends
-sig_trends[order(sig_trends)]
 
 ## Maps of DCI when all trends are considered ----
-
-evap_index[, DCI_all_brk := cut(DCI_all, c(-1.01,-0.5,-0.07, 0.07,0.5,1))]
-evap_index[DCI_all_brk == "(-1.01,-0.5]", DCI_all_brk := "[-1,-0.5]"]
-evap_index[, DCI_all_brk:= factor(DCI_all_brk, levels = c("[-1,-0.5]", 
-                                                     "(-0.5,-0.07]", "(-0.07,0.07]", "(0.07,0.5]",
-                                                     "(0.5,1]"))]
 
 to_plot_sf <- evap_index[, .(lon, lat, DCI_all_brk)
 ][, value := as.numeric(DCI_all_brk)]
@@ -177,38 +133,10 @@ fig_map_DCI <- ggplot(to_plot_sf) +
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16))
 
-DCI_all <- evap_index[,.(p_area = sum(area)), (DCI_all_brk)]
-DCI_all[, total_area := sum(p_area)]
-DCI_all[, fraction := p_area/total_area]
-
-DCI_all
-DCI_all[order(DCI_all)]
-
 
 ## Barplot Figures -----
-### Figure 1 DCI area fraction ----
-#### Figure 1 prep ----
-
-data_sel <- subset(evap_index, select = c("DCI_0_01","DCI_0_05","DCI_0_1", "DCI_0_2", "DCI_all", "lon", "lat"))
-setnames(data_sel, old = c("DCI_0_01","DCI_0_05","DCI_0_1", "DCI_0_2", "DCI_all"), 
-         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))
-
-data_sel_melt <- melt(data_sel, 
-                      measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"), 
-                      id.vars = c("lon", "lat"))
-
-data_sel_melt[, DCI_brk := cut(value, c(-1.01,-0.5,-0.07, 0.07,0.5,1))]
-data_sel_melt <- grid_cell_area[data_sel_melt, on = .(lon, lat)]
-
-data_dci_area <- data_sel_melt[, .(DCI_area = sum(area)), .(DCI_brk, variable)]
-data_dci_area[, total_area := sum(DCI_area), variable]
-data_dci_area[, fraction := DCI_area/total_area]
-data_dci_area[DCI_brk == "(-1.01,-0.5]", DCI_brk := "[-1,-0.5]"]
-data_dci_area[, DCI_brk:= factor(DCI_brk, levels = c("[-1,-0.5]", 
-                                                     "(-0.5,-0.07]", "(-0.07,0.07]", "(0.07,0.5]",
-                                                     "(0.5,1]"))]
-
-#### Figure 1 gg ----
+### Figure  DCI area fraction ----
+data_dci_area <- readRDS(paste0(PATH_SAVE_EVAP_TREND_TABLES, "data_fig_2_f_area_stats_DCI_all_trends.rds"))
 
 fig_DCI <- ggplot(data_dci_area)+
   geom_bar(aes(x = variable, y = fraction, fill = DCI_brk), stat = "identity")+
@@ -225,20 +153,7 @@ fig_DCI <- ggplot(data_dci_area)+
 
 
 ### Figure 2 trend direction ----
-#### Figure 2 prep ----
-data_sel_trend <- subset(evap_index, select = c("trend_0_01","trend_0_05", "trend_0_1","trend_0_2","trend_all", "lat", "lon"))
-data_sel_trend  <- grid_cell_area[data_sel_trend, on = .(lon, lat)]
-
-setnames(data_sel_trend, old = c("trend_0_01","trend_0_05", "trend_0_1","trend_0_2","trend_all"), 
-         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))
-
-data_sel_trend_melt <- melt(data_sel_trend, measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))
-
-data_sel_trend_area <- data_sel_trend_melt[, .(trend_area = sum(area)), .(value, variable)] 
-data_sel_trend_area[, total_area := sum(trend_area), variable]
-data_sel_trend_area[, fraction := trend_area/total_area]
-
-#### Figure 2 gg ----
+data_sel_trend_area <- readRDS(paste0(PATH_SAVE_EVAP_TREND_TABLES, "data_fig_2_d_area_stats_trend_direction.rds"))
 
 fig_trend <- ggplot(data_sel_trend_area)+
   geom_bar(aes(x = variable, y = fraction, fill = value), stat = "identity")+
@@ -255,36 +170,7 @@ fig_trend <- ggplot(data_sel_trend_area)+
 
 ### Figure 3 Number of significant trends over p ----
 ### Product selection: Trend or no trend
-
-#### Figure 3 prep ----
-evap_index[, N_sum_0_01:= N_pos_0_01+N_neg_0_01]
-evap_index[, N_sum_0_05:= N_pos_0_05+N_neg_0_05]
-evap_index[, N_sum_0_1:= N_pos_0_1+N_neg_0_1]
-evap_index[, N_sum_0_2:= N_pos_0_2+N_neg_0_2]
-evap_index[, N_sum_all:= N_pos_all+N_neg_all]
-
-evap_sel <- subset(evap_index, select = c("N_sum_0_01", "N_sum_0_05", 
-                                          "N_sum_0_1", "N_sum_0_2", "N_sum_all",
-                                          "lat", "lon"))
-evap_sel  <- grid_cell_area[evap_sel, on = .(lon, lat)]
-
-setnames(evap_sel , old = c("N_sum_0_01", "N_sum_0_05", 
-                            "N_sum_0_1", "N_sum_0_2", "N_sum_all"), 
-         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))
-
-data_melt <- melt(evap_sel, measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))
-
-data_melt[, N_sum_brk := cut(round(value), c(-0.1, 0.9, 4, 7, 11, 14))]
-data_melt[N_sum_brk == "(-0.1,0.9]", N_sum_brk := "[0,1)"]
-data_melt[N_sum_brk == "(0.9,4]", N_sum_brk := "[1,4]"]
-
-N_sig_area <- data_melt[,.(N_sig_area = sum(area)), .(N_sum_brk, variable)]
-N_sig_area[, variable_area := sum(N_sig_area), variable]
-N_sig_area[, fraction := N_sig_area/variable_area]
-N_sig_area[, N_sum_brk:= factor(N_sum_brk, levels = c("[0,1)", "[1,4]",
-                                                      "(4,7]", 
-                                                      "(7,11]","(11,14]"))]
-
+N_sig_area <- readRDS(paste0(PATH_SAVE_EVAP_TREND_TABLES, "data_fig_2_b_area_stats_significant_trend_count.rds"))
 fig_Ntrend <- ggplot(N_sig_area)+
   geom_bar(aes(x = variable, y = fraction, fill = N_sum_brk), stat = "identity")+
   theme_bw()+

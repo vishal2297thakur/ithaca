@@ -1,6 +1,6 @@
 # Review MOIDS ET data  ----
 source("source/cdo_functions.R")
-
+source('source/partition_evap.R')
 library(pRecipe)
 
 ## geospatial 
@@ -11,7 +11,7 @@ library(sf)
 library(stars)
 
 ## Load data ----
-fnames_nc <- list.files(path = "~/shared/data_review/modis_riya", pattern = ".nc$", 
+fnames_nc <- list.files(path = PATH_EVAP_OBS, pattern = ".nc$", 
                         full.names = T)
 
 fnames_product <- fnames_nc[grep("mod16", fnames_nc)]
@@ -66,6 +66,8 @@ data@z$Date
 cdo_sinfo_fnc(fname)
 
 ## 7. Compare values to at least one other publication ----
+cdo_timmean_fnc(inputfile_name = fname, outputfile_name = "~/Review/mod16a_review_time_mean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/mod16a_review_time_mean.nc")
 # Change according to need
 # Comparison to Lui et all. 2023, JoH  reported mean annual value form 2003-2013 
 period_start <- as.Date("2003-01-01") 
@@ -88,17 +90,4 @@ cdo_info_fnc(inputfile_name = "~/Review/mod16_fldmean_timmean_mean.nc")
 
 cdo_timmean_fnc(inputfile_name = "~/Review/mod16_review_sel.nc", outputfile_name = "~/Review/mod16_review_timmean.nc")
 
-cdo_info_fnc(inputfile_name = "~/Review/mod16_review_timmean.nc")
-
-cdo_fldmean_fnc(inputfile_name = "~/Review/mod16_review_timmean.nc", outputfile_name = "~/Review/mod16_review_timmean_fldmean.nc")
-
-cdo_info_fnc("~/Review/mod16_review_timmean_fldmean.nc")
-
-cdo_ymonmean_fnc(inputfile_name = "~/Review/mod16_review_sel.nc", outputfile_name = "~/Review/mod16_review_ymonmean.nc")
-
-cdo_yearmean_fnc(inputfile_name = "~/Review/mod16_review_ymonmean.nc", outputfile_name = "~/Review/mod16_review_ymonmean_yearmean.nc")
-
-cdo_fldmean_fnc(inputfile_name = "~/Review/mod16_review_ymonmean_yearmean.nc", outputfile_name = "~/Review/mod16_review_ymonmean_yearmean_fldmean.nc")
-
-cdo_info_fnc("~/Review/mod16_review_ymonmean_yearmean_fldmean.nc")
 

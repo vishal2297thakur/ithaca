@@ -1,6 +1,7 @@
 # Review MERRA2 data ----
 source('source/partition_evap.R')
 source("source/cdo_functions.R")
+source("source/geo_functions.R")
 
 library(pRecipe)
 
@@ -42,7 +43,6 @@ data <- brick(fname)
 pRecipe::plot_map(data[[40]])
 
 test <- pRecipe::tabular(data)
-test2 <- brick_to_dt(data)
 
 
 ## 4. Check projection ----
@@ -72,6 +72,8 @@ data@z$Date
 cdo_sinfo_fnc(fname)
 
 ## 7. Compare values to at least one other publication ----
+cdo_timmean_fnc(inputfile_name = fname, outputfile_name = "~/Review/merra2_review_time_mean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/merra2_review_time_mean.nc")
 # Change according to need
 # Comparison to Kim et all. 2021 "An Assessment of Concurrency in Evapotranspiration Trends across Multiple Global Datasets" reported mean value form 1982-2012 
 period_start <- as.Date("1982-01-01") 
@@ -91,3 +93,26 @@ cdo_info_fnc(inputfile_name = "~/Review/merra2_review_fldmean_check.nc")
 cdo_timmean_fnc(inputfile_name =  "~/Review/merra2_review_fldmean_check.nc", outputfile_name = "~/Review/merra2_fldmean_timmean_mean.nc")
 
 cdo_info_fnc(inputfile_name = "~/Review/merra2_fldmean_timmean_mean.nc")
+593.34/12
+
+
+# trend Ma et al. 2003 to 2019
+period_start <- as.Date("2003-01-01") 
+period_end <- as.Date("2019-01-01") 
+
+start_time <- which(data@z$Date == period_start)
+end_time <- which(data@z$Date == period_end)
+
+cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/merra2_review_sel.nc", start_time = start_time, end_time = end_time)
+
+cdo_fldmean_fnc(inputfile_name = "~/Review/merra2_review_sel.nc", outputfile_name = "~/Review/merra2_review_sel_fldmean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/merra2_review_sel_fldmean.nc")
+fld_means <- cdo_info_to_text_fnc(inputfile_name = "~/Review/merra2_review_sel_fldmean.nc", outputfile_name = "~/Review/merra2_1982_2019.txt")
+fld_means[, year := as.numeric(format(date, "%Y"))]
+fld_means[, date := paste0(year, "-01-01 00:00:00")]
+fld_means[, date := as.POSIXct(date)]
+slope <- TheilSen(fld_means, pollutant = "value", autocor = FALSE, plot = F, silent = T)
+slope
+summary(lm(value ~ year, data = fld_means))
+
+plot(fld_means$year, fld_means$value, type = "b", ylim = c(450, 700))

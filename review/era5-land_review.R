@@ -67,3 +67,8 @@ cdo_sinfo_fnc(fname)
 
 ## 7. Compare values to at least one other publication ----
 
+cdo_fldmean_fnc(inputfile_name = fname, outputfile_name = "~/Review/era5land_review_sel_fldmean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/era5land_review_sel_fldmean.nc")
+
+cdo_timmean_fnc(inputfile_name = fname, outputfile_name = "~/Review/era5land_review_sel_time_mean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/era5land_review_sel_time_mean.nc")

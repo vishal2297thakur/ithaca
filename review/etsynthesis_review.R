@@ -67,6 +67,9 @@ data@z$Date
 cdo_sinfo_fnc(fname)
 
 ## 7. Compare values to at least one other publication ----
+cdo_timmean_fnc(inputfile_name = fname, outputfile_name = "~/Review/etsynthesis_review_time_mean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/etsynthesis_review_time_mean.nc")
+
 # Mean decadal annual values from product paper (elnashar et al 2021)
 # period i
 period_start <- as.Date("2000-01-01") 
