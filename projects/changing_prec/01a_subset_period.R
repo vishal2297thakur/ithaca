@@ -6,7 +6,7 @@ source('source/geo_functions.R')
 
 library(stringr)
 
-load("~/shared/data_projects/ithaca/misc/06b_prec_fnames_2000_2019_full_record.Rdata") # Created by database/06_b_dataset_fnames.R
+load("~/shared/data_projects/ithaca/misc/06b_prec_fnames_2000_2019_full_record.Rdata") # Created by database/06b_dataset_fnames_prec_change.R
 
 registerDoParallel(cores = N_CORES - 1)
 n_datasets_2000_2019 <- length(PREC_FNAMES_2000_2019_FULL_RECORD)
