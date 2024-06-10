@@ -3,7 +3,7 @@
 source('source/changing_prec.R')
 source('source/geo_functions.R')
 
-load("~/shared/data_projects/ithaca/changing_prec/prec_names_2000_2019.Rdata") # Created by database/06_b_dataset_fnames.R
+load("~/shared/data_projects/ithaca/changing_prec/prec_names_2000_2019.Rdata") # Created by database/06b_dataset_fnames.R
 
 ## Data 
 prec_2000_2019 <- lapply(PREC_FNAMES_2000_2019, brick)
