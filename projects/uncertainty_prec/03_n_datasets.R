@@ -7,11 +7,6 @@ prec_data <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_data.rds"))
 ## Analysis
 lonlat <- prec_data[, .(prec = mean(value, na.rm = TRUE)), .(lon, lat, dataset)]
 
-zero_check <- prec_data[, .(checker = sum(value, na.rm = TRUE)),
-                        .(lon, lat, dataset)]
-
-lonlat <- lonlat[zero_check[checker > 0, .(lon, lat, dataset)],
-                 on = .(lon, lat, dataset)]
 lonlat <- lonlat[, .(n_datasets = .N), .(lon, lat)]
 
 prec_data <- prec_data[lonlat[n_datasets == MIN_N_DATASETS, .(lon, lat)],
@@ -42,7 +37,7 @@ labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
 labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 ### Map data
-to_plot_sf <- lonlat[n_datasets > 1] %>% 
+to_plot_sf <- lonlat[n_datasets > 2] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()

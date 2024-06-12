@@ -12,7 +12,8 @@ prec_data <- readRDS(paste0(PATH_SAVE_UNCERTAINTY_PREC, "prec_data_roi.rds"))
 prec_data <- prec_data[, date := year(date)
                        ][, prec := sum(prec, na.rm = TRUE),
                          .(lon, lat, dataset, date)
-                         ][, prec := mean(prec), .(lon, lat, dataset)]
+                         ][, prec := mean(prec, na.rm = TRUE),
+                           .(lon, lat, dataset)]
 
 l_moments <- prec_data[, as.list(samlmu(prec)), .(lon, lat)]
 
