@@ -25,4 +25,5 @@ recon_data_xls <- readxl::read_xls(paste0(PATH_SAVE_PALEO, "/mnt/shared/data/pal
 
 
 
+save(recon_summary, paste0(PATH_SAVE_PALEO, "recon_summary.Rdata"))
 saveRDS(recon_data, paste0(PATH_SAVE_PALEO, "recon_data.rds"))
