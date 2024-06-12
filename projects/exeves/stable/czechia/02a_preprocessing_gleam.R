@@ -52,7 +52,7 @@ exeves[month(date) >= 4 & month(date) < 7, season := ordered("AMJ")]
 exeves[month(date) >= 7 & month(date) < 10, season := ordered("JAS")]
 exeves[month(date) >= 10, season := ordered("OND")]
 
-### Mean - Quantile regression 0.90 definition
+### Median - Quantile regression 0.90 definition
 exeves_qr <- merge(evap, pentads[, .(grid_id, date, std_value, pentad_median_qr, pentad_std_q90_qr)], all.x = TRUE, by = c("grid_id", "date"))
 exeves_qr[, evap_event := FALSE]
 exeves_qr[, value_above_low_thres := FALSE]

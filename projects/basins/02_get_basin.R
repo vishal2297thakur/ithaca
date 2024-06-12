@@ -17,6 +17,9 @@ sample_region <- regions_all[5] # Sample region is Europe
 
 basin_x <- st_read(con, query = paste0("SELECT * FROM basin_boundaries.", 
                                        sample_region, "_all WHERE ST_Within(ST_SetSRID(ST_POINT(", lon, ", ", lat,"), 4326), geom::geometry)"))   
+
+#basin_x <- st_read(con, query = paste0("SELECT * FROM basin_boundaries.global_all WHERE ST_Within(ST_SetSRID(ST_POINT(", lon, ", ", lat,"), 4326), geom::geometry)")) #Using all continents not just EU - too slow
+
 basin <- merge(basin_x, basin_atlas_feats, by = c('pfaf_id', 'hybas_id', 'coast'))
 
 to_plot <- basin[basin$level == basin_level, ]

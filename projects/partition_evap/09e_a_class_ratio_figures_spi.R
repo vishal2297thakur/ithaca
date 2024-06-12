@@ -19,14 +19,14 @@ evap_stats_wet <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_
 evap_stats <- merge(evap_stats_dry, evap_stats_wet, by = c("lon", "lat"), suffixes = c(".dry", ".wet"))
 
 evap_stats[, ratio_std_quantile := std_quant_range.dry/std_quant_range.wet]
-evap_stats[, ratio_std_quantile_brk := cut(ratio_std_quantile, breaks = c(0, 0.5, 0.9, 1.11, 2, 500))]
+evap_stats[, ratio_std_quantile_brk := cut(ratio_std_quantile, breaks = c(0, 0.9, 1.11,500))]
 
 
 ## Analysis ----
-evap_stats[, ratio_std_quantile_brk := factor(ratio_std_quantile_brk, levels = c("(0,0.5]", "(0.5,0.9]", "(0.9,1.11]", "(1.11,2]", "(2,500]"),
-                                              labels = c("SQR wet >> SQR dry","SQR wet > SQR dry",
+evap_stats[, ratio_std_quantile_brk := factor(ratio_std_quantile_brk, levels = c("(0,0.9]", "(0.9,1.11]", "(1.11,500]"),
+                                              labels = c("SQR wet > SQR dry",
                                                          "SQR dry = SQR wet",
-                                                         "SQR dry > SQR wet","SQR dry >> SQR wet"), 
+                                                         "SQR dry > SQR wet"), 
                                               ordered = T),]
 evap_stats_masks <- merge(evap_stats, evap_mask, all.x = T, by = c("lon", "lat"))
 grid_cell_area <- unique(evap_stats[, .(lon, lat)]) %>% grid_area() # m2
@@ -61,9 +61,9 @@ ggplot(biome_stats) +
   xlab('Biome')  +
   ylab('Area fraction')  +
   labs(fill = 'Trend direction')  +
-  scale_fill_manual(values = c("SQR dry >> SQR wet" = "darkblue", "SQR dry > SQR wet" = "royalblue1", 
-                               "SQR wet >> SQR dry" = "darkred", "SQR wet > SQR dry" = "lightcoral",
-                               "SQR dry = SQR wet" = "gray80"))+
+  scale_fill_manual(values = c("SQR dry > SQR wet" = colset_RdBu_5[1], 
+                               "SQR wet > SQR dry" = colset_RdBu_5[5],
+                               "SQR dry = SQR wet" = "gray90"))+
   theme_light() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 
@@ -82,10 +82,31 @@ ggplot(ipcc_statss) +
   xlab('IPCC reference region')  +
   ylab('Fraction')  +
   labs(fill = '')  +
-  scale_fill_manual(values = c("SQR dry >> SQR wet" = "darkblue", "SQR dry > SQR wet" = "royalblue1", 
-                               "SQR wet >> SQR dry" = "darkred", "SQR wet > SQR dry" = "lightcoral",
-                               "SQR dry = SQR wet" = "gray80"))+  theme_light() +
+  scale_fill_manual(values = c("SQR dry > SQR wet" = colset_RdBu_5[1], 
+                               "SQR wet > SQR dry" = colset_RdBu_5[5],
+                               "SQR dry = SQR wet" = "gray90"))+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "bar_ipcc_cumulative_fraction_SQR_ratio_spi.png"), 
+       width = 16, height = 8)
+
+
+#### land use
+landuse <- evap_stats_masks[,.(stats_area = sum(area)),.(ratio_std_quantile_brk, land_cover_short_class)]
+landuse <- landuse[complete.cases(landuse)]
+landuse[, land_area:= sum(stats_area), .( land_cover_short_class)]
+landuse[, land_fraction:= stats_area/land_area]
+
+ggplot(landuse) +
+  geom_bar(aes(x = land_cover_short_class, y = land_fraction, fill = ratio_std_quantile_brk), stat = "identity") +
+  xlab('Land use')  +
+  ylab('Fraction')  +
+  labs(fill = '')  +
+  scale_fill_manual(values = c("SQR dry > SQR wet" = colset_RdBu_5[5], 
+                               "SQR wet > SQR dry" = colset_RdBu_5[1],
+                               "SQR dry = SQR wet" = "gray90"))+
+  theme_light()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "bar_landuse_cumulative_fraction_SQR_ratio_spi.png"), 
        width = 16, height = 8)
