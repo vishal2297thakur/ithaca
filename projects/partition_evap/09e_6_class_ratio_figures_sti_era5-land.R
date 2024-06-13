@@ -15,18 +15,15 @@ evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
 evap_stats_cold <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_cold_sti_era5-land.rds"))
 evap_stats_warm <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats_warm_sti_era5-land.rds"))
 
-## Analysis ----
 evap_stats <- merge(evap_stats_cold, evap_stats_warm, by = c("lon", "lat"), suffixes = c(".cold", ".warm"))
 
 evap_stats[, ratio_std_quantile := std_quant_range.cold/std_quant_range.warm]
-evap_stats[, ratio_std_quantile_brk := cut(ratio_std_quantile, breaks = c(0, 0.5, 0.9, 1.11, 2, 500))]
+evap_stats[, ratio_std_quantile_brk := cut(ratio_std_quantile, breaks = c(0, 0.9, 1.11, 500))]
 
-
-## Analysis ----
-evap_stats[, ratio_std_quantile_brk := factor(ratio_std_quantile_brk, levels = c("(0,0.5]", "(0.5,0.9]", "(0.9,1.11]", "(1.11,2]", "(2,500]"),
-                                              labels = c("SQR warm >> SQR cold","SQR warm > SQR cold",
-                                                                                "SQR cold = SQR warm",
-                                                         "SQR cold > SQR warm","SQR cold >> SQR warm"), 
+evap_stats[, ratio_std_quantile_brk := factor(ratio_std_quantile_brk, levels = c("(0,0.9]", "(0.9,1.11]", "(1.11,500]"),
+                                              labels = c("SQR warm > SQR cold",
+                                                          "SQR cold = SQR warm",
+                                                         "SQR cold > SQR warm"), 
                                               ordered = T),]
 evap_stats_masks <- merge(evap_stats, evap_mask, all.x = T, by = c("lon", "lat"))
 grid_cell_area <- unique(evap_stats[, .(lon, lat)]) %>% grid_area() # m2
@@ -61,12 +58,11 @@ ggplot(biome_statss) +
   xlab('Biome')  +
   ylab('Area fraction')  +
   labs(fill = '')  +
-  scale_fill_manual(values = c("SQR cold >> SQR warm" = "darkblue", "SQR cold > SQR warm" = "royalblue1", 
-                               "SQR warm >> SQR cold" = "darkred", "SQR warm > SQR cold" = "lightcoral",
-                               "SQR cold = SQR warm" = "gray80"))+
+  scale_fill_manual(values = c("SQR cold > SQR warm" = colset_RdBu_5[5], 
+                               "SQR warm > SQR cold" = colset_RdBu_5[1],
+                               "SQR cold = SQR warm" = "gray90"))+
   theme_light() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
-
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "bar_biome_cumulative_fraction_SQR_ratio_sti_era5-land.png"), 
        width = 8, height = 8)
 
@@ -83,10 +79,32 @@ ggplot(ipcc_statss) +
   xlab('IPCC reference region')  +
   ylab('Fraction')  +
   labs(fill = '')  +
-  scale_fill_manual(values = c("SQR cold >> SQR warm" = "darkblue", "SQR cold > SQR warm" = "royalblue1", 
-                               "SQR warm >> SQR cold" = "darkred", "SQR warm > SQR cold" = "lightcoral",
-                               "SQR cold = SQR warm" = "gray80"))+  theme_light() +
+  scale_fill_manual(values = c("SQR cold > SQR warm" = colset_RdBu_5[5], 
+                               "SQR warm > SQR cold" = colset_RdBu_5[1],
+                               "SQR cold = SQR warm" = "gray90"))+
+  theme_light()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "bar_ipcc_cumulative_fraction_SQR_ratio_sti_era5-land.png"), 
+       width = 16, height = 8)
+
+### land use ----
+
+landuse <- evap_stats_masks[,.(stats_area = sum(area)),.(ratio_std_quantile_brk, land_cover_short_class)]
+landuse <- landuse[complete.cases(landuse)]
+landuse[, land_area:= sum(stats_area), .( land_cover_short_class)]
+landuse[, land_fraction:= stats_area/land_area]
+
+ggplot(landuse) +
+  geom_bar(aes(x = land_cover_short_class, y = land_fraction, fill = ratio_std_quantile_brk), stat = "identity") +
+  xlab('Land use')  +
+  ylab('Fraction')  +
+  labs(fill = '')  +
+  scale_fill_manual(values = c("SQR cold > SQR warm" = colset_RdBu_5[5], 
+                               "SQR warm > SQR cold" = colset_RdBu_5[1],
+                               "SQR cold = SQR warm" = "gray90"))+
+  theme_light()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "bar_landuse_cumulative_fraction_SQR_ratio_sti_era5-land.png"), 
        width = 16, height = 8)

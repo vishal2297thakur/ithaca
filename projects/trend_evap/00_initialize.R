@@ -11,6 +11,8 @@ PATH_SAVE_EVAP_TREND_FIGURES <- paste0(PATH_SAVE, "evap_trend/figures/")
 PATH_SAVE_EVAP_TREND_TABLES <- paste0(PATH_SAVE, "evap_trend/tables/")
 PATH_SAVE_EVAP_TREND_FIGURES_SUPP <- paste0(PATH_SAVE, "evap_trend/figures/SUPPLEMENT/")
 PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE <- paste0(PATH_SAVE, "evap_trend/figures/Exploration/")
+PATH_SAVE_EVAP_TREND_FIGURES_MAIN <- paste0(PATH_SAVE, "evap_trend/figures/MAIN/")
+
 
 dir.create(PATH_SAVE_EVAP_TREND, showWarnings = FALSE)
 dir.create(PATH_SAVE_EVAP_TREND_RAW, showWarnings = FALSE)
@@ -19,6 +21,7 @@ dir.create(PATH_SAVE_EVAP_TREND_FIGURES, showWarnings = FALSE)
 dir.create(PATH_SAVE_EVAP_TREND_TABLES, showWarnings = FALSE)
 dir.create(PATH_SAVE_EVAP_TREND_FIGURES_SUPP , showWarnings = FALSE)
 dir.create(PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE , showWarnings = FALSE)
+dir.create(PATH_SAVE_EVAP_TREND_FIGURES_MAIN , showWarnings = FALSE)
 
 save(PATH_SAVE_EVAP_TREND, 
      PATH_SAVE_EVAP_TREND_RAW,
@@ -27,4 +30,5 @@ save(PATH_SAVE_EVAP_TREND,
      PATH_SAVE_EVAP_TREND_TABLES,
      PATH_SAVE_EVAP_TREND_FIGURES_SUPP,
      PATH_SAVE_EVAP_TREND_FIGURES_EXPLORE,
+     PATH_SAVE_EVAP_TREND_FIGURES_MAIN,
      file = paste0(PATH_SAVE_EVAP_TREND, "paths.Rdata"))

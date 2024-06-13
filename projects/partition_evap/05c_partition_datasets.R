@@ -84,6 +84,14 @@ evap_class_global <- evap_class[, .(evap_volume = sum(evap_volume), area = sum(a
                                      .(dataset, dataset_type, evap_quant, year)]
 evap_class_global[, evap_mean := ((evap_volume / M2_TO_KM2) / area) / MM_TO_KM]
 
+
+ipcc_class <- merge(evap_mask[, .(lat, lon, IPCC_ref_region)], 
+                    evap_datasets_volume[, .(lon, lat, year, evap_volume, area, dataset, dataset_type)], 
+                    by = c("lon", "lat"))
+ipcc_class_global <- ipcc_class[, .(evap_volume = sum(evap_volume), area = sum(area)), 
+                                .(dataset, dataset_type, IPCC_ref_region, year)]
+ipcc_class_global[, evap_mean := ((evap_volume / M2_TO_KM2) / area) / MM_TO_KM]
+
 ## Tables
 table_land_cover_class_mm <- land_cover_class_global[, .(evap_mean = round(mean(evap_mean), 0)), .(land_cover_short_class, dataset_type)]
 table_land_cover_class_mm <- dcast(table_land_cover_class_mm, land_cover_short_class ~ dataset_type, value.var = 'evap_mean')
@@ -224,13 +232,13 @@ ggplot(land_cover_class_global, aes(x = land_cover_short_class, y = evap_mean)) 
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
   scale_color_manual(values = cols_data) + 
-  facet_wrap(~land_cover_short_class, scales = 'free', nrow = 1) +
+  facet_wrap(~land_cover_short_class, scales = 'free', nrow = 2) +
   guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
   theme_bw() +
   theme(axis.text.x = element_blank())
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "evap_single_datasets_land_cover_annual_mm_v3.png"), 
-       width = 16, height = 8)
+       width = 10, height = 8)
 
 
 ggplot(biome_class_global, aes(x = biome_short_class, y = evap_mean)) +
@@ -251,7 +259,7 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/evap_datasets_biome_
 
 
 
-ggplot(biome_class_global, aes(x = biome_short_class, y = evap_mean)) +
+ggplot(biome_class_global[biome_short_class != "NA"], aes(x = biome_short_class, y = evap_mean)) +
   #geom_boxplot(width = 1.1, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
   geom_boxplot(fill = NA, aes(x = dataset_type, col = dataset), lwd = 0.7, position = "identity") +
   geom_violin(fill = NA, lwd = 0.7) +
@@ -260,12 +268,29 @@ ggplot(biome_class_global, aes(x = biome_short_class, y = evap_mean)) +
   scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
   #scale_linetype_manual(values = c("solid", "longdash","solid","dotdash")) +
   scale_color_manual(values = cols_data) + 
-  facet_wrap(~biome_short_class, scales = 'free', nrow = 1) +
+  facet_wrap(~biome_short_class, scales = 'free', nrow = 3,
+             labeller = label_wrap_gen(width = 10)) +
   guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
   theme_bw() +
   theme(axis.text.x = element_blank())
+  
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/evap_datasets_single_biome_annual_mm_v3.png"), 
-       width = 16, height = 8)
+       width = 10, height = 10)
+
+ggplot(ipcc_class_global[IPCC_ref_region != "NA"], aes(x = IPCC_ref_region, y = evap_mean)) +
+  geom_boxplot(fill = NA, aes(x = dataset_type, col = dataset), lwd = 0.7, position = "identity") +
+  geom_violin(fill = NA, lwd = 0.7) +
+  scale_x_discrete(name = "") +
+  scale_y_continuous(name = bquote('Evaporation [mm/year]')) +
+  scale_color_manual(values = cols_data) + 
+  facet_wrap(~IPCC_ref_region, scales = 'free', nrow = 7,
+             labeller = label_wrap_gen(width = 10)) +
+  guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), legend.position = "bottom")
+
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/evap_datasets_single_ipcc_annual_mm_v3.png"), 
+       width = 10, height = 16)
 
 ggplot(elev_class_global, aes(x = elev_class, y = evap_mean)) +
   geom_boxplot(width = .2, alpha = .7, show.legend = FALSE, col = "gray", fill = "gray90") +
