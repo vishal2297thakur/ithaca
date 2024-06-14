@@ -1,15 +1,13 @@
 ## Imports data from csv table and stores them as rds files.
 source('source/paleo.R')
 
-# recon_summary <- read.csv(paste0(PATH_SAVE_PALEO, "/mnt/shared/data/paleo/processed/pratap_thesis/recon_meta.csv"))
-# recon_data_xls <- readxl::read_xls(paste0(PATH_SAVE_PALEO, "/mnt/shared/data/paleo/processed/pratap_thesis/recon_data.xls"))
+library(stringr)
+library(dplyr)
 
 recon_summary <- read.csv("/mnt/shared/data/paleo/processed/pratap_thesis/recon_meta.csv")
 recon_data <- read.csv("/mnt/shared/data/paleo/processed/pratap_thesis/recon_data.csv")
 
 ### Assign recon_id ####
-library(stringr)
-library(dplyr)
 # Add first four letters in recon_id from selected columns
 # year from investigators 
 extract_year <- function(investigators) {
