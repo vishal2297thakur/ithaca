@@ -24,6 +24,9 @@ prec_time_series <- foreach(data_count = 1:length(DATASETS), .combine = rbind) %
   return(dummie)
 }
 
+saveRDS(prec_time_series, paste0(PATH_SAVE_UNCERTAINTY_PREC,
+                                 "prec_time_series.rds"))
+
 rm(prec_data)
 
 ALL_COMBS <- combn(DATASETS, 2, simplify = FALSE)
