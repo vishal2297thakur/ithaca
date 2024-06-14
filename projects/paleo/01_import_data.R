@@ -36,9 +36,12 @@ head(data_id)
 # Add recon_id to meta data
 recon_summary <- cbind(data_id, recon_summary) %>%
   dplyr::select(-investigators)%>%
-  filter(time_step != "varying")
+  filter(time_step != "varying")%>%
+  filter(variable != "Temp")
 
 recon_summary
+
+
 
 
 ### Add recon_id in main reconstruction data ###
@@ -46,7 +49,8 @@ additional_columns <- recon_summary %>%
   dplyr::select(recon_id, location)
 
 final_recon_data <- recon_data %>%
-  left_join(additional_columns, by = "location")
+  left_join(additional_columns, by = "location")%>%
+  filter(variable != "Temp")
 
 ######################
 
@@ -66,17 +70,12 @@ save(recon_summary, file = "~/shared/data_projects/ithaca/paleo/recon_summary.Rd
 saveRDS(final_recon, file = "~/shared/data_projects/ithaca/paleo/recon_data.rds")
 
 
-
-
-
 ### Analysis #####
 # load("~/shared/data_projects/ithaca/paleo/recon_summary.Rdata")
 
 final_recon_rds <- readRDS(file = "~/shared/data_projects/ithaca/paleo/recon_data.rds")
 
-filtered_recon <- final_recon_rds %>%
-  filter(recon_id %in% c("Finn_2014_TRW", "Alps_2016_TRW", "Nort_2014_TRW"))
-
+filtered_recon <- final_recon_rds
 
 results <- filtered_recon %>%
   group_by(recon_id) %>%
