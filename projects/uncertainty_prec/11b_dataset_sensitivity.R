@@ -30,9 +30,9 @@ COORD_IDX <- max(prec_data$coord_id)
 prec_bootstrap <- foreach (idx = 1:COORD_IDX, .combine = rbind) %dopar% {
   dummie_all <- prec_data[coord_id == idx, dataset]
   dummie_test <- bootstrap_data[coord_id == idx]
-  dummie <- dummie_test[, .(first_check = ifelse(Reduce("|", dummie_all %in% dataset), 1, 0)),
+  dummie <- dummie_test[, .(first_check = ifelse(sum(dummie_all %in% dataset) >= 2, 1, 0)),
                    .(lon, lat, combination_idx)]
-  dummie <- dummie[, .(pct = 1 - sum(first_check/84)), .(lon, lat)]
+  dummie <- dummie[, .(pct = 1 - sum(first_check/120)), .(lon, lat)]
   
 }
 
@@ -59,7 +59,7 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
 ###
-to_plot_sensitivity <- prec_bootstrap[, .(lon, lat, pct)] %>%
+to_plot_sensitivity <- prec_bootstrap[pct <= 0.1, .(lon, lat, pct)] %>%
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
