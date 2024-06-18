@@ -241,7 +241,7 @@ return(dummie)
 #' @param pollutant column name used for trend
 #' @param autocor if true slope estimate will be bootstrapped
 #' @return data.table with slope, lower and upper estimates and p-value
-trends_datasets_boot <- <- function(x, pollutant = "evap", autocor = TRUE) {
+trends_datasets_boot <- function(x, pollutant = "evap", autocor = TRUE) {
   no_cores <- detectCores() - 1
   if (no_cores < 1 | is.na(no_cores))(no_cores <- 1)
   registerDoParallel(cores = no_cores)
