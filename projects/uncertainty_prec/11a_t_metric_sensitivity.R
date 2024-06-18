@@ -11,10 +11,10 @@ prec_data_all[, coord_id := .GRP, by = c("lon", "lat")]
 
 #prec_data_all <- prec_data_all[lon >= -124.736342 & lon <= -66.945392 & lat >= 24.521208 & lat <= 49.382808]
 
-PREC_REPS <- c("cmap", "cpc", "cru-ts", "em-earth", "era5-land", "fldas",
-               "gpcp", "jra55", "precl")
+PREC_REPS <- c("cmap", "cpc", "cru-ts-v4-07", "em-earth", "era5-land", "fldas",
+               "gpcp-v3-2", "jra55", "ncep-doe", "precl")
 
-ALL_COMBS <- combn(PREC_REPS, 6, simplify = FALSE)
+ALL_COMBS <- combn(PREC_REPS, 7, simplify = FALSE)
 
 COORD_IDX <- max(prec_data_all$coord_id)
 
