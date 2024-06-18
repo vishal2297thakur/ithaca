@@ -43,8 +43,8 @@ to_plot <- exeves_drivers[, .(evap = mean(value), prec = mean(prec)),
 gg_prec <- ggplot(to_plot) +
   geom_point(aes(x = evap, y = prec, col = Conditions), alpha = 0.7) +
   facet_wrap(~month, scales = "free") +
-  xlab("Evaporation (mm)") +
-  ylab("Precipitation (mm)") +
+  xlab("Evaporation (mm/day)") +
+  ylab("Precipitation (mm/day)") +
   scale_color_manual(values = colset_subdued_prof[c(4, 2)]) +
   theme_linedraw() +
   theme(axis.title = element_text(size = 12),
@@ -61,3 +61,30 @@ ggarrange(gg_rad, NULL, gg_prec,
                      labels = c("A", "", "B"), heights = c(1, 0.05, 1),
                      legend = 'bottom', common.legend = TRUE) + bgcolor("white")  
 ggsave(paste0(PATH_OUTPUT_FIGURES, "drivers.png"), width = 7, height = 11)
+
+exeves_drivers[Conditions == 'ExEvE', mean(total_rad)] /
+  exeves_drivers[, mean(total_rad)]
+
+exeves_drivers[Conditions == 'ExEvE', mean(swrad)] /
+  exeves_drivers[Conditions == 'non-ExEvE', mean(swrad)]
+
+exeves_drivers[Conditions == 'ExEvE', mean(lwrad)] /
+  exeves_drivers[Conditions == 'non-ExEvE', mean(lwrad)]
+
+exeves_drivers[Conditions == 'ExEvE', mean(swrad), month(date)] 
+exeves_drivers[Conditions == 'non-ExEvE', mean(swrad), month(date)]
+
+exeves_drivers[Conditions == 'ExEvE', mean(lwrad), month(date)] 
+exeves_drivers[Conditions == 'non-ExEvE', mean(lwrad), month(date)]
+
+exeves_drivers[Conditions == 'ExEvE',  mean(prec)] /
+exeves_drivers[Conditions == 'non-ExEvE',  mean(prec)]
+
+exeves_drivers[Conditions == 'ExEvE', mean(prec), month(date)] 
+exeves_drivers[Conditions == 'non-ExEvE', mean(prec), month(date)]
+
+exeves_drivers[Conditions == 'ExEvE', sum(prec), month(date)] 
+exeves_drivers[Conditions == 'non-ExEvE', sum(prec), month(date)]
+
+exeves_drivers[Conditions == 'ExEvE',  sum(prec)] /
+  exeves_drivers[, sum(prec)]

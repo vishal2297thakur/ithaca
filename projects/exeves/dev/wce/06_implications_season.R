@@ -12,7 +12,7 @@ evap_grid <- readRDS(paste0(PATH_OUTPUT_DATA, 'grid_', region, '.rds'))
 borders <- read_sf('../../shared/data/geodata/maps/admin/czechia/CZE_adm0.shp')
 
 axis_decimal <- function(x) sprintf("%.1f", x)
-  
+
 names(prec)[3] <- "prec"
 exeves_prec <- merge(exeves, prec, by = c('grid_id', 'date'), all.x = TRUE)
 names(exeves_prec)[5] <- 'evap'
@@ -20,8 +20,8 @@ names(exeves_prec)[5] <- 'evap'
 exeves_prec_means <- unique(exeves_prec[, .(evap = mean(evap), 
                                             prec = mean(prec), 
                                             diff_pe = mean(prec) - mean(evap)), 
-                                        by = .(grid_id, period)])
-exeves_prec_means <- exeves_prec_means[, .(prec, evap, diff_pe, diff_prec = diff(prec), diff_evap = diff(evap), period), .(grid_id)]
+                                        by = .(grid_id, period, season)])
+exeves_prec_means <- exeves_prec_means[, .(prec, evap, diff_pe, diff_prec = diff(prec), diff_evap = diff(evap), period), .(grid_id, season)]
 exeves_prec_means[, diff_diff_pe := diff_prec - diff_evap]
 exeves_prec_means[, sum_diff_pe := diff_prec + diff_evap]
 exeves_prec_means[, mean_flux := (prec + evap) / 2]
@@ -34,12 +34,14 @@ to_plot[sum_diff_pe > 0 & diff_diff_pe < 0, Conditions := factor('Drier - Accele
 to_plot[sum_diff_pe < 0 & diff_diff_pe > 0, Conditions := factor('Wetter - Deccelerated')]
 to_plot[sum_diff_pe < 0 & diff_diff_pe < 0, Conditions := factor('Drier - Deccelerated')]
 levels(to_plot$period) <-  c("Up to 2001", "After 2001")
-names(to_plot)[9] <- "Period"
+names(to_plot)[4] <- "Season"
+names(to_plot)[10] <- "Period"
 to_plot[grid_id == 2 & Period == "Up to 2001", Conditions := factor('Drier - Accelerated')] # needed for plotting purposes
 
 gg_all <- ggplot(to_plot) +
   geom_point(aes(y = mean_flux, x = diff_pe, fill = Period, shape = Period), colour = "transparent", size = 2) +
   geom_line(aes(y = mean_flux, x = diff_pe, group = grid_id, col = Conditions), alpha = 0.5) +
+  facet_wrap(~Season, scales = 'free') + 
   scale_fill_manual(values = c('grey60', 'grey20')) +
   scale_color_manual(values = c('steelblue3','darkgreen' ,  'darkorange', 'darkred')) +
   scale_shape_manual(values = c(22, 21)) +
@@ -48,7 +50,8 @@ gg_all <- ggplot(to_plot) +
   scale_y_continuous(labels = axis_decimal) + 
   theme_linedraw()
 
-to_plot_nested <- to_plot[, .N, Conditions]
+to_plot_nested <- to_plot[, .N, .(Conditions, Season)]
+to_plot_nested <- to_plot_nested[order(Season, Conditions)]
 to_plot_nested$N <- round(100 * to_plot_nested$N/sum(to_plot_nested$N), 0)
 #to_plot_nested$N[1] <- 70 # For plotting
 gg_waffle <- 
@@ -81,6 +84,9 @@ gg_all_map <- ggplot(to_plot) +
     col = 'black', 
     lwd = 0.4
   ) +
+  facet_wrap(
+    ~Season
+  ) + 
   scale_x_continuous(
     breaks = seq(CZECHIA_LON_MIN, CZECHIA_LON_MAX, 2)
   ) +
@@ -110,8 +116,8 @@ gg_all_map <- ggplot(to_plot) +
 exeves_prec_means <- unique(exeves_prec[is.na(event_id), .(evap = mean(evap), 
                                                            prec = mean(prec), 
                                                            diff_pe = mean(prec) - mean(evap)), 
-                                        by = .(grid_id, period)])
-exeves_prec_means <- exeves_prec_means[, .(prec, evap, diff_pe, diff_prec = diff(prec), diff_evap = diff(evap), period), .(grid_id)]
+                                        by = .(grid_id, period, season)])
+exeves_prec_means <- exeves_prec_means[, .(prec, evap, diff_pe, diff_prec = diff(prec), diff_evap = diff(evap), period), .(grid_id, season)]
 exeves_prec_means[, diff_diff_pe := diff_prec - diff_evap]
 exeves_prec_means[, sum_diff_pe := diff_prec + diff_evap]
 exeves_prec_means[, mean_flux := (prec + evap) / 2]
@@ -124,12 +130,14 @@ to_plot[sum_diff_pe > 0 & diff_diff_pe < 0, Conditions := factor('Drier - Accele
 to_plot[sum_diff_pe < 0 & diff_diff_pe > 0, Conditions := factor('Wetter - Deccelerated')]
 to_plot[sum_diff_pe < 0 & diff_diff_pe < 0, Conditions := factor('Drier - Deccelerated')]
 levels(to_plot$period) <-  c("Up to 2001", "After 2001")
-names(to_plot)[9] <- "Period"
+names(to_plot)[4] <- "Season"
+names(to_plot)[10] <- "Period"
 to_plot[grid_id == 2 & Period == "Up to 2001", Conditions := factor('Drier - Accelerated')] # needed for plotting purposes
 
 gg_not_event <- ggplot(to_plot) +
   geom_point(aes(y = mean_flux, x = diff_pe, fill = Period, shape = Period), colour = "transparent", size = 2) +
   geom_line(aes(y = mean_flux, x = diff_pe, group = grid_id, col = Conditions), alpha = 0.5) +
+  facet_wrap(~Season, scales = 'free') + 
   scale_fill_manual(values = c('grey60', 'grey20')) +
   scale_color_manual(values = c('steelblue3','darkgreen' ,  'darkorange', 'darkred')) +
   scale_shape_manual(values = c(22, 21)) +
@@ -138,7 +146,8 @@ gg_not_event <- ggplot(to_plot) +
   scale_y_continuous(labels = axis_decimal) + 
   theme_linedraw()
 
-to_plot_nested <- to_plot[, .N, Conditions]
+to_plot_nested <- to_plot[, .N, .(Conditions, Season)]
+to_plot_nested <- to_plot_nested[order(Season, Conditions)]
 to_plot_nested$N <- round(100 * to_plot_nested$N/sum(to_plot_nested$N), 0)
 #to_plot_nested$N[1] <- 70 # For plotting
 gg_waffle <- 
@@ -171,6 +180,9 @@ gg_not_event_map <- ggplot(to_plot) +
     col = 'black', 
     lwd = 0.4
   ) +
+  facet_wrap(
+    ~Season
+  ) + 
   scale_x_continuous(
     breaks = seq(CZECHIA_LON_MIN, CZECHIA_LON_MAX, 2)
   ) +
@@ -198,8 +210,8 @@ gg_not_event_map <- ggplot(to_plot) +
 exeves_prec_means <- unique(exeves_prec[!is.na(event_id), .(evap = mean(evap), 
                                                             prec = mean(prec), 
                                                             diff_pe = mean(prec) - mean(evap)), 
-                                        by = .(grid_id, period)])
-exeves_prec_means <- exeves_prec_means[, .(prec, evap, diff_pe, diff_prec = diff(prec), diff_evap = diff(evap), period), .(grid_id)]
+                                        by = .(grid_id, period, season)])
+exeves_prec_means <- exeves_prec_means[, .(prec, evap, diff_pe, diff_prec = diff(prec), diff_evap = diff(evap), period), .(grid_id, season)]
 exeves_prec_means[, diff_diff_pe := diff_prec - diff_evap]
 exeves_prec_means[, sum_diff_pe := diff_prec + diff_evap]
 exeves_prec_means[, mean_flux := (prec + evap) / 2]
@@ -212,11 +224,13 @@ to_plot[sum_diff_pe > 0 & diff_diff_pe < 0, Conditions := factor('Drier - Accele
 to_plot[sum_diff_pe < 0 & diff_diff_pe > 0, Conditions := factor('Wetter - Deccelerated')]
 to_plot[sum_diff_pe < 0 & diff_diff_pe < 0, Conditions := factor('Drier - Deccelerated')]
 levels(to_plot$period) <-  c("Up to 2001", "After 2001")
-names(to_plot)[9] <- "Period"
+names(to_plot)[10] <- "Period"
+names(to_plot)[4] <- "Season"
 
 gg_event <- ggplot(to_plot) +
   geom_point(aes(y = mean_flux, x = diff_pe, fill = Period, shape = Period), colour = "transparent", size = 2) +
   geom_line(aes(y = mean_flux, x = diff_pe, group = grid_id, col = Conditions), alpha = 0.5) +
+  facet_wrap(~Season, scales = 'free') + 
   scale_fill_manual(values = c('grey60', 'grey20')) +
   scale_color_manual(values = c('steelblue3', 'darkred', 'darkorange',  'darkgreen')) +
   scale_shape_manual(values = c(22, 21)) +
@@ -225,7 +239,8 @@ gg_event <- ggplot(to_plot) +
   scale_y_continuous(labels = axis_decimal) + 
   theme_linedraw()
 
-to_plot_nested <- to_plot[, .N, Conditions]
+to_plot_nested <- to_plot[, .N, .(Conditions, Season)]
+to_plot_nested <- to_plot_nested[order(Season, Conditions)]
 to_plot_nested$N <- round(100 * to_plot_nested$N/sum(to_plot_nested$N), 0)
 #to_plot_nested$N[3] <- 30 # For plotting
 gg_waffle <- 
@@ -258,6 +273,9 @@ gg_event_map <- ggplot(to_plot) +
     col = 'black', 
     lwd = 0.4
   ) +
+  facet_wrap(
+    ~Season
+  ) + 
   scale_x_continuous(
     breaks = seq(CZECHIA_LON_MIN, CZECHIA_LON_MAX, 2)
   ) +
