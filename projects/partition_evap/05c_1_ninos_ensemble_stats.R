@@ -6,7 +6,7 @@ el_nino_years <- c(2003, 2007, 2010, 2016)
 la_nina_years <- c(2000, 2008, 2011, 2012)
 neutral_years <- c(2001, 2002, 2004, 2005, 2006, 2009, 2013, 2014, 2015, 2017, 2018, 2019)
 
-evap_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_datasets.rds"))
+evap_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_datasets_clean.rds"))
 evap_datasets[, year := as.numeric(as.character(year))]
 evap_datasets[year %in% el_nino_years, ENSO := "el_nino"]
 evap_datasets[year %in% la_nina_years, ENSO := "la_nina"]

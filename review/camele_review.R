@@ -13,8 +13,7 @@ library(sf)
 library(stars)
 
 ## stats
-library("Kendall")
-library("RobustLinearReg")
+library("openair")
 
 ## Load data ----
 fnames_nc <- list.files(path = PATH_EVAP_SIM, pattern = ".nc$", 
@@ -72,6 +71,34 @@ cdo_sinfo_fnc(fname)
 
 
 ## 7. Compare values to at least one other publication ----
+cdo_timmean_fnc(inputfile_name = fname, outputfile_name = "~/Review/camele_review_time_mean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/camele_review_time_mean.nc")
+
+# Comparison to product paper (Li et al. 2024, ESSD, accepted paper) reporting multi-year mean 2000-2017
+period_start <- as.Date("2000-01-01") 
+period_end <- as.Date("2017-01-01") 
+
+start_time <- which(data@z$Date == period_start)
+end_time <- which(data@z$Date == period_end)
+
+cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/camele_review_sel.nc", start_time = start_time, end_time = end_time)
+
+cdo_timmean_fnc(inputfile_name =  "~/Review/camele_review_sel.nc", outputfile_name = "~/Review/camele_timmean_mean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/camele_timmean_mean.nc")
+
+means <- raster("~/Review/camele_timmean_mean.nc")
+means_dt <- brick_to_dt(means)
+
+means_dt[, value_daily := value/365]
+means_dt[, value_daily_brk := cut(value_daily, seq(0, 5, 0.5))]
+
+
+ggplot(means_dt)+
+  geom_tile(aes(x = x, y = y, fill = value_daily_brk, col = value_daily_brk))+
+  scale_fill_manual(values = c("#0000ff", "#3661ff", "#38acff", "#00ffff","#91ffb4", "#d2ff69", "#ffff00", "#ffb700", "#ff6f00", "#ff0000"))+
+  scale_color_manual(values = c("#0000ff", "#3661ff", "#38acff", "#00ffff","#91ffb4", "#d2ff69", "#ffff00", "#ffb700", "#ff6f00", "#ff0000"))+
+  ggtitle(label = "camele")+
+  theme_bw()
 # Change according to need
 # Comparison to product paper (Li et al. 2023, ESSD) reporting daily trend map 1980-2022
 period_start <- as.Date("1980-01-01") 

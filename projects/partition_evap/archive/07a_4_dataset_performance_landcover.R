@@ -1,6 +1,3 @@
-# No global dataset so not applicable for evaporation
-
-
 # Plots the datasets that are closests/furthest to the ensemble mean
 
 source('source/partition_evap.R')

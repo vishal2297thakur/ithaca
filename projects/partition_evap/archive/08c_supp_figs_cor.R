@@ -15,7 +15,7 @@ evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
 data_for_cor_temporal <- dcast(evap_annual, year ~ dataset, value.var = 'evap_mean')
 
 taylor_obs <- evap_annual[dataset == 'gpcc', .(year, obs = evap_mean)]
-data_for_taylor <- merge(taylor_obs, evap_annual[dataset != 'gpcc'], by = "year")
+data_for_taylor <- merge(taylor_obs, evap_annual, by = "year")
 setnames(data_for_taylor, 'evap_mean', 'mod') 
 
 ## Analyses

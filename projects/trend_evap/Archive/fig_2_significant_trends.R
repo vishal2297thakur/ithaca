@@ -17,10 +17,10 @@ evap_index <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "global_grid_DCI_trend_groups
 
 data_sel <- subset(evap_index, select = c("DCI_0_01","DCI_0_05","DCI_0_1", "DCI_0_2", "DCI_all", "lon", "lat"))
 setnames(data_sel, old = c("DCI_0_01","DCI_0_05","DCI_0_1", "DCI_0_2", "DCI_all"), 
-         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
+         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))
 
 data_sel_melt <- melt(data_sel, 
-                      measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"), 
+                      measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"), 
                       id.vars = c("lon", "lat"))
 
 data_sel_melt[, DCI_brk := cut(value, c(-1.01,-0.5,-0.07, 0.07,0.5,1))]
@@ -53,9 +53,9 @@ data_sel_trend <- subset(evap_index, select = c("trend_0_01","trend_0_05", "tren
 data_sel_trend  <- grid_cell_area[data_sel_trend, on = .(lon, lat)]
 
 setnames(data_sel_trend, old = c("trend_0_01","trend_0_05", "trend_0_1","trend_0_2","trend_all"), 
-         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
+         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))
 
-data_sel_trend_melt <- melt(data_sel_trend, measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
+data_sel_trend_melt <- melt(data_sel_trend, measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))
 
 data_sel_trend_area <- data_sel_trend_melt[, .(trend_area = sum(area)), .(value, variable)] 
 data_sel_trend_area[, total_area := sum(trend_area), variable]
@@ -90,9 +90,9 @@ evap_sel  <- grid_cell_area[evap_sel, on = .(lon, lat)]
 
 setnames(evap_sel , old = c("N_sum_0_01", "N_sum_0_05", 
                             "N_sum_0_1", "N_sum_0_2", "N_sum_all"), 
-         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
+         new = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))
 
-data_melt <- melt(evap_sel, measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "all"))
+data_melt <- melt(evap_sel, measure.vars = c("p < 0.01", " p < 0.05", "p < 0.1", "p < 0.2", "p <= 1"))
 
 data_melt[, N_sum_brk := cut(round(value), c(-0.1, 0.9, 4, 7, 11, 14))]
 data_melt[N_sum_brk == "(-0.1,0.9]", N_sum_brk := "[0,1)"]
