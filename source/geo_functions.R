@@ -206,3 +206,56 @@ save_nc <- function(dummie_nc, nc_out, name_def = "tp", longname_def = "Total pr
   ncatt_put(ncoutput,"time","axis","T")
   nc_close(ncoutput)
 }
+
+#' Parallelisation of bootstrapped trend across lon lat using the Theil-Sen slope and block-bootstrap from openair package
+#' 
+#' @import openair
+#' @param x input data.table with lon and lat columns, dt(lon, lat, pollutant)
+#' @param pollutant column name used for trend
+#' @param autocor if true slope estimate will be bootstrapped
+#' @return data.table with slope, lower and upper estimates and p-value
+
+trends_lon_lat_boot <- function(x, pollutant = "evap", autocor = TRUE) {
+no_cores <- detectCores() - 1
+if (no_cores < 1 | is.na(no_cores))(no_cores <- 1)
+registerDoParallel(cores = no_cores)
+if (length(unique(x$lon)) > length(unique(x$lat))) {
+  x <- split(x, by = "lon")
+} else {
+  x <- split(x, by = "lat")
+}
+
+dummie <- foreach (idx = 1:length(x), .combine = rbind, .packages = c("openair")) %dopar% {
+  dummie_row <- x[[idx]]
+  dummie_row <- dummie_row[, TheilSen(.SD, pollutant = pollutant, autocor = autocor, plot = F, silent = T)$data$main.data[1,c(10,12,16,17)]
+                           , 
+                           .(lon, lat)]
+}
+return(dummie)
+}
+
+#' Parallelisation of bootstrapped trend across lon, lat for each dataset using the Theil-Sen slope and block-bootstrap from openair package
+#' 
+#' @import openair
+#' @param x input data.table with lon and lat columns, dt(lon, lat, dataset, pollutant)
+#' @param pollutant column name used for trend
+#' @param autocor if true slope estimate will be bootstrapped
+#' @return data.table with slope, lower and upper estimates and p-value
+trends_datasets_boot <- <- function(x, pollutant = "evap", autocor = TRUE) {
+  no_cores <- detectCores() - 1
+  if (no_cores < 1 | is.na(no_cores))(no_cores <- 1)
+  registerDoParallel(cores = no_cores)
+  if (length(unique(x$lon)) > length(unique(x$lat))) {
+    x <- split(x, by = "lon")
+  } else {
+    x <- split(x, by = "lat")
+  }
+  
+  dummie <- foreach (idx = 1:length(x), .combine = rbind, .packages = c("openair")) %dopar% {
+    dummie_row <- x[[idx]]
+    dummie_row <- dummie_row[, TheilSen(.SD, pollutant = pollutant, autocor = autocor, plot = F, silent = T)$data$main.data[1,c(10,12,16,17)]
+                             , 
+                             .(lon, lat, dataset)]
+  }
+  return(dummie)
+}
