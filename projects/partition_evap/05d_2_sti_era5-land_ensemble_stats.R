@@ -7,7 +7,7 @@ sti[, year := as.numeric(year(time))]
 sti[, time := NULL]
 sti[, rank_sti := rank(value), .(x, y)]
 
-evap_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_datasets.rds"))
+evap_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_datasets_clean.rds"))
 evap_datasets[, year := as.numeric(as.character(year))]
 
 ## merge data ----
