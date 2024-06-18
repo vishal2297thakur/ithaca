@@ -1,7 +1,7 @@
-# Figure 1 - the global overview ----
+# SI support for figure 1 - the global overview ----
 source('source/evap_trend.R')
-
 library(rnaturalearth)
+
 
 # Map preparation -----
 ## World and Land borders ----
@@ -27,56 +27,31 @@ labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
 labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
-## Global evap trend bt data product  ----
-evap_annual_trend <- readRDS(paste0(PATH_SAVE_EVAP_TREND_TABLES, "data_fig_1_a_global_evap_trend.rds"))
-evap_annual_trend[, trend_significance := factor(trend_significance, levels = c("positive p < 0.01", "positive p < 0.05",
-                                                                                "positive p <= 0.1", "negative p <= 0.1",
-                                                                                "p > 0.1"))]
-fig_trend <- ggplot(evap_annual_trend)+
-  geom_segment(aes(x = dataset, y = lower, yend = upper), lwd = 1)+
-  geom_point(aes(x = dataset, y = slope, col = as.factor(trend_significance)), size = 4)+
-  geom_abline(intercept = 0, slope = 0, col = "black")+
-  scale_color_manual(values = c("p > 0.1" = "gray", 
-                               "negative p <= 0.1" = "royalblue3", 
-                               "positive p < 0.01" = "darkred",
-                               "positive p < 0.05" = "firebrick3",
-                               "positive p <= 0.1" = "lightcoral"))+
-  labs(y = expression(paste("ET trend [mm year"^-~2,"] ")), color = "Trend significance ", x = "Dataset")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))+
-  theme(axis.ticks.length = unit(0, "cm"),
-        panel.grid.major = element_line(colour = "gray60"),
-        axis.title = element_text(size = 16), 
-        legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 16),
-        legend.position = "right")
+## Slope ratio and IQR ----
+evap_trend_min_max[, slope_ratio := max/min]
+evap_trend_min_max[, IQR := Q75-Q25]
 
+evap_trend_min_max[, slope_ratio_brk := cut(slope_ratio, breaks = c(-Inf,-20, -10, -2, 2, 10, 20, Inf))]
+evap_trend_min_max[, IQR_brk := cut(IQR, breaks = c(0, 1, 2, 3, 4, 5, 21))]
 
+## IQR ----
+cols_IQR <- c("lightblue", "steelblue1", "steelblue3","darkblue", "darkorange" ,"gold")
 
-## folds of Q25 Q75 ----
-
-evap_trend_stats <- readRDS(paste0(PATH_SAVE_EVAP_TREND_TABLES, "data_fig_1_b_c_grid_quartile_stats.rds"))
-
-
-### Map ----
-
-cols_grid_fold <- c("royalblue3","gold")
-                                
-to_plot_sf <- evap_trend_stats[, .(lon, lat, fold_brk)
-][, value := as.numeric(fold_brk)]
+to_plot_sf <- evap_trend_min_max[, .(lon, lat, IQR_brk)
+][, value := as.numeric(IQR_brk)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-fig_Q75Q25_fold <- ggplot(to_plot_sf) +
+fig_IQR <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = as.factor(value), fill = as.factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
-  scale_fill_manual(values = cols_grid_fold, labels = levels(evap_trend_stats$fold_brk)) +
-  scale_color_manual(values = cols_grid_fold,
+  scale_fill_manual(values = cols_IQR, labels = levels(evap_trend_min_max$IQR_brk)) +
+  scale_color_manual(values = cols_IQR,
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Quartile   \nfold [-]") +
+  labs(x = NULL, y = NULL, fill = "IQR\n[mm/year/year]") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray20", size = 3) +
@@ -89,30 +64,35 @@ fig_Q75Q25_fold <- ggplot(to_plot_sf) +
         axis.text = element_blank(), 
         axis.title = element_text(size = 16), 
         legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 16),
-        legend.position = "bottom")+
-  guides(fill = guide_legend(nrow = 2, byrow = TRUE))
+        legend.title = element_text(size = 16))
 
 
-## Quartile sign disagreement
+#### Slope ratio ----
 
-cols_grid_agreement <- c("royalblue3","gold")
+cols_slope_ratio <- c("darkblue", 
+                                "steelblue3",
+                                "steelblue1", 
+                                "gray90",
+                                "gold",
+                                "darkorange",
+                                "darkred"
+)
 
-to_plot_sf <- evap_trend_stats[, .(lon, lat, sign)
-][, value := as.numeric(sign)]
+to_plot_sf <- evap_trend_min_max[, .(lon, lat, slope_ratio_brk)
+][, value := as.numeric(slope_ratio_brk)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-fig_sign_agreement <- ggplot(to_plot_sf) +
+fig_slope_ratio <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = as.factor(value), fill = as.factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
-  scale_fill_manual(values = cols_grid_agreement, labels = levels(evap_trend_stats$sign)) +
-  scale_color_manual(values = cols_grid_agreement,
+  scale_fill_manual(values = cols_slope_ratio, labels = levels(evap_trend_min_max$slope_ratio_brk)) +
+  scale_color_manual(values = cols_slope_ratio,
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Q25 and Q75   \nsigns") +
+  labs(x = NULL, y = NULL, fill = "Slope max/min [-]") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray20", size = 3) +
@@ -125,19 +105,7 @@ fig_sign_agreement <- ggplot(to_plot_sf) +
         axis.text = element_blank(), 
         axis.title = element_text(size = 16), 
         legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 16),
-        legend.position = "bottom")+
-  guides(fill = guide_legend(nrow = 2, byrow = TRUE))
+        legend.title = element_text(size = 16))
 
-
-## ggarrange ----
-
-ggmaps <- ggarrange(fig_Q75Q25_fold, fig_sign_agreement, align = "hv", 
-                    ncol = 2, nrow = 1, labels = c("b", "c"))
-fig_1 <- ggarrange(fig_trend, ggmaps,  
-          ncol = 1, nrow = 2, labels = c("a", ""), heights = c(1, 1.0))
-
-ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_MAIN, "fig1_maps_evap_trend_overview.png"), 
-       width = 12, height = 8)
 
 

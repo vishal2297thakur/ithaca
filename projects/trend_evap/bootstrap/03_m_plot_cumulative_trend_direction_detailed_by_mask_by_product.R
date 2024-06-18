@@ -3,7 +3,7 @@
 source('source/evap_trend.R')
 
 ## Data ----
-# Input Data generated in trend_evap/bootstrap/02_a
+# Input Data generated in trend_evap/bootstrap/02_j
 biome_trends <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "biome_cumulative_trend_direction_detailed_per_dataset_bootstrap.rds"))
 ipcc_trends <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "ipcc_cumulative_trend_direction_detailed_per_dataset_bootstrap.rds"))
 land_trends <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "land_cover_cumulative_trend_direction_detailed_per_dataset_bootstrap.rds"))

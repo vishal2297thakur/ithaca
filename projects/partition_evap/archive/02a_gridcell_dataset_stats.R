@@ -23,6 +23,8 @@ evap_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine = rbin
 }
 setkeyv(evap_datasets, c("lon", "lat", "dataset"))
 evap_datasets[, n_datasets := .N, .(lon, lat)]
+saveRDS(evap_datasets, paste0(PATH_SAVE_PARTITION_EVAP, "evap_mean_datasets_complete.rds"))
+
 evap_datasets <- evap_datasets[n_datasets >= MIN_N_DATASETS]
 evap_datasets[dataset %in% EVAP_DATASETS_REANAL, dataset_type := 'reanalysis'
               ][dataset %in% EVAP_DATASETS_REMOTE, dataset_type := 'remote sensing'

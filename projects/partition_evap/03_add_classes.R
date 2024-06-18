@@ -11,7 +11,6 @@ library("gtools")
 ## Data 
 masks_global <- readRDS(paste0(PATH_SAVE, "/misc/masks_global_IPCC.rds"))
 evap_stats <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_ensemble_stats.rds"))
-evap_volume <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_mean_volume_grid.rds"))
 
 ## Masks
 ### Evaporation
@@ -63,23 +62,29 @@ evap_masks[, ipcc_dataset_agreement := ordered(quantcut(std_quant_range, c(0, 0.
 
 evap_masks[,ocean:= NULL]
 
+
+evap_masks[grepl("Tundra", biome_class) == TRUE, biome_short_class := "Tundra"]
+evap_masks[grepl("Boreal Forests", biome_class) == TRUE, biome_short_class := "B. Forests"]
+evap_masks[grepl("Dry Broadleaf Forests", biome_class) == TRUE, biome_short_class := "T/S Dry BL Forests"]
+evap_masks[grepl("Moist Broadleaf Forests", biome_class) == TRUE, biome_short_class := "T/S Moist BL Forests"]
+evap_masks[grepl("Subtropical Coniferous Forests", biome_class) == TRUE, biome_short_class := "T/S Coni. Forests"]
+evap_masks[grepl("Temperate Conifer Forests", biome_class) == TRUE, biome_short_class := "T. Coni. Forests"]
+evap_masks[grepl("Temperate Broadleaf & Mixed Forests", biome_class) == TRUE, biome_short_class := "T. BL Forests"]
+evap_masks[grepl("Temperate Grasslands", biome_class) == TRUE, biome_short_class := "T. Grasslands"]
+evap_masks[grepl("Subtropical Grasslands", biome_class) == TRUE, biome_short_class := "T/S Grasslands"]
+evap_masks[grepl("Montane Grasslands", biome_class) == TRUE, biome_short_class := "M. Grasslands"]
+evap_masks[grepl("Flooded", biome_class) == TRUE, biome_short_class := "Flooded"]
+evap_masks[grepl("Mangroves", biome_class) == TRUE, biome_short_class := "Mangroves"]
+evap_masks[grepl("Deserts", biome_class) == TRUE, biome_short_class := "Deserts"]
+evap_masks[grepl("Mediterranean", biome_class) == TRUE, biome_short_class := "Mediterranean"]
+evap_masks[grepl("N/A", biome_class) == TRUE, biome_short_class := NA]
+evap_masks[, biome_short_class := factor(biome_short_class,
+                                         levels = c("B. Forests", "Deserts", "Flooded", "Mangroves",
+                                                    "M. Grasslands", "Mediterranean", 
+                                                    "T. Coni. Forests", "T. BL Forests", 
+                                                    "T. Grasslands", 
+                                                    "T/S Coni. Forests", "T/S Dry BL Forests", "T/S Moist BL Forests",
+                                                    "T/S Grasslands", "Tundra"), ordered = TRUE)]
 ## Save data
 saveRDS(evap_masks, paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
 
-
-## Code review
-evap_masks <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
-
-ggplot(evap_masks)+
-  geom_tile(aes(x = lon, y = lat, fill = rel_dataset_agreement))+
-  theme_bw()
-
-ggplot(evap_masks)+
-  geom_tile(aes(x = lon, y = lat, fill = evap_quant_dataset_agreement))+
-  theme_bw()
-
-IPCC_test <- evap_masks[, .N, IPCC_ref_region]
-
-ggplot(IPCC_test)+
-  geom_bar(aes(y = N, x = IPCC_ref_region), stat = "identity")+
-  theme_bw()

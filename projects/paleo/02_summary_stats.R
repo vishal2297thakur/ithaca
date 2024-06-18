@@ -2,4 +2,4 @@
 
 source('source/paleo.R')
 
-recon_data <- readRDS( paste0(PATH_SAVE_PALEO, "recon_data.rds"))
+recon_data <- readRDS(paste0(PATH_SAVE_PALEO, "recon_data.rds"))
