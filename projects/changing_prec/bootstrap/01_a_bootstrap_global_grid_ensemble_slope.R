@@ -8,8 +8,6 @@ library(openair)
 PATH_SAVE_CHANGING_PREC <- paste0(PATH_SAVE, "changing_prec/")
 prec_datasets <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "prec_datasets.rds"))
 
-prec_datasets <- prec_datasets[dataset != "jra55"]
-
 ## Analysis ----
 prec_datasets[, year := as.numeric(as.character(year))]
 prec_datasets_grid_mean <- prec_datasets[, .(prec = mean(prec, na.rm = T), count = .N), .(lat, lon, year)]
