@@ -40,4 +40,5 @@ period_start <- as.Date("2000-01-01")
 period_end <- ITHACA_PERIOD_END
 period_months <- interval(period_start, period_end) %/% months(1) + 1
 
-
+#global space
+global_area_evap <- 125803654946773

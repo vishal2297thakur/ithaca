@@ -17,12 +17,11 @@ library(stars)
 fnames_nc <- list.files(path = PATH_EVAP_SIM, pattern = ".nc$", 
                         full.names = T)
 
-fnames_product <- fnames_nc[grep("gldas-vic", fnames_nc)]
+fnames_product <- fnames_nc[grep("gldas-vic-v2-1", fnames_nc)]
 
 fname <- fnames_product[grep("yearly", fnames_product)]
 ## 1. Check name: Data product, variables, unit, scale, beginning of time, end of time, spatial resolution, temporal resolution ----
 fname
-fname <- fname[2]
 
 ## 2. Check unit conversion/scaling (nc history)----
 # multipliers "-mulc"
@@ -68,3 +67,5 @@ data@z$Date
 cdo_sinfo_fnc(fname)
 
 ## 7. Compare values to at least one other publication ----
+cdo_timmean_fnc(inputfile_name = fname, outputfile_name = "~/Review/gldas-vic_review_time_mean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/gldas-vic_review_time_mean.nc")
