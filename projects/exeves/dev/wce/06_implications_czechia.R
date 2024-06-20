@@ -36,8 +36,8 @@ to_plot[sum_diff_pe < 0 & diff_diff_pe < 0, Conditions := factor('Drier - Deccel
 levels(to_plot$period) <-  c("Up to 2001", "After 2001")
 names(to_plot)[9] <- "Period"
 to_plot[grid_id == 2 & Period == "Up to 2001", Conditions := factor('Drier - Accelerated')] # needed for plotting purposes
-
-gg_all <- ggplot(to_plot) +
+to_plot
+gg_all <- ggplot(to_plot[lon > CZECHIA_LON_MIN  & lon < CZECHIA_LON_MAX & lat < CZECHIA_LAT_MAX & lat > CZECHIA_LAT_MIN]) +
   geom_point(aes(y = mean_flux, x = diff_pe, fill = Period, shape = Period), colour = "transparent", size = 2) +
   geom_line(aes(y = mean_flux, x = diff_pe, group = grid_id, col = Conditions), alpha = 0.5) +
   scale_fill_manual(values = c('grey60', 'grey20')) +
@@ -48,7 +48,7 @@ gg_all <- ggplot(to_plot) +
   scale_y_continuous(labels = axis_decimal) + 
   theme_linedraw()
 
-to_plot_nested <- to_plot[, .N, Conditions]
+to_plot_nested <- to_plot[lon > CZECHIA_LON_MIN  & lon < CZECHIA_LON_MAX & lat < CZECHIA_LAT_MAX & lat > CZECHIA_LAT_MIN, .N, Conditions]
 to_plot_nested$N <- round(100 * to_plot_nested$N/sum(to_plot_nested$N), 0)
 #to_plot_nested$N[1] <- 70 # For plotting
 gg_waffle <- 
@@ -127,7 +127,7 @@ levels(to_plot$period) <-  c("Up to 2001", "After 2001")
 names(to_plot)[9] <- "Period"
 to_plot[grid_id == 2 & Period == "Up to 2001", Conditions := factor('Drier - Accelerated')] # needed for plotting purposes
 
-gg_not_event <- ggplot(to_plot) +
+gg_not_event <- ggplot(to_plot[lon > CZECHIA_LON_MIN  & lon < CZECHIA_LON_MAX & lat < CZECHIA_LAT_MAX & lat > CZECHIA_LAT_MIN]) +
   geom_point(aes(y = mean_flux, x = diff_pe, fill = Period, shape = Period), colour = "transparent", size = 2) +
   geom_line(aes(y = mean_flux, x = diff_pe, group = grid_id, col = Conditions), alpha = 0.5) +
   scale_fill_manual(values = c('grey60', 'grey20')) +
@@ -138,7 +138,7 @@ gg_not_event <- ggplot(to_plot) +
   scale_y_continuous(labels = axis_decimal) + 
   theme_linedraw()
 
-to_plot_nested <- to_plot[, .N, Conditions]
+to_plot_nested <- to_plot[lon > CZECHIA_LON_MIN  & lon < CZECHIA_LON_MAX & lat < CZECHIA_LAT_MAX & lat > CZECHIA_LAT_MIN, .N, Conditions]
 to_plot_nested$N <- round(100 * to_plot_nested$N/sum(to_plot_nested$N), 0)
 #to_plot_nested$N[1] <- 70 # For plotting
 gg_waffle <- 
@@ -214,7 +214,7 @@ to_plot[sum_diff_pe < 0 & diff_diff_pe < 0, Conditions := factor('Drier - Deccel
 levels(to_plot$period) <-  c("Up to 2001", "After 2001")
 names(to_plot)[9] <- "Period"
 
-gg_event <- ggplot(to_plot) +
+gg_event <- ggplot(to_plot[lon > CZECHIA_LON_MIN  & lon < CZECHIA_LON_MAX & lat < CZECHIA_LAT_MAX & lat > CZECHIA_LAT_MIN]) +
   geom_point(aes(y = mean_flux, x = diff_pe, fill = Period, shape = Period), colour = "transparent", size = 2) +
   geom_line(aes(y = mean_flux, x = diff_pe, group = grid_id, col = Conditions), alpha = 0.5) +
   scale_fill_manual(values = c('grey60', 'grey20')) +
@@ -225,7 +225,7 @@ gg_event <- ggplot(to_plot) +
   scale_y_continuous(labels = axis_decimal) + 
   theme_linedraw()
 
-to_plot_nested <- to_plot[, .N, Conditions]
+to_plot_nested <- to_plot[lon > CZECHIA_LON_MIN  & lon < CZECHIA_LON_MAX & lat < CZECHIA_LAT_MAX & lat > CZECHIA_LAT_MIN, .N, Conditions]
 to_plot_nested$N <- round(100 * to_plot_nested$N/sum(to_plot_nested$N), 0)
 #to_plot_nested$N[3] <- 30 # For plotting
 gg_waffle <- 
