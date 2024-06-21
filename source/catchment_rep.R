@@ -1,7 +1,4 @@
-library(doParallel)
-library(foreach)
 library(data.table)
-library(parallel)
 
 catchment_rep <- function(data) {
   prec_data <- unique(data[, .(lon, lat, date, dataset, value)])
