@@ -4,7 +4,7 @@ source('source/changing_prec.R')
 
 ## Data ----
 ### Input Data generated in projects/trend_prec/bootstrap/01_c
-prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "global_grid_per_dataset_prec_slope_intersection_lat_lon_bootstrap.rds"))  
+prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "01_c_global_grid_per_dataset_prec_slope_intersection_lat_lon_bootstrap.rds"))  
 
 datasets <- unique(prec_trend$dataset)
 
@@ -42,4 +42,4 @@ data_success[, CSI := c/(a+b+c)]
 data_success[, BIAS := (c+b)/(c+a)]
 
 ## Save Data ----
-saveRDS(data_success, paste0(PATH_SAVE_CHANGING_PREC, "global_CSI_BIAS_dataset_bootstrap.rds"))
+saveRDS(data_success, paste0(PATH_SAVE_CHANGING_PREC, "01_f_global_CSI_BIAS_dataset_bootstrap.rds"))

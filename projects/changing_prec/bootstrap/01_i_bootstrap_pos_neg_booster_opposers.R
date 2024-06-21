@@ -4,15 +4,15 @@ source('source/geo_functions.R')
 
 ## Data ----
 ## Created in changing_prec/01_g
-prec_trend_g <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "global_grid_DCI_trend_groups_p_thresholds_bootstrap.rds"))
+prec_trend_g <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "01_g_global_grid_DCI_trend_groups_p_thresholds_bootstrap.rds"))
 
 ## Created in changing_prec/01_h
-prec_trend_h <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "global_grid_DCI_trend_groups_p_thresholds_bootstrap_dataset_leftout.rds"))
+prec_trend_h <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "01_h_global_grid_DCI_trend_groups_p_thresholds_bootstrap_dataset_leftout.rds"))
 
 
 ### Input data generated in changing_prec/bootstrap/01_c 
-prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "global_grid_per_dataset_prec_slope_bootstrap.rds"))  
-prec_trend <- prec_trend[dataset_count >= 12]
+prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "01_c_global_grid_per_dataset_prec_slope_bootstrap.rds"))  
+prec_trend <- prec_trend[dataset_count >= 10]
 
 prec_trend_pos <- prec_trend[p <= 0.01 & slope >= 0, .(N_pos_0_01 = .N), .(lat, lon, dataset)]
 prec_trend_neg <- prec_trend[p <= 0.01 & slope < 0, .(N_neg_0_01 = .N), .(lat, lon, dataset)]
@@ -62,7 +62,7 @@ prec_trend_summary[is.na(prec_trend_summary)] <- 0
 grid_cell_area <- unique(prec_trend_summary[, .(lon, lat)]) %>% grid_area() # m2
 prec_trend_summary <- grid_cell_area[prec_trend_summary, on = .(lon, lat)]
 
-saveRDS(prec_trend_summary, paste0(PATH_SAVE_CHANGING_PREC, "global_trends_summary_p_val_lon_lat_dataproducts.rds"))
+saveRDS(prec_trend_summary, paste0(PATH_SAVE_CHANGING_PREC, "01_i_global_trends_summary_p_val_lon_lat_dataproducts.rds"))
 
 
 prec_sums_area <- prec_trend_summary[, .(sum_N_pos_0_01 = sum(N_pos_0_01*area),
@@ -102,7 +102,7 @@ prec_sums_melt <- melt(prec_sums_area,
 
 prec_sums_melt[, rank_datasets := rank(-value), .(variable)]
 
-saveRDS(prec_sums_melt, paste0(PATH_SAVE_CHANGING_PREC, "global_ranked_datasets_signal_booster_p_thresholds_bootstrap.rds"))
+saveRDS(prec_sums_melt, paste0(PATH_SAVE_CHANGING_PREC, "01_i_global_ranked_datasets_signal_booster_p_thresholds_bootstrap.rds"))
 
 
 ## Estimate opposing fraction of all data ----
@@ -136,4 +136,4 @@ prec_opposing[, sum_diff := sum - sum_leftout]
 prec_opposing[, rank_opp := rank(-sum_diff), .(variable)]
 
 ## Save data ----
-saveRDS(prec_opposing, paste0(PATH_SAVE_CHANGING_PREC, "global_ranked_datasets_opposing_p_thresholds_bootstrap.rds"))
+saveRDS(prec_opposing, paste0(PATH_SAVE_CHANGING_PREC, "01_i_global_ranked_datasets_opposing_p_thresholds_bootstrap.rds"))

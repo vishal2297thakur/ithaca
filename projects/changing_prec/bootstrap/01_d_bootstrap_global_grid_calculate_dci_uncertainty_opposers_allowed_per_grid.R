@@ -8,8 +8,8 @@ source('source/geo_functions.R')
 
 ## Data ----
 ### Input data generated in changing_prec/bootstrap/01_c 
-prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "global_grid_per_dataset_prec_slope_bootstrap.rds"))  
-prec_trend <- prec_trend[dataset_count >= 12]
+prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "01_c_global_grid_per_dataset_prec_slope_bootstrap.rds"))  
+prec_trend <- prec_trend[dataset_count >= 10]
 
 ## Analysis 
 ### Overview ---=
@@ -74,5 +74,5 @@ prec_trend_summary[N_neg_theil_sen > 8, .N]
 prec_trend_lon_lat <- merge(prec_trend_summary, prec_trend_dci)
 
 ## Save data ----
-saveRDS(prec_trend_lon_lat, paste0(PATH_SAVE_CHANGING_PREC, "global_grid_slope_indices_opp_allowed_bootstrap.rds"))
+saveRDS(prec_trend_lon_lat, paste0(PATH_SAVE_CHANGING_PREC, "01_d_global_grid_slope_indices_opp_allowed_bootstrap.rds"))
 

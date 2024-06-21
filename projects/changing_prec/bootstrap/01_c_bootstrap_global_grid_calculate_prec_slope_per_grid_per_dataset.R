@@ -20,7 +20,6 @@ unique(prec_datasets, by = "dataset")
 # Count the number of unique years for each (lon, lat, dataset) combination
 year_counts <- prec_datasets[, .N, by = .(lon, lat, dataset)]
 filtered_year_counts <- year_counts[N >= 10]
-
 # Merge back with the original data to keep only the valid rows
 prec_datasets <- prec_datasets[filtered_year_counts, on = .(lon, lat, dataset)]
 
@@ -40,17 +39,17 @@ for (dataset_num in PREC_FNAMES_SHORT_2000_2019){
   prec_dataset_sel_trend[p > 0.05, significant_theil_sen:= FALSE]
   prec_dataset_sel_trend[p <= 0.05, significant_theil_sen:= TRUE]
 
-  saveRDS(prec_dataset_sel_trend, paste0(PATH_SAVE_CHANGING_PREC, "prec_dataset_",dataset_num,"_trend_bootstrap.rds"))
+  saveRDS(prec_dataset_sel_trend, paste0(PATH_SAVE_CHANGING_PREC, "01_c_prec_dataset_",dataset_num,"_trend_bootstrap.rds"))
 }
 
 
 ### Assemble data ----
 for (dataset_num in PREC_FNAMES_SHORT_2000_2019){
-  dummy_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "prec_dataset_",dataset_num,"_trend_bootstrap.rds"))  
+  dummy_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "01_c_prec_dataset_",dataset_num,"_trend_bootstrap.rds"))  
   if(dataset_num != PREC_FNAMES_SHORT_2000_2019[1]){
     prec_trend <- rbind( prec_trend, dummy_trend)
   }else{
-    prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "prec_dataset_",dataset_num,"_trend_bootstrap.rds"))  
+    prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "01_c_prec_dataset_",dataset_num,"_trend_bootstrap.rds"))  
   }
 }
 
@@ -83,5 +82,5 @@ prec_trend <- prec_trend[,dataset_count := .N,.(lon, lat)]
 prec_trend_complete_only <- prec_trend[dataset_count >= n_datasets_2000_2019,]
 
 ## save data----
-saveRDS(prec_trend, paste0(PATH_SAVE_CHANGING_PREC, "global_grid_per_dataset_prec_slope_bootstrap.rds"))  
-saveRDS(prec_trend_complete_only , paste0(PATH_SAVE_CHANGING_PREC, "global_grid_per_dataset_prec_slope_intersection_lat_lon_bootstrap.rds"))  
+saveRDS(prec_trend, paste0(PATH_SAVE_CHANGING_PREC, "01_c_global_grid_per_dataset_prec_slope_bootstrap.rds"))  
+saveRDS(prec_trend_complete_only , paste0(PATH_SAVE_CHANGING_PREC, "01_c_global_grid_per_dataset_prec_slope_intersection_lat_lon_bootstrap.rds"))  

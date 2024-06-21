@@ -5,8 +5,8 @@ source('source/geo_functions.R')
 
 ## Data ----
 ### Input Data generated in projects/changing_prec/bootstrap/01_c
-prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "global_grid_per_dataset_prec_slope_bootstrap.rds"))  
-prec_trend <- prec_trend[dataset_count >= 12]
+prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "01_c_global_grid_per_dataset_prec_slope_bootstrap.rds"))  
+prec_trend <- prec_trend[dataset_count >= 10]
 
 ### probability groups with dataset left out----
 datasets <- unique(prec_trend$dataset)
@@ -76,18 +76,18 @@ prec_trend_summary[N_neg_theil_sen > 0 & N_neg_theil_sen/(N_neg_theil_sen+N_pos_
 grid_cell_area <- unique(prec_trend_summary[, .(lon, lat)]) %>% grid_area() # m2
 prec_trend_summary <- grid_cell_area[prec_trend_summary, on = .(lon, lat)]
 
-saveRDS(prec_trend_summary, paste0(PATH_SAVE_CHANGING_PREC, "global_grid_uncertainty_dataset_leftout_bootstrap.rds"))
+saveRDS(prec_trend_summary, paste0(PATH_SAVE_CHANGING_PREC, "01_e_global_grid_uncertainty_dataset_leftout_bootstrap.rds"))
 
 prec_trend_summary[, count_all:= sum(N_pos_theil_sen, N_neg_theil_sen, N_ins_pos_theil_sen, N_ins_neg_theil_sen, na.rm = T),.(lon,lat)]
-prec_trend_summary <- prec_trend_summary[ count_all >= 182]
+prec_trend_summary <- prec_trend_summary[ count_all >= 132] #(12*11 = 132)
 prec_uncertainty <- prec_trend_summary[,.(trend_area = sum(area)),.(trend,
                                                                     dataset_leftout)]
 prec_uncertainty[, area := sum(trend_area), .(dataset_leftout)]
 prec_uncertainty[, area_fraction := trend_area/area, .(dataset_leftout)]
 
 ### Input Data generated in projects/changing_prec/bootstrap/01_d
-prec_trend_indices <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "global_grid_slope_indices_opp_allowed_bootstrap.rds"))
-prec_trend_indices <- prec_trend_indices[count >= 14]
+prec_trend_indices <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "01_d_global_grid_slope_indices_opp_allowed_bootstrap.rds"))
+prec_trend_indices <- prec_trend_indices[count >= 12]
 prec_uncertainty_all <- prec_trend_indices[,.(trend_area = sum(area)),.(trend)]
 prec_uncertainty_all[, area:= sum(trend_area)]
 prec_uncertainty_all[, area_fraction:= trend_area/area]
@@ -95,5 +95,5 @@ prec_uncertainty_all[, area_fraction:= trend_area/area]
 prec_probability <- merge(prec_uncertainty, prec_uncertainty_all, by = c("trend"), all = T)
 prec_probability[, diff_area_fraction := area_fraction.y-area_fraction.x]
 
-saveRDS(prec_probability, paste0(PATH_SAVE_CHANGING_PREC, "global_stats_probability_group_contribution_dataset_leftout_bootstrap.rds"))
+saveRDS(prec_probability, paste0(PATH_SAVE_CHANGING_PREC, "01_e_global_stats_probability_group_contribution_dataset_leftout_bootstrap.rds"))
 

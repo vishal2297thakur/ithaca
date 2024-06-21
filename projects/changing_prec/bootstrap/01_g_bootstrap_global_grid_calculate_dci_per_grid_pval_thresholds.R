@@ -7,8 +7,8 @@ source('source/changing_prec.R')
 
 ## Data ----
 ### Input data generated in changing_prec/bootstrap/01_c 
-prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "global_grid_per_dataset_prec_slope_bootstrap.rds"))  
-prec_trend <- prec_trend[dataset_count >= 12]
+prec_trend <- readRDS(paste0(PATH_SAVE_CHANGING_PREC, "01_c_global_grid_per_dataset_prec_slope_bootstrap.rds"))  
+prec_trend <- prec_trend[dataset_count >= 10]
 
 ## Analysis ----
 ### p value 0.01 as threshold ----
@@ -110,5 +110,5 @@ prec_trend_summary[, pDCI_max := c("<=0.01", "<=0.05", "<=0.1", "<=0.2", ">0.2")
 
 
 ## Save data ----
-saveRDS(prec_trend_summary, paste0(PATH_SAVE_CHANGING_PREC, "global_grid_DCI_trend_groups_p_thresholds_bootstrap.rds"))
+saveRDS(prec_trend_summary, paste0(PATH_SAVE_CHANGING_PREC, "01_g_global_grid_DCI_trend_groups_p_thresholds_bootstrap.rds"))
 
