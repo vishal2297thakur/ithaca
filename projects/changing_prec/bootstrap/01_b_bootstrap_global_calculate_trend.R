@@ -35,7 +35,7 @@ prec_global_stats_dummy <- prec_annual[ time_period == "2010-2019", .(mean_prec_
 prec_annual_trend <- merge(prec_annual_trend, prec_global_stats_dummy, by = "dataset")
 
 ## Save data ----
-saveRDS(prec_annual_trend, paste0(PATH_SAVE_CHANGING_PREC, "prec_annual_trend_bootstrap.rds"))  
+saveRDS(prec_annual_trend, paste0(PATH_SAVE_CHANGING_PREC, "01_b_prec_annual_trend_bootstrap.rds"))  
 
 
 ###############################################################
