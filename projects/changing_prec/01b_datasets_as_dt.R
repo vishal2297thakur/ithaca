@@ -13,12 +13,13 @@ n_datasets_2000_2019 <- length(PREC_FNAMES_2000_2019)
 ## Analysis
 registerDoParallel(cores = N_CORES - 1)
 prec_datasets <- foreach(dataset_count = 1:n_datasets_2000_2019, .combine = rbind) %dopar% {
-  dummy <- brick_to_dt(prec_2000_2019[[dataset_count]])
+  dummy <- pRecipe::tabular(prec_2000_2019[[dataset_count]])
   dummy$dataset <- names(prec_2000_2019)[[dataset_count]]
   dummy
 }
 
-prec_datasets <- prec_datasets[, .(lon = x, lat = y, year = factor(year(time)), dataset, prec = value)]
+prec_datasets <- prec_datasets[, .(lon, lat, year = factor(year(date)), dataset, prec = value)]
+unique(prec_datasets, by = "dataset")
 
 ## Save data
 saveRDS(prec_datasets, paste0(PATH_SAVE_CHANGING_PREC, "prec_datasets.rds"))
