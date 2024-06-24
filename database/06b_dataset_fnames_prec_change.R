@@ -15,4 +15,4 @@ PREC_FNAMES_2000_2019_FULL_RECORD <- grep("land", PREC_FNAMES_2000_2019_FULL_REC
 PREC_FNAMES_2000_2019_FULL_RECORD <- grep("yearly", PREC_FNAMES_2000_2019_FULL_RECORD, value = TRUE)
 
 save(PREC_FNAMES_2000_2019_FULL_RECORD, PREC_FNAMES_SHORT_2000_2019_FULL_RECORD,
-     file = "~/shared/data_projects/ithaca/misc/06_b_prec_fnames_2000_2019_full_record.Rdata")
+     file = "~/shared/data_projects/ithaca/misc/prec_fnames_2000_2019_full_record_prec_change.Rdata")
