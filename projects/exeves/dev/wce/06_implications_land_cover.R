@@ -19,7 +19,7 @@ exeves_prec <- merge(spatial_info_region[, .(grid_id, land_cover_class)], exeves
 exeves_prec <- merge(exeves, prec, by = c('grid_id', 'date'), all.x = TRUE)
 names(exeves_prec)[5] <- 'evap'
 
-exeves_prec_means <- unique(exeves_prec[, .(evap = mean(evap), 
+exeves_prec_means <- unique(exeves_prec[, .(evap = mean(evap),  #sum should be used instead
                                             prec = mean(prec), 
                                             diff_pe = mean(prec) - mean(evap)), 
                                         by = .(grid_id, period, land_cover_class )])
