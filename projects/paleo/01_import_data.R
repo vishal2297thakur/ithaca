@@ -50,7 +50,8 @@ final_recon_data <- recon_data %>%
 
 ######################
 final_recon <- final_recon_data %>%
-  filter(time >= 1959 & time <= 2019) %>%
+  filter(time >= 1958) %>%   
+  # filter(time >= 1959 & time <= 2019) %>%
   #Remove rows where the recon_id appears less than 5 times
   group_by(recon_id) %>%
   filter(n() >= 5) %>%
@@ -62,6 +63,7 @@ final_recon <- final_recon_data %>%
 final_recon_df <- data.frame(final_recon)
 
 final_recon_df
+
 ############
 
 # save(recon_summary, paste0(PATH_SAVE_PALEO, "recon_summary.Rdata"))
@@ -132,7 +134,7 @@ final_recon_data_nam <- recon_data_nam %>%
 ######################
 
 final_recon_nam <- final_recon_data_nam %>%
-  filter(time >= 1959 & time <= 2019) %>%
+  # filter(time >= 1959 & time <= 2019) %>%
   #Remove rows where the recon_id appears less than 5 times
   group_by(recon_id) %>%
   filter(n() >= 5) %>%
@@ -155,21 +157,21 @@ save(recon_summary_nam, file = "~/shared/data_projects/ithaca/paleo/recon_summar
 saveRDS(final_recon_nam, file = "~/shared/data_projects/ithaca/paleo/recon_data_nam_p.rds")
 
 
-
-
 ### Analysis #####
 # load("~/shared/data_projects/ithaca/paleo/recon_summary.Rdata")
 
 final_recon_rds_nam <- readRDS(file = "~/shared/data_projects/ithaca/paleo/recon_data_nam_p.rds")
 
 results_nam <- final_recon_rds_nam %>%
+  # filter(time >= 1959 & time <= 2019) %>%
+  filter(time >= 1958) %>%   
   group_by(recon_id) %>%
   dplyr::summarize(
     mean_value = mean(value, na.rm = TRUE),
     sd_value = sd(value, na.rm = TRUE),
     cv = sd_value / mean_value,
     acf_lag1 = acf(value, lag.max = 1)$acf[2],
-    slope = coef(lm(value ~ time))[2])%>%
+    slope = coef(lm(value ~ time))[2]) %>%
   as.data.frame()
 
 results_nam
