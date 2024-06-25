@@ -41,12 +41,12 @@ fig_trend <- ggplot(prec_annual_trend)+
                                "positive p < 0.01" = "darkred",
                                "positive p < 0.05" = "firebrick3",
                                "positive p <= 0.1" = "lightcoral"))+
-  labs(y = expression(paste("ET trend [mm year"^-~2,"] ")), color = "Trend significance ", x = "Dataset")+
+  labs(y = expression(paste("Precip trend [mm year"^-~2,"] ")), color = "Trend significance ", x = "Dataset")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))+
   theme(axis.ticks.length = unit(0, "cm"),
         panel.grid.major = element_line(colour = "gray60"),
-        axis.title = element_text(size = 16), 
+        axis.title = element_text(size = 15), 
         legend.text = element_text(size = 12), 
         legend.title = element_text(size = 16),
         legend.position = "right")
