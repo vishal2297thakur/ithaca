@@ -9,7 +9,7 @@ rank_repres <- function(data, method = "all", ensemble = "median") {
     stat_ensemble <- prec_ensemble[, .(mean_ensemble = mean(ensemble, na.rm = TRUE))]
     prec_data <- data[, .(repres_metric = mean(value, na.rm = TRUE)), .(dataset)]
     stat_ensemble <- cbind(prec_data, stat_ensemble)
-    stat_ensemble <- stat_ensemble[, .(repres_metric = abs(repres_metric - mean_ensemble)/mean_ensemble),
+    stat_ensemble <- stat_ensemble[, .(repres_metric = abs((repres_metric - mean_ensemble)/mean_ensemble)),
                                    .(dataset)]
     stat_ensemble <- stat_ensemble[, .(repres_metric = (1 - repres_metric)), .(dataset)]
     stat_ensemble[repres_metric < 0, repres_metric := 0]
@@ -18,7 +18,7 @@ rank_repres <- function(data, method = "all", ensemble = "median") {
     stat_ensemble <- prec_ensemble[, .(var_ensemble = sd(ensemble, na.rm = TRUE)^2)]
     prec_data <- data[, .(repres_metric = sd(value, na.rm = TRUE)^2), .(dataset)]
     stat_ensemble <- cbind(prec_data, stat_ensemble)
-    stat_ensemble <- stat_ensemble[, .(repres_metric = abs(repres_metric - var_ensemble)/var_ensemble),
+    stat_ensemble <- stat_ensemble[, .(repres_metric = abs((repres_metric - var_ensemble)/var_ensemble)),
                                    .(dataset)]
     stat_ensemble <- stat_ensemble[, .(repres_metric = (1 - repres_metric)), .(dataset)]
     stat_ensemble[repres_metric < 0, repres_metric := 0]
@@ -27,7 +27,7 @@ rank_repres <- function(data, method = "all", ensemble = "median") {
     stat_ensemble <- prec_ensemble[, .(trend_ensemble = lm(ensemble ~ date)$coefficients[2])]
     prec_data <- data[, .(repres_metric = lm(value ~ date)$coefficients[2]), .(dataset)]
     stat_ensemble <- cbind(prec_data, stat_ensemble)
-    stat_ensemble <- stat_ensemble[, .(repres_metric = abs(repres_metric - trend_ensemble)/trend_ensemble),
+    stat_ensemble <- stat_ensemble[, .(repres_metric = abs((repres_metric - trend_ensemble)/trend_ensemble)),
                                    .(dataset)]
     stat_ensemble <- stat_ensemble[, .(repres_metric = (1 - repres_metric)), .(dataset)]
     stat_ensemble[repres_metric < 0, repres_metric := 0]
@@ -85,7 +85,7 @@ rank_repres <- function(data, method = "all", ensemble = "median") {
     stat_ensemble <- prec_ensemble[, .(mean_ensemble = mean(ensemble, na.rm = TRUE))]
     prec_data <- data[, .(repres_metric = mean(value, na.rm = TRUE)), .(dataset)]
     stat_ensemble <- cbind(prec_data, stat_ensemble)
-    stat_ensemble <- stat_ensemble[, .(repres_metric = abs(repres_metric - mean_ensemble)/mean_ensemble),
+    stat_ensemble <- stat_ensemble[, .(repres_metric = abs((repres_metric - mean_ensemble)/mean_ensemble)),
                                    .(dataset)]
     stat_ensemble <- stat_ensemble[, .(repres_metric = (1 - repres_metric)), .(dataset)]
     stat_ensemble[repres_metric < 0, repres_metric := 0]
@@ -95,7 +95,7 @@ rank_repres <- function(data, method = "all", ensemble = "median") {
     stat_ensemble <- prec_ensemble[, .(var_ensemble = sd(ensemble, na.rm = TRUE)^2)]
     prec_data <- data[, .(repres_metric = sd(value, na.rm = TRUE)^2), .(dataset)]
     stat_ensemble <- cbind(prec_data, stat_ensemble)
-    stat_ensemble <- stat_ensemble[, .(repres_metric = abs(repres_metric - var_ensemble)/var_ensemble),
+    stat_ensemble <- stat_ensemble[, .(repres_metric = abs((repres_metric - var_ensemble)/var_ensemble)),
                                    .(dataset)]
     stat_ensemble <- stat_ensemble[, .(repres_metric = (1 - repres_metric)), .(dataset)]
     stat_ensemble[repres_metric < 0, repres_metric := 0]
@@ -106,7 +106,7 @@ rank_repres <- function(data, method = "all", ensemble = "median") {
     stat_ensemble <- prec_ensemble[, .(trend_ensemble = lm(ensemble ~ date)$coefficients[2])]
     prec_data <- data[, .(repres_metric = lm(value ~ date)$coefficients[2]), .(dataset)]
     stat_ensemble <- cbind(prec_data, stat_ensemble)
-    stat_ensemble <- stat_ensemble[, .(repres_metric = abs(repres_metric - trend_ensemble)/trend_ensemble),
+    stat_ensemble <- stat_ensemble[, .(repres_metric = abs((repres_metric - trend_ensemble)/trend_ensemble)),
                                    .(dataset)]
     stat_ensemble <- stat_ensemble[, .(repres_metric = (1 - repres_metric)), .(dataset)]
     stat_ensemble[repres_metric < 0, repres_metric := 0]
