@@ -9,6 +9,20 @@ PATH_SAVE_CHANGING_PREC <- paste0(PATH_SAVE, "changing_prec/")
 load(paste0(PATH_SAVE_CHANGING_PREC, "changing_prec_paths.Rdata"))
 
 # Colors---- ####
+## Color for datasets ####
+cols_data <- c("cmap" = "chartreuse2",
+               "cru" = "red",
+               "era5-land" = "gold1",
+               "fldas" = "darkslategray1",
+               "gpcc" = "deepskyblue1",
+               "gpcp" = "deepskyblue3",
+               "gpm-imerg" = "deepskyblue4",
+               "gsmap" = "darkgreen",
+               "jra55" = "orange1",
+               "merra2" = "orange3",
+               "mswep" = "green",
+               "precl" = "darkblue"
+)
 
 # IPCC ####
 IPCC_Africa <- c("ARP", "CAF", "ESAF", "MDG", "NEAF", "SAH", "SEAF", "WAF", "WSAF")
