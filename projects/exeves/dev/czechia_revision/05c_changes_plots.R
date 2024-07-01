@@ -33,12 +33,12 @@ dummy[, ratio_exeves := after_2001 / up_to_2001]
 dummy[, ratio_total := total_value_after_2001 / total_value_up_to_2001]
 dummy <- dummy[conditions == "ExEvE", .(grid_id, month, variable, ratio_total, ratio_exeves)]
 
-to_plot_1 <- dummy[, .(median = median(ratio_total),
+to_plot_1 <- dummy[, .(median = median(ratio_total, na.rm = T),
                        q95 = quantile(ratio_total, 0.99),
                        q05 = quantile(ratio_total, 0.01), Conditions = factor('All days')), .(month, variable)]
-to_plot_2 <- dummy[, .(median = median(ratio_exeves),
-                       q95 = quantile(ratio_exeves, 0.99),
-                       q05 = quantile(ratio_exeves, 0.01), Conditions = factor('ExEvEs')), .(month, variable)]
+to_plot_2 <- dummy[, .(median = median(ratio_exeves, na.rm = T),
+                       q95 = quantile(ratio_exeves, 0.99, na.rm = T),
+                       q05 = quantile(ratio_exeves, 0.01, na.rm = T), Conditions = factor('ExEvEs')), .(month, variable)]
 to_plot <- rbind(to_plot_1, to_plot_2)
 to_plot <- melt(to_plot,  id.vars = c('month', 'variable', 'Conditions'), variable.name = 'stat')
 

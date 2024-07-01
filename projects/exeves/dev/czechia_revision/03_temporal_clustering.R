@@ -87,7 +87,7 @@ cold_season_start <- copy(warm_season_end)
 cold_season_end <-  as.Date(paste0(sample_year + 1, '-04-01'))
 
 definition_names <- data.frame(
-  x = warm_season_start + lubridate::days(7),
+  x = warm_season_start + lubridate::days(8),
   y = c(0.6, 0.4, 0.2, 0),
   text = c("Q80/Q95", "Mean/Q95", "Mean/Q95*", "Q80")
 )

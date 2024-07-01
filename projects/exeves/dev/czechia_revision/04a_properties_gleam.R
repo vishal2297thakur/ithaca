@@ -1,5 +1,4 @@
 source('source/exeves.R')
-library(pRecipe)
 
 region <- 'czechia'
 
@@ -259,5 +258,5 @@ event_comparison_2$severity_max <- round(c(
   max(exeves[!is.na(event_80_id) & period == 'after_2001', sum(value), .(grid_id, event_80_id)]$V1)
 ), 1)
 
-event_comparison_change <- round((event_comparison_2 - event_comparison_1)/event_comparison_1, 2)
+event_comparison_change <- round(event_comparison_2/event_comparison_1, 2)
 write.csv(event_comparison_change,  paste0(PATH_OUTPUT_TABLES, region, '_definition_change.csv'))
