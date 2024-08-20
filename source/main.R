@@ -53,6 +53,7 @@ EVAP_DATASETS_ENSEMB <- c("camele", "etsynthesis", "synthesizedet")
                           
 ## Constants
 # Time
+DAYS_IN_YEAR <- 365.25
 ITHACA_PERIOD_START <- as.Date("1960-01-01")
 ITHACA_PERIOD_END <- as.Date("2019-12-31")
 
@@ -77,6 +78,11 @@ EVAP_NAME_SHORT <- "e"
 
 ## Parallelization
 N_CORES <- detectCores()
+
+## Palettes
+WATER_CYCLE_CHANGE_PALETTE <- c('steelblue3', 'darkgreen', 'darkred', 'darkorange') #Wetter - Accelerated, Wetter - Deccelerated, Drier - Accelerated, Drier - Deccelerated
+AGU_PALETTE <- c('#00324A', '#005294', '#058ECD', '#FFFFFF') 
+SUBDUED_PROF_PALETTE = c("#90AFC5", "#336B87", "#2A3132", "#763626")
 
 ## Other
 M2_TO_KM2 <- 10 ^ (-6)

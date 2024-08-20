@@ -1,6 +1,6 @@
 source('source/exeves.R')
 
-region <- 'czechia'
+region <- 'wce'
 evap_grid <- readRDS(paste0(PATH_OUTPUT_DATA, 'grid_', region, '.rds'))
 
 exeves <- readRDS(paste0(PATH_OUTPUT_DATA, 'exeves_std_', region, '.rds'))
@@ -17,7 +17,7 @@ exeves <- merge(exeves_rad,
                 prec[, .(grid_id, date, prec = value)], by = c('grid_id', 'date'))
 
 exeves <- evap_grid[exeves, on = 'grid_id'][, grid_id := NULL]
-rm(evap_grid); gc()
+rm(evap_grid); rm(exeves_rad); rm(rad); rm(prec); rm(lwrad); rm(swrad); gc()
 
 # Analysis
 ## Severity: All values
@@ -63,12 +63,12 @@ event_lwrad_severity_period[, ratio := 1 + diff_value/value, by = .(lon, lat, pe
 event_lwrad_severity_period$variable <- "LW Radiation (ExEvEs)"
 
 ## Intensity
-event_evap_intensity_period <- exeves[!is.na(event_qr_id), .(value = round(mean(value), 2)), .(lon, lat, period)]
+event_evap_intensity_period <- exeves[!is.na(event_id), .(value = round(mean(value), 2)), .(lon, lat, period)]
 event_evap_intensity_period[, diff_value := diff(value), by = .(lon, lat)]
 event_evap_intensity_period[, ratio := 1 + diff_value/value, by = .(lon, lat, period)]
 event_evap_intensity_period$variable <- "Intensity (E)"
 
-event_prec_intensity_period <- exeves[!is.na(event_qr_id), .(value = round(mean(prec), 2)), .(lon, lat, period)]
+event_prec_intensity_period <- exeves[!is.na(event_id), .(value = round(mean(prec), 2)), .(lon, lat, period)]
 event_prec_intensity_period[, diff_value := diff(value), by = .(lon, lat)]
 event_prec_intensity_period[, ratio := 1 + diff_value/value, by = .(lon, lat, period)]
 event_prec_intensity_period$variable <- "Intensity (P)"
@@ -89,11 +89,19 @@ event_duration_period$variable <- factor("ExEvEs Duration")
 exeve_properties_change <- rbind(event_evap_severity_period, event_prec_severity_period, 
                                  event_swrad_severity_period, event_lwrad_severity_period, 
                                  event_evap_intensity_period, event_prec_intensity_period, event_frequency_period, event_duration_period)
-saveRDS(exeve_properties_change, file = paste0(PATH_OUTPUT, 'spatial_changes.rds'))
+saveRDS(exeve_properties_change, file = paste0(PATH_OUTPUT, 'spatial_changes_', region, '.rds'))
+
+#exeve_properties_change <- readRDS(paste0(PATH_OUTPUT, 'spatial_changes_', region, '.rds'))
+to_plot <- exeve_properties_change[variable %in% c('Intensity (E)', 'ExEvEs Duration', 'ExEvEs Frequency'), .(period, value, variable)]
+
+## Plots
+ggplot(to_plot, aes(y = value, x = variable, col = period)) +
+  geom_violin() +
+  facet_wrap(~variable, scales = 'free') +
+  theme_linedraw()
 
 # Validation
 ggplot(event_evap_severity_period[period == "up_to_2001"]) +
   geom_tile(aes(lon, lat, fill = ratio)) +
-  geom_sf(data = borders, alpha = 0.1, col = 'black', lwd = 0.4) +
   scale_fill_gradient2(low = "navyblue", mid = "grey90", high = "darkred", midpoint = 1) +
   theme_minimal()

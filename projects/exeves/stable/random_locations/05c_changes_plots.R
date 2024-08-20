@@ -90,7 +90,7 @@ monthly_plot <- ggplot() +
                color =  '#536878',
                linetype = 'dotted'
   ) + 
-  facet_wrap(~variable, nrow = 1, labeller = variable_labeller) + 
+  facet_wrap(~variable, nrow = 2, labeller = variable_labeller) + 
   coord_polar() +
   annotate(
     x = 11.5, 
@@ -164,6 +164,9 @@ monthly_plot <- ggplot() +
       unit = "cm"
     )
   )
+monthly_plot
+ggsave(paste0(PATH_OUTPUT_FIGURES, "changes_monthly.png"), width = 9, height = 12)
+
 
 spatial_plot <- spatial_changes[period == "up_to_2001"] %>%
   group_split(variable) %>%
@@ -246,3 +249,6 @@ spatial_plot <- spatial_changes[period == "up_to_2001"] %>%
 
 ggarrange(monthly_plot, spatial_plot, nrow = 2) + bgcolor("white")      
 ggsave(paste0(PATH_OUTPUT_FIGURES, "changes_no_grid.png"), width = 9, height = 12)
+
+
+
