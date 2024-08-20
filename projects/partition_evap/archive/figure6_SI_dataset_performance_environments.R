@@ -2,7 +2,6 @@
 
 source('source/partition_evap.R')
 source('source/graphics.R')
-source('source/geo_functions.R')
 
 #Data
 data <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "partition_biome_datasets_for_plot.rds"))
@@ -98,7 +97,7 @@ for (i in 1:(length(IPCC_Asia))){
 
 ggarrange(plotlist[[1]], plotlist[[2]], plotlist[[3]], plotlist[[4]], plotlist[[5]], plotlist[[6]], plotlist[[7]],
           plotlist[[8]], plotlist[[9]], plotlist[[10]],
-          nrow = 3, ncol = 3, labels = letters[seq( from = 1, to = i )], align = "hv")
+          nrow = 4, ncol = 3, labels = letters[seq( from = 1, to = i )], align = "hv")
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES,
               "supplement/fig_SI_performance_IPCC_Asia.png"), width = 8, height = 9)

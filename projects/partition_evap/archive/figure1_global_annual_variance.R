@@ -11,21 +11,6 @@ evap_annual_vol[dataset %in% EVAP_DATASETS_ENSEMB, dataset_type := "Ensemble"]
 evap_annual_vol <- evap_annual_vol[!(dataset == "etmonitor" & year == 2000), ]
 
 ## Figure ----
-cols_data <- c("bess" = "darkgreen",
-               "camele" = "red",
-               "era5-land" = "gold1",
-               "etmonitor" = "chartreuse4",
-               "etsynthesis" = "hotpink",
-               "fldas" = "darkslategray1",
-               "gldas-clsm" = "deepskyblue1",
-               "gldas-noah" = "deepskyblue3",
-               "gldas-vic" = "deepskyblue4",
-               "gleam" = "seagreen3",
-               "jra55" = "orange1",
-               "merra2" = "orange3",
-               "mod16a" = "green",
-               "terraclimate" = "darkblue"
-)
 
 
 ggplot(evap_annual_vol, aes(x = 0, y = evap_volume)) +

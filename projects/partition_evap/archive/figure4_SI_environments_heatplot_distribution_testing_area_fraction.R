@@ -4,16 +4,16 @@ source('source/graphics.R')
 
 ## data ----
 landcover <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "area_fraction_matching_products_land_cover.rds"))
-summary(landcover$fraction)
-q10 <- quantile(landcover$fraction, c(0.1))
-q30 <- quantile(landcover$fraction, c(0.3))
-q70 <- quantile(landcover$fraction, c(0.7))
-q90 <- quantile(landcover$fraction, c(0.9))
+summary(landcover$area_fraction)
+q10 <- quantile(landcover$area_fraction, c(0.1))
+q30 <- quantile(landcover$area_fraction, c(0.3))
+q70 <- quantile(landcover$area_fraction, c(0.7))
+q90 <- quantile(landcover$area_fraction, c(0.9))
 
-landcover[, fraction_fac := cut(fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
+landcover[, area_fraction_fac := cut(area_fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
                                 labels = c("Low", "Below Average", "Average", "Above Average", "High"))]
 
-ggplot(landcover[land_cover_short_class != "Other"], aes(x = dataset.x, y = dataset.y, fill = fraction_fac))+
+ggplot(landcover[land_cover_short_class != "Other"], aes(x = dataset.x, y = dataset.y, fill = area_fraction_fac))+
   geom_tile(color = "white",lwd = 0.8,linetype = 1) +
   scale_fill_manual(values = colset_RdBu_5)+
   facet_wrap(~land_cover_short_class, ncol = 4)+
@@ -30,16 +30,16 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig_SI_heatmap_dist_
        width = 8, height = 4)
 
 biome <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "area_fraction_matching_products_biome.rds"))
-q10 <- quantile(biome$fraction, c(0.1))
-q30 <- quantile(biome$fraction, c(0.3))
-q70 <- quantile(biome$fraction, c(0.7))
-q90 <- quantile(biome$fraction, c(0.9))
+q10 <- quantile(biome$area_fraction, c(0.1))
+q30 <- quantile(biome$area_fraction, c(0.3))
+q70 <- quantile(biome$area_fraction, c(0.7))
+q90 <- quantile(biome$area_fraction, c(0.9))
 
-biome[, fraction_fac := cut(fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
+biome[, area_fraction_fac := cut(area_fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
                             labels = c("Low", "Below Average", "Average", "Above Average", "High"))]
 
 
-ggplot(biome[biome_short_class != "Other"], aes(x = dataset.x, y = dataset.y, fill = fraction_fac))+
+ggplot(biome[biome_short_class != "Other"], aes(x = dataset.x, y = dataset.y, fill = area_fraction_fac))+
   geom_tile(color = "white",lwd = 0.8,linetype = 1) +
   scale_fill_manual(values = colset_RdBu_5)+
   facet_wrap(~biome_short_class, labeller = label_wrap_gen(width = 10), ncol = 4)+
@@ -56,15 +56,15 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig_SI_heatmap_dist_
        width = 8, height = 8)
 
 ipcc <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "area_fraction_matching_products_ipcc.rds"))
-q10 <- quantile(ipcc$fraction, c(0.1))
-q30 <- quantile(ipcc$fraction, c(0.3))
-q70 <- quantile(ipcc$fraction, c(0.7))
-q90 <- quantile(ipcc$fraction, c(0.9))
+q10 <- quantile(ipcc$area_fraction, c(0.1))
+q30 <- quantile(ipcc$area_fraction, c(0.3))
+q70 <- quantile(ipcc$area_fraction, c(0.7))
+q90 <- quantile(ipcc$area_fraction, c(0.9))
 
-ipcc[, fraction_fac := cut(fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
+ipcc[, area_fraction_fac := cut(area_fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
                            labels = c("Low", "Below Average", "Average", "Above Average", "High"))]
 
-ggplot(ipcc, aes(x = dataset.x, y = dataset.y, fill = fraction_fac))+
+ggplot(ipcc, aes(x = dataset.x, y = dataset.y, fill = area_fraction_fac))+
   geom_tile(color = "white",lwd = 0.8,linetype = 1) +
   scale_fill_manual(values = colset_RdBu_5)+
   facet_wrap(~IPCC_ref_region, labeller = label_wrap_gen(width = 10), ncol = 5)+
@@ -81,15 +81,15 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig_SI_heatmap_dist_
        width = 8, height = 12)
 
 elev <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "area_fraction_matching_products_elev.rds"))
-q10 <- quantile(elev$fraction, c(0.1))
-q30 <- quantile(elev$fraction, c(0.3))
-q70 <- quantile(elev$fraction, c(0.7))
-q90 <- quantile(elev$fraction, c(0.9))
+q10 <- quantile(elev$area_fraction, c(0.1))
+q30 <- quantile(elev$area_fraction, c(0.3))
+q70 <- quantile(elev$area_fraction, c(0.7))
+q90 <- quantile(elev$area_fraction, c(0.9))
 
-elev[, fraction_fac := cut(fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
+elev[, area_fraction_fac := cut(area_fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
                            labels = c("Low", "Below Average", "Average", "Above Average", "High"))]
 
-ggplot(elev, aes(x = dataset.x, y = dataset.y, fill = fraction_fac))+
+ggplot(elev, aes(x = dataset.x, y = dataset.y, fill = area_fraction_fac))+
   geom_tile(color = "white",lwd = 0.8,linetype = 1) +
   scale_fill_manual(values = colset_RdBu_5)+
   facet_wrap(~elev_class, labeller = label_wrap_gen(width = 10), ncol = 4)+
@@ -107,15 +107,15 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig_SI_heatmap_dist_
 
 
 evap <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "area_fraction_matching_products_evap.rds"))
-q10 <- quantile(evap$fraction, c(0.1))
-q30 <- quantile(evap$fraction, c(0.3))
-q70 <- quantile(evap$fraction, c(0.7))
-q90 <- quantile(evap$fraction, c(0.9))
+q10 <- quantile(evap$area_fraction, c(0.1))
+q30 <- quantile(evap$area_fraction, c(0.3))
+q70 <- quantile(evap$area_fraction, c(0.7))
+q90 <- quantile(evap$area_fraction, c(0.9))
 
-evap[, fraction_fac := cut(fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
+evap[, area_fraction_fac := cut(area_fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
                            labels = c("Low", "Below Average", "Average", "Above Average", "High"))]
 
-ggplot(evap, aes(x = dataset.x, y = dataset.y, fill = fraction_fac))+
+ggplot(evap, aes(x = dataset.x, y = dataset.y, fill = area_fraction_fac))+
   geom_tile(color = "white",lwd = 0.8,linetype = 1) +
   scale_fill_manual(values = colset_RdBu_5)+
   facet_wrap(~evap_quant, labeller = label_wrap_gen(width = 10), ncol = 4)+
@@ -133,16 +133,16 @@ ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig_SI_heatmap_dist_
 
 
 global <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "area_fraction_matching_products.rds"))
-q10 <- quantile(global$fraction, c(0.1))
-q30 <- quantile(global$fraction, c(0.3))
-q70 <- quantile(global$fraction, c(0.7))
-q90 <- quantile(global$fraction, c(0.9))
+q10 <- quantile(global$area_fraction, c(0.1))
+q30 <- quantile(global$area_fraction, c(0.3))
+q70 <- quantile(global$area_fraction, c(0.7))
+q90 <- quantile(global$area_fraction, c(0.9))
 
-global[, fraction_fac := cut(fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
+global[, area_fraction_fac := cut(area_fraction, breaks = c(-0.01, q10, q30, q70, q90, 1), 
                              labels = c("Low", "Below Average", "Average", "Above Average", "High"))]
 
-summary(global$fraction)
-ggplot(global, aes(x = dataset.x, y = dataset.y, fill = fraction_fac))+
+summary(global$area_fraction)
+ggplot(global, aes(x = dataset.x, y = dataset.y, fill = area_fraction_fac))+
   geom_tile(color = "white",lwd = 0.8,linetype = 1) +
   scale_fill_manual(values = colset_RdBu_5)+
   labs(fill = "", x = "", y = "")+
@@ -152,5 +152,5 @@ ggplot(global, aes(x = dataset.x, y = dataset.y, fill = fraction_fac))+
         plot.title = element_text(hjust = 0.5))+
   theme(strip.background = element_rect(fill = "white"))+
   theme(strip.text = element_text(colour = 'black'), legend.position = "right")
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig_SI_heatmap_dist_match_evap_area_fraction.png"), 
-       width = 4, height = 4)
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig_SI_heatmap_dist_match_global_area_fraction.png"), 
+       width = 4, height = 2.5)

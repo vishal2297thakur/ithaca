@@ -27,31 +27,33 @@ labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
 labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
-## Slope ratio and IQR ----
-evap_trend_min_max[, slope_ratio := max/min]
-evap_trend_min_max[, IQR := Q75-Q25]
+## Read data
+evap_trend_min_max <- readRDS(paste0(PATH_SAVE_EVAP_TREND_TABLES, "data_fig_1_b_c_grid_quartile_stats.rds"))
 
-evap_trend_min_max[, slope_ratio_brk := cut(slope_ratio, breaks = c(-Inf,-20, -10, -2, 2, 10, 20, Inf))]
-evap_trend_min_max[, IQR_brk := cut(IQR, breaks = c(0, 1, 2, 3, 4, 5, 21))]
+evap_trend_min_max[, Q25_brk := cut(Q25, breaks = c(min(Q25), -2, -1, -0.5, 0, 0.5, 1, 2, max(Q75)))]
+evap_trend_min_max[, Q75_brk := cut(Q75, breaks = c(min(Q25), -2, -1, -0.5, 0, 0.5, 1, 2, max(Q75)))]
 
-## IQR ----
-cols_IQR <- c("lightblue", "steelblue1", "steelblue3","darkblue", "darkorange" ,"gold")
 
-to_plot_sf <- evap_trend_min_max[, .(lon, lat, IQR_brk)
-][, value := as.numeric(IQR_brk)]
+## Q25 and Q75 ----
+cols_Q <- c("darkblue","royalblue3",  "royalblue1", "lightblue", "orange", "lightcoral" , "darkred", "#330000")
+
+
+### Q25 ----
+to_plot_sf <- evap_trend_min_max[, .(lon, lat, Q25_brk)
+][, value := as.numeric(Q25_brk)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-fig_IQR <- ggplot(to_plot_sf) +
+fig_Q25 <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = as.factor(value), fill = as.factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
-  scale_fill_manual(values = cols_IQR, labels = levels(evap_trend_min_max$IQR_brk)) +
-  scale_color_manual(values = cols_IQR,
+  scale_fill_manual(values = cols_Q , labels = levels(evap_trend_min_max$Q25_brk)) +
+  scale_color_manual(values = cols_Q ,
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "IQR\n[mm/year/year]") +
+  labs(x = NULL, y = NULL, fill =  expression(paste("ET trend [mm year"^-~2,"]       "))) +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray20", size = 3) +
@@ -64,35 +66,26 @@ fig_IQR <- ggplot(to_plot_sf) +
         axis.text = element_blank(), 
         axis.title = element_text(size = 16), 
         legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 16))
+        legend.title = element_text(size = 16))+
+  ggtitle("Q25")
 
 
-#### Slope ratio ----
-
-cols_slope_ratio <- c("darkblue", 
-                                "steelblue3",
-                                "steelblue1", 
-                                "gray90",
-                                "gold",
-                                "darkorange",
-                                "darkred"
-)
-
-to_plot_sf <- evap_trend_min_max[, .(lon, lat, slope_ratio_brk)
-][, value := as.numeric(slope_ratio_brk)]
+### Q75 ----
+to_plot_sf <- evap_trend_min_max[, .(lon, lat, Q75_brk)
+][, value := as.numeric(Q75_brk)]
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
-fig_slope_ratio <- ggplot(to_plot_sf) +
+fig_Q75 <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = as.factor(value), fill = as.factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
-  scale_fill_manual(values = cols_slope_ratio, labels = levels(evap_trend_min_max$slope_ratio_brk)) +
-  scale_color_manual(values = cols_slope_ratio,
+  scale_fill_manual(values = cols_Q , labels = levels(evap_trend_min_max$Q75_brk)) +
+  scale_color_manual(values = cols_Q ,
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Slope max/min [-]") +
+  labs(x = NULL, y = NULL, fill = expression(paste("ET trend [mm year"^-~2,"]      "))) +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray20", size = 3) +
@@ -105,7 +98,14 @@ fig_slope_ratio <- ggplot(to_plot_sf) +
         axis.text = element_blank(), 
         axis.title = element_text(size = 16), 
         legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 16))
+        legend.title = element_text(size = 16))+
+  ggtitle("Q75")
 
+  
+  
+ggarrange(fig_Q25, fig_Q75, common.legend = T, nrow = 2, labels = c("a", "b"))
+
+ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_SUPP, "fig1_SI_maps_Q25_Q75.png"), 
+       width = 12, height = 12)
 
 

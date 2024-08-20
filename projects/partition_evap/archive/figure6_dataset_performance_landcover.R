@@ -2,10 +2,7 @@
 
 source('source/partition_evap.R')
 source('source/graphics.R')
-source('source/geo_functions.R')
 
-library(ggrepel)
-library(tidyverse)
 
 #Data
 data <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "partition_land_cover_datasets_for_plot.rds"))

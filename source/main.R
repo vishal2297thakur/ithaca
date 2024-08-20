@@ -49,7 +49,7 @@ PREC_DATASETS_HYDROL <- c("fldas", "gldas-clsm", "gldas-noah", "gldas-vic", "ter
 EVAP_DATASETS_REANAL <- c("era5-land", "jra55", "merra2")
 EVAP_DATASETS_REMOTE <- c("bess", "etmonitor", "gleam","mod16a")
 EVAP_DATASETS_HYDROL <- c("fldas", "gldas-clsm", "gldas-noah", "gldas-vic", "terraclimate")
-EVAP_DATASETS_ENSEMB <- c("camele", "etsynthesis")
+EVAP_DATASETS_ENSEMB <- c("camele", "etsynthesis", "synthesizedet")
                           
 ## Constants
 # Time

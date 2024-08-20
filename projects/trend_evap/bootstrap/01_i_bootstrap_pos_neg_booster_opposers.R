@@ -12,7 +12,6 @@ evap_trend_h <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "global_grid_DCI_trend_grou
 
 ### Input data generated in trend_evap/bootstrap/01_c 
 evap_trend <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "global_grid_per_dataset_evap_slope_bootstrap.rds"))  
-evap_trend <- evap_trend[dataset_count >= 12]
 
 evap_trend_pos <- evap_trend[p <= 0.01 & slope >= 0, .(N_pos_0_01 = .N), .(lat, lon, dataset)]
 evap_trend_neg <- evap_trend[p <= 0.01 & slope < 0, .(N_neg_0_01 = .N), .(lat, lon, dataset)]

@@ -2,15 +2,16 @@
 
 source('source/partition_evap.R')
 source('source/graphics.R')
-source('source/geo_functions.R')
 
 ## Data ----
 evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
 
-# Input produced in 
 evap_grid <- as.data.table(readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "distribution_agreement_gridwise.rds")))
 evap_grid <-  evap_grid[!is.na(agreement_index),]
 evap_grid[, summary(agreement_index)]
+
+evap_vol_mean <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_datasets_grid_mean.rds"))
+evap_mean <- evap_vol_mean[, .(evap_volume = mean(evap_volume)), .(lat, lon)]
 
 ## Analysis ----
 ### Relative Distribution\nagreement at quantile 0.1, 0.3, 0.7. 0.9 ----
@@ -30,17 +31,23 @@ cols_agreement <- c("Low" = colset_RdBu_5[1], "Below average" = colset_RdBu_5[2]
                     "Average" = colset_RdBu_5[3], 
                     "Above average" = colset_RdBu_5[4], "High" = colset_RdBu_5[5])
 
-grid_cell_area <- unique(evap_grid[, .(lon, lat)]) %>% grid_area() # m2
-evap_grid <- grid_cell_area[evap_grid, on = .(lon, lat)]
+evap_grid <- evap_mean[evap_grid, on = .(lon, lat)]
 
-land_cover_class <- merge(evap_mask[, .(lat, lon, land_cover_short_class)], evap_grid[, .(lon, lat, area, agreement_index, agreement_fac)], by = c("lon", "lat"))
-biome_class <- merge(evap_mask[, .(lat, lon, biome_short_class)], evap_grid[, .(lon, lat, area, agreement_index, agreement_fac)], by = c("lon", "lat"))
-elevation_class <- merge(evap_mask[, .(lat, lon, elev_class)], evap_grid[, .(lon, lat, area, agreement_index, agreement_fac)], by = c("lon", "lat"))
-evap_quant <- merge(evap_mask[, .(lat, lon, evap_quant)], evap_grid[, .(lon, lat, area, agreement_index, agreement_fac)], by = c("lon", "lat"))
-IPCC_ref_regions <- merge(evap_mask[, .(lat, lon, IPCC_ref_region)], evap_grid[, .(lon, lat, area, agreement_index, agreement_fac)], by = c("lon", "lat"))
+evap_grid <- evap_grid[complete.cases(evap_grid),]
+
+land_cover_class <- merge(evap_mask[, .(lat, lon, land_cover_short_class)], evap_grid[, .(lon, lat, evap_volume, agreement_index, agreement_fac)], by = c("lon", "lat"))
+biome_class <- merge(evap_mask[, .(lat, lon, biome_short_class)], evap_grid[, .(lon, lat, evap_volume, agreement_index, agreement_fac)], by = c("lon", "lat"))
+elevation_class <- merge(evap_mask[, .(lat, lon, elev_class)], evap_grid[, .(lon, lat, evap_volume, agreement_index, agreement_fac)], by = c("lon", "lat"))
+evap_quant <- merge(evap_mask[, .(lat, lon, evap_quant)], evap_grid[, .(lon, lat, evap_volume, agreement_index, agreement_fac)], by = c("lon", "lat"))
+IPCC_ref_regions <- merge(evap_mask[, .(lat, lon, IPCC_ref_region)], evap_grid[, .(lon, lat, evap_volume, agreement_index, agreement_fac)], by = c("lon", "lat"))
+
+## Analysis
+### Global
+global_agreement <- evap_grid[, .(evap_sum = sum(evap_volume)), .(agreement_fac)]
+global_agreement[, fraction := evap_sum/sum(evap_sum)]  
 
 ### Land use ----
-land_cover_agreement <- land_cover_class[, .(evap_sum = sum(area)), .(agreement_fac, land_cover_short_class)]
+land_cover_agreement <- land_cover_class[, .(evap_sum = sum(evap_volume)), .(agreement_fac, land_cover_short_class)]
 land_cover_agreement <- land_cover_agreement[complete.cases(land_cover_agreement)]
 land_cover_agreement <- land_cover_agreement[order(agreement_fac, land_cover_short_class), ]
 land_cover_agreement[, land_cover_sum := sum(evap_sum), land_cover_short_class]
@@ -54,7 +61,7 @@ data_high <- data_high[order(fraction)]
 land_cover_agreement[, land_cover_short_class := factor(land_cover_short_class, levels = data_high$land_cover_short_class)]
 
 ### Biome types
-biome_agreement <- biome_class[, .(evap_sum = sum(area)), .(agreement_fac, biome_short_class)]
+biome_agreement <- biome_class[, .(evap_sum = sum(evap_volume)), .(agreement_fac, biome_short_class)]
 biome_agreement <- biome_agreement[complete.cases(biome_agreement)]
 biome_agreement <- biome_agreement[order(agreement_fac, biome_short_class), ]
 biome_agreement[, biome_sum := sum(evap_sum), biome_short_class]
@@ -69,7 +76,7 @@ biome_agreement[, biome_short_class := factor(biome_short_class, levels = data_h
 
 ### Elevation ----
 
-elevation_agreement <- elevation_class[, .(evap_sum = sum(area)), .(agreement_fac, elev_class)]
+elevation_agreement <- elevation_class[, .(evap_sum = sum(evap_volume)), .(agreement_fac, elev_class)]
 elevation_agreement <- elevation_agreement[complete.cases(elevation_agreement)]
 elevation_agreement <- elevation_agreement[order(agreement_fac, elev_class), ]
 elevation_agreement[, elev_sum := sum(evap_sum), elev_class]
@@ -84,7 +91,7 @@ elevation_agreement[, elev_class := factor(elev_class, levels = data_high$elev_c
 
 ### Evaporation quantiles ----
 
-evap_quant_agreement <- evap_quant[, .(evap_sum = sum(area)), .(agreement_fac, evap_quant)]
+evap_quant_agreement <- evap_quant[, .(evap_sum = sum(evap_volume)), .(agreement_fac, evap_quant)]
 evap_quant_agreement <- evap_quant_agreement[complete.cases(evap_quant_agreement)]
 evap_quant_agreement <- evap_quant_agreement[order(agreement_fac, evap_quant), ]
 evap_quant_agreement[, evap_quant_sum := sum(evap_sum), evap_quant]
@@ -97,7 +104,7 @@ data_high <- data_high[order(fraction)]
 evap_quant_agreement[, evap_quant := factor(evap_quant, levels = data_high$evap_quant)]
 
 ### IPCC ----
-IPCC_agreement <- IPCC_ref_regions[, .(evap_sum = sum(area)), .(agreement_fac, IPCC_ref_region)]
+IPCC_agreement <- IPCC_ref_regions[, .(evap_sum = sum(evap_volume)), .(agreement_fac, IPCC_ref_region)]
 IPCC_agreement <- IPCC_agreement[complete.cases(IPCC_agreement)]
 IPCC_agreement <- IPCC_agreement[order(agreement_fac, IPCC_ref_region), ]
 IPCC_agreement[, IPCC_ref_region_sum := sum(evap_sum), IPCC_ref_region]
@@ -107,7 +114,7 @@ data_high <- IPCC_agreement[agreement_fac == "High" | agreement_fac == "Above av
 data_high[, rank := rank(-fraction)]
 data_high <- data_high[order(fraction)]
 
-IPCC_agreement[, IPCC_ref_region := factor(IPCC_ref_region, levels = data_high$IPCC_ref_region)]
+IPCC_agreement[, IPCC_ref_region := factor(IPCC_ref_region, levels = c("NZ", as.character(data_high$IPCC_ref_region)))]
 ## Save data
 save(land_cover_agreement, biome_agreement, 
      elevation_agreement,evap_quant_agreement, IPCC_agreement,
@@ -120,7 +127,7 @@ load(paste0(PATH_SAVE_PARTITION_EVAP, "distribution_agreement_masks.Rdata"))
 fig_land_cover_partition_fraction <- ggplot(land_cover_agreement[land_cover_short_class != "Other"]) +
   geom_bar(aes(x = land_cover_short_class, y = land_cover_fraction, fill = agreement_fac), stat = "identity") +
   xlab('Land cover type')  +
-  ylab('Fraction')  +
+  ylab('Fraction [-]')  +
   labs(fill = 'Distribution\nagreement')  +
   scale_fill_manual(values = cols_agreement) +
   theme_light() +
@@ -133,7 +140,7 @@ fig_land_cover_partition_fraction <- ggplot(land_cover_agreement[land_cover_shor
 fig_biome_partition_fraction <- ggplot(biome_agreement) +
   geom_bar(aes(x = biome_short_class, y = biome_fraction, fill = agreement_fac), stat = "identity") +
   xlab('Biome')  +
-  ylab('Fraction')  +
+  ylab('Fraction [-]')  +
   labs(fill = 'Distribution\nagreement')  +
   scale_fill_manual(values = cols_agreement) +
   theme_light() +
@@ -146,7 +153,7 @@ fig_biome_partition_fraction <- ggplot(biome_agreement) +
 fig_elevation_partition_fraction <- ggplot(elevation_agreement) +
   geom_bar(aes(x = elev_class, y = elev_fraction, fill = agreement_fac), stat = "identity") +
   xlab('Elevation [m]')  +
-  ylab('Fraction')  +
+  ylab('Fraction [-]')  +
   labs(fill = 'Distribution\nagreement')  +
   scale_fill_manual(values = cols_agreement) +
   theme_light() +
@@ -159,7 +166,7 @@ fig_elevation_partition_fraction <- ggplot(elevation_agreement) +
 fig_evap_partition_fraction <- ggplot(evap_quant_agreement) +
   geom_bar(aes(x = evap_quant, y = evap_quant_fraction, fill = agreement_fac), stat = "identity") +
   xlab('Evaporation intensity class')  +
-  ylab('Fraction')  +
+  ylab('Fraction [-]')  +
   labs(fill = 'Distribution\nagreement')  +
   scale_fill_manual(values = cols_agreement) +
   theme_light() +
@@ -168,8 +175,8 @@ fig_evap_partition_fraction <- ggplot(evap_quant_agreement) +
         axis.title = element_text(size = 12))
 
 ### IPCC
-IPCC_Africa <- c("ARP", "CAF", "ESAF", "MDG", "NEAF", "SAH", "SEAF", "WAF", "WSAF")
-IPCC_Asia <-   c("EAS", "ECA", "ESB",  "RFE", "RAR",  "SAS", "SEA",  "TIB", "WCA", "WSB")
+IPCC_Africa <- c("CAF", "ESAF", "MDG", "NEAF", "SAH", "SEAF", "WAF", "WSAF")
+IPCC_Asia <-   c("ARP", "EAS", "ECA", "ESB",  "RFE", "RAR",  "SAS", "SEA",  "TIB", "WCA", "WSB")
 IPCC_Australasia <- c("CAU", "EAU", "NAU", "NZ", "PAC", "SAU")
 IPCC_Europe <- c("EEU", "GIC","MED", "NEU", "WCE")
 IPCC_Namerica <- c("CAR", "CNA", "ENA", "NCA","NEN", "NWN", "SCA", "WNA")
@@ -178,7 +185,7 @@ IPCC_Samerica <- c("NES","NSA","NWS","SAM","SES", "SSA","SWS")
 fig_ipcc_fraction_Africa <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC_Africa]) +
   geom_bar(aes(x = IPCC_ref_region, y = IPCC_ref_region_fraction, fill = agreement_fac), stat = "identity") +
   xlab('IPCC reference regions')  +
-  ylab('Fraction')  +
+  ylab('Fraction [-]')  +
   labs(fill = 'Distribution\nagreement')  +
   scale_fill_manual(values = cols_agreement) +
   theme_light() +
@@ -190,7 +197,7 @@ fig_ipcc_fraction_Africa <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC_Afri
 fig_ipcc_fraction_Asia <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC_Asia]) +
   geom_bar(aes(x = IPCC_ref_region, y = IPCC_ref_region_fraction, fill = agreement_fac), stat = "identity") +
   xlab('IPCC reference regions')  +
-  ylab('Fraction')  +
+  ylab('Fraction [-]')  +
   labs(fill = 'Distribution\nagreement')  +
   scale_fill_manual(values = cols_agreement) +
   theme_light() +
@@ -202,7 +209,7 @@ fig_ipcc_fraction_Asia <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC_Asia])
 fig_ipcc_fraction_Australasia <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC_Australasia]) +
   geom_bar(aes(x = IPCC_ref_region, y = IPCC_ref_region_fraction, fill = agreement_fac), stat = "identity") +
   xlab('IPCC reference regions')  +
-  ylab('Fraction')  +
+  ylab('Fraction [-]')  +
   labs(fill = 'Distribution\nagreement')  +
   scale_fill_manual(values = cols_agreement) +
   theme_light() +
@@ -215,7 +222,7 @@ fig_ipcc_fraction_Australasia <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC
 fig_ipcc_fraction_Europe <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC_Europe]) +
   geom_bar(aes(x = IPCC_ref_region, y = IPCC_ref_region_fraction, fill = agreement_fac), stat = "identity") +
   xlab('IPCC reference regions')  +
-  ylab('Fraction')  +
+  ylab('Fraction [-]')  +
   labs(fill = 'Distribution\nagreement')  +
   scale_fill_manual(values = cols_agreement) +
   ggtitle("Europe")+
@@ -227,7 +234,7 @@ fig_ipcc_fraction_Europe <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC_Euro
 fig_ipcc_fraction_Namerica <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC_Namerica]) +
   geom_bar(aes(x = IPCC_ref_region, y = IPCC_ref_region_fraction, fill = agreement_fac), stat = "identity") +
   xlab('IPCC reference regions')  +
-  ylab('Fraction')  +
+  ylab('Fraction [-]')  +
   labs(fill = 'Distribution\nagreement')  +
   scale_fill_manual(values = cols_agreement) +
   ggtitle("North America")+
@@ -239,7 +246,7 @@ fig_ipcc_fraction_Namerica <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC_Na
 fig_ipcc_fraction_Samerica <- ggplot(IPCC_agreement[IPCC_ref_region %in% IPCC_Samerica]) +
   geom_bar(aes(x = IPCC_ref_region, y = IPCC_ref_region_fraction, fill = agreement_fac), stat = "identity") +
   xlab('IPCC reference regions')  +
-  ylab('Fraction')  +
+  ylab('Fraction [-]')  +
   labs(fill = 'Distribution\nagreement')  +
   scale_fill_manual(values = cols_agreement) +
   ggtitle("South America")+
@@ -267,7 +274,7 @@ gg_fig_main <- ggarrange(gg_fig_land, gg_ipcc,
                          labels = c('', ''))
 
 ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, 
-              "main/fig4_environments_distribution_agreement.png"), width = 10, height = 10)
+              "main/fig3_environments_distribution_agreement.png"), width = 10, height = 10)
 
 
 gg_fig_SI <- ggarrange(fig_elevation_partition_fraction, fig_evap_partition_fraction,
@@ -275,4 +282,5 @@ gg_fig_SI <- ggarrange(fig_elevation_partition_fraction, fig_evap_partition_frac
                        common.legend = T, legend = 'right', 
                        nrow = 1, ncol = 2)
 
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig4_SI_environments_distribution_agreement.png"), width = 8, height = 3.5)
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig3_SI_environments_distribution_agreement.png"), 
+       width = 8, height = 3.5)

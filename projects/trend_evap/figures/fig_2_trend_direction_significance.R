@@ -145,6 +145,7 @@ fig_DCI <- ggplot(data_dci_area)+
   labs(y = "Area Fraction [-]", x = "P-value Threshold", fill = "DCI")+
   theme(legend.position="right")+
   guides(fill = guide_legend(nrow = 5 ,byrow = TRUE))+
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1))+
   theme(axis.ticks.length = unit(0, "cm"),
         panel.grid.major = element_line(colour = "gray60"),
         axis.title = element_text(size = 16), 
@@ -162,6 +163,7 @@ fig_trend <- ggplot(data_sel_trend_area)+
   labs(x = "P-value Threshold", y = "Area fraction [-]", fill = "Direction of\nSignificant\nTrends")+
   theme(legend.position="right")+
   guides(fill = guide_legend(nrow = 4, byrow = TRUE))+
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1))+
   theme(axis.ticks.length = unit(0, "cm"),
         panel.grid.major = element_line(colour = "gray60"),
         axis.title = element_text(size = 16), 
@@ -178,6 +180,7 @@ fig_Ntrend <- ggplot(N_sig_area)+
   scale_fill_manual(values = c("gray90", "lightblue", "steelblue1", "royalblue3", "darkblue"))+
   theme(legend.position="right")+
   guides(fill = guide_legend(nrow = 5, byrow = TRUE))+
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1))+
   theme(axis.ticks.length = unit(0, "cm"),
         panel.grid.major = element_line(colour = "gray60"),
         axis.title = element_text(size = 16), 
@@ -196,4 +199,4 @@ area_plots <- ggarrange(fig_Ntrend, fig_trend, fig_DCI, align = "hv",
 
 fig_2 <- ggarrange(maps, area_plots, ncol = 2, widths = c(1, 0.75))
 ggsave(paste0(PATH_SAVE_EVAP_TREND_FIGURES_MAIN, "fig2_maps_barplots.png"), 
-       width = 12, height = 8)
+       width = 12, height = 9)

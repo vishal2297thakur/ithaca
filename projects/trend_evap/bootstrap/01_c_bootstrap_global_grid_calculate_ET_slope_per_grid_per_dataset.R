@@ -8,7 +8,7 @@ library("openair")
 ## Data ----
 ### Input Data generated in projects/partition_evap/01_b
 PATH_SAVE_PARTITION_EVAP <- paste0(PATH_SAVE, "partition_evap/")
-evap_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_datasets.rds"))
+evap_datasets <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_datasets_clean.rds"))
 evap_datasets[, year := as.numeric(as.character(year))]
 evap_datasets <- evap_datasets[!(dataset == "etmonitor" & year == 2000), ]
 evap_datasets[, date := paste0(year, "-01-01 00:00:00")]
@@ -16,8 +16,10 @@ evap_datasets[, date := as.POSIXct(date)]
 
 ## Slope Analysis ----
 
+global_datasets <- evap_datasets[, unique(dataset)]
+
 ### Calculate slopes and save ----
-for (dataset_num in EVAP_GLOBAL_DATASETS){
+for (dataset_num in global_datasets){
   print(dataset_num)
   evap_dataset_sel <- evap_datasets[dataset == dataset_num,]
   evap_dataset_sel_trend <- evap_trends_boot(evap_dataset_sel)
@@ -30,7 +32,7 @@ for (dataset_num in EVAP_GLOBAL_DATASETS){
 
 ### Assemble data ----
 
-for (dataset_num in EVAP_GLOBAL_DATASETS){
+for (dataset_num in global_datasets){
   dummy_trend <- readRDS(paste0(PATH_SAVE_EVAP_TREND, "evap_dataset_",dataset_num,"_trend_bootstrap.rds"))  
   if(dataset_num != EVAP_GLOBAL_DATASETS[1]){
     evap_trend <- rbind( evap_trend, dummy_trend)

@@ -1,36 +1,14 @@
-# Plots global maps of dataset agreement classes 
+# Plots global maps of ensemble volume
 source('source/partition_evap.R')
-source('source/geo_functions.R')
 source('source/graphics.R')
 
 library(rnaturalearth)
 
 ## Data
-evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
 evap_datasets_grid_mean <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_datasets_grid_mean.rds"))
-distribution <- as.data.table(readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "distribution_agreement_index_gridwise.rds")))
-distribution <-  distribution[!is.na(index),]
-
-
-### Distribution agreement thresholds at quantile 0.1, 0.3, 0.7. 0.9
-quant_dist_0_1 <- quantile(distribution$index, c(0.1))
-quant_dist_0_3 <- quantile(distribution$index, c(0.3))
-quant_dist_0_7 <- quantile(distribution$index, c(0.7))
-quant_dist_0_9 <- quantile(distribution$index, c(0.9))
-
-distribution[index <= quant_dist_0_1, agreement_fac := ordered(1, labels = "low")] 
-distribution[index > quant_dist_0_1 & index <= quant_dist_0_3, agreement_fac := ordered(3, labels = "below average")]
-distribution[index > quant_dist_0_3 & index <= quant_dist_0_7, agreement_fac := ordered(4, labels = "average")]
-distribution[index > quant_dist_0_7 & index <= quant_dist_0_9, agreement_fac := ordered(5, labels = "above average")]
-distribution[index > quant_dist_0_9, agreement_fac := ordered(7, labels = "high")]
-
-levels(distribution$agreement_fac) <- c( "Low", "Below average", "Average",
-                                         "Above average","High")
-
-agreement <- merge(evap_mask[, .(lon, lat, rel_dataset_agreement, std_quant_range)], distribution, by = c("lon", "lat")) 
-agreement[rel_dataset_agreement %in% c("high", "above average") & agreement_fac %in% c("High", "Above average"), common:= "High & Above average"]
-agreement[rel_dataset_agreement %in% c("low", "below average") & agreement_fac %in% c("Low", "Below average"), common:= "Low & Below average"]
-
+evap_mean <- evap_datasets_grid_mean[, .(evap_volume = mean(evap_volume), area = area), .(lat, lon)]
+evap_mean <- unique(evap_mean)
+evap_mean[, volume_brks := cut(evap_volume, breaks = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 1.29))]
 
 ## World and Land borders ----
 earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP_SPATIAL,
@@ -39,7 +17,7 @@ earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP_SPATIAL,
 world_sf <- ne_countries(returnclass = "sf")
 
 ## Labels
-labs_y <- data.frame(lon = -170, lat = c(55, 25, -5, -35, -65))
+labs_y <- data.frame(lon = -167, lat = c(55, 25, -5, -35, -65))
 labs_y_labels <- seq(60, -60, -30)
 labs_y$label <- ifelse(labs_y_labels == 0, "°", ifelse(labs_y_labels > 0, "°N", "°S"))
 labs_y$label <- paste0(abs(labs_y_labels), labs_y$label)
@@ -55,8 +33,8 @@ labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
 ## Figures
 
 ### distribution index
-to_plot_sf <- agreement[, .(lon, lat, common)
-][, value := as.numeric(as.factor(common))]
+to_plot_sf <- evap_mean[, .(lon, lat, volume_brks)
+][, value := as.numeric(as.factor(volume_brks))]
 
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
@@ -67,10 +45,10 @@ ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = as.factor(value), fill = as.factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
-  scale_fill_manual(values = colset_RdBu_5[c(5,1)], labels = levels(as.factor(agreement$common))) +
-  scale_color_manual(values = colset_RdBu_5[c(5,1)],
+  scale_fill_manual(values = colset_prec_quant[c(1,3,5,7,8,9)], labels = levels(as.factor(evap_mean$volume_brks))) +
+  scale_color_manual(values = colset_prec_quant[c(1,3,5,7,8,9)],
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Agreement") +
+  labs(x = NULL, y = NULL, fill = expression(paste('Ensemble \nvolume [km'^3,' year'^-1,']'))) +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   theme_bw() +
@@ -87,5 +65,5 @@ ggplot(to_plot_sf) +
 
 
 
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig2_SI_overlapping_main_dataset_range_agreement_maps.png"), 
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "supplement/fig_SI_map_ensemble_volume.png"), 
        width = 8, height = 4)
