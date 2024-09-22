@@ -137,4 +137,29 @@ swrad[, std_value := (value - mean(value)) / sd(value), by = .(pentad, grid_id)]
 saveRDS(lwrad, paste0(PATH_OUTPUT_DATA, region, '_lwrad_grid.rds'))
 saveRDS(swrad, paste0(PATH_OUTPUT_DATA, region, '_swrad_grid.rds'))
 
+# Temperature
+temp <- readRDS(paste0(PATH_OUTPUT_DATA, region, '_temp_mswx.rds'))
+temp <- evap_grid[temp, on = .(lon, lat)][, lon := NULL][, lat := NULL]
+temp <- temp[pentads[, .(date, pentad, grid_id)], on = .(date, grid_id)]
+temp[, std_value := (value - mean(value)) / sd(value), by = .(pentad, grid_id)][, pentad := NULL]
 
+saveRDS(temp, paste0(PATH_OUTPUT_DATA, region, '_temp_grid.rds'))
+
+# Sensible Heat
+sensible <- readRDS(paste0(PATH_OUTPUT_DATA, region, '_sensible.rds'))
+sensible <- evap_grid[sensible, on = .(lon, lat)][, lon := NULL][, lat := NULL]
+
+saveRDS(sensible, paste0(PATH_OUTPUT_DATA, region, '_sensible_grid.rds'))
+
+# Latent Heat
+LATENT <-  2.45 * 10^6 / SEC_IN_DAY #W/day / kg 
+latent <- exeves[, .(grid_id, date, value = LATENT * value)]
+saveRDS(latent, paste0(PATH_OUTPUT_DATA, region, '_latent_grid.rds'))
+
+# Bowen ratio
+names(sensible)[3] <- "sensible"
+names(latent)[3] <- "latent"
+heat <- merge(sensible, latent, by = c('grid_id', 'date'))
+heat[, bowen := sensible / latent]
+heat[, evap_fraction := 1 / (1 + bowen)]
+saveRDS(heat, paste0(PATH_OUTPUT_DATA, region, '_heat_grid.rds'))

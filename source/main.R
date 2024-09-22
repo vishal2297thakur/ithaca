@@ -88,4 +88,4 @@ SUBDUED_PROF_PALETTE = c("#90AFC5", "#336B87", "#2A3132", "#763626")
 M2_TO_KM2 <- 10 ^ (-6)
 MM_TO_M <- 10 ^ (-3)
 MM_TO_KM <- 10 ^ (-6)
-
+SEC_IN_DAY <- 60 * 60 * 24
