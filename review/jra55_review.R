@@ -11,12 +11,12 @@ library(sf)
 library(stars)
 
 ## Load data ----
-fnames_nc <- list.files(path = "~/shared/data_review/Riya_name_modified", pattern = ".nc$", 
-                     full.names = T)
+fnames_nc <- list.files(path = PATH_EVAP_SIM, pattern = ".nc$", 
+                        full.names = T)
 
 fnames_product <- fnames_nc[grep("jra55", fnames_nc)]
 
-fname <- fnames_product[grep("monthly", fnames_product)]
+fname <- fnames_product[grep("yearly", fnames_product)]
 
 ## 1. Check name: Data product, variables, unit, scale, beginning of time, end of time, spatial resolution, temporal resolution ----
 fname
@@ -66,39 +66,27 @@ data@z$Date
 cdo_sinfo_fnc(fname)
 
 ## 7. Compare values to at least one other publication ----
-# Change according to need
-# Comparison to Kim et all. 2021 "An Assessment of Concurrency in Evapotranspiration Trends across Multiple Global Datasets" reported mean value form 1982-2012 
-period_start <- as.Date("1982-01-01") 
-period_end <- as.Date("2012-12-01") 
+
+cdo_timmean_fnc(inputfile_name = fname, outputfile_name = "~/Review/fldas_review_time_mean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/fldas_review_time_mean.nc")
+
+# trend Ma et al. 2003 to 2019
+period_start <- as.Date("2003-01-01") 
+period_end <- as.Date("2019-01-01") 
 
 start_time <- which(data@z$Date == period_start)
 end_time <- which(data@z$Date == period_end)
 
-# selects time
-cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/jra_review_sel.nc", start_time = start_time, end_time = end_time)
+cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/jra55_review_sel.nc", start_time = start_time, end_time = end_time)
 
-# Calculate field means
-cdo_fldmean_fnc(inputfile_name = "~/Review/jra_review_sel.nc", outputfile_name = "~/Review/jra_review_fldmean_check.nc")
+cdo_fldmean_fnc(inputfile_name = "~/Review/jra55_review_sel.nc", outputfile_name = "~/Review/jra55_review_sel_fldmean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/jra55_review_sel_fldmean.nc")
+fld_means <- cdo_info_to_text_fnc(inputfile_name = "~/Review/jra55_review_sel_fldmean.nc", outputfile_name = "~/Review/jra55_1982_2019.txt")
+fld_means[, year := as.numeric(format(date, "%Y"))]
+fld_means[, date := paste0(year, "-01-01 00:00:00")]
+fld_means[, date := as.POSIXct(date)]
+slope <- TheilSen(fld_means, pollutant = "value", autocor = FALSE, plot = F, silent = T)
+slope
+summary(lm(value ~ year, data = fld_means))
 
-cdo_info_fnc(inputfile_name = "~/Review/jra_review_fldmean_check.nc")
-
-cdo_timmean_fnc(inputfile_name =  "~/Review/jra_review_fldmean_check.nc", outputfile_name = "~/Review/jra_fldmean_timmean_mean.nc")
-
-cdo_info_fnc(inputfile_name = "~/Review/jra_fldmean_timmean_mean.nc")
-
-cdo_timmean_fnc(inputfile_name = "~/Review/jra_review_sel.nc", outputfile_name = "~/Review/jra_review_timmean.nc")
-
-cdo_info_fnc(inputfile_name = "~/Review/jra_review_timmean.nc")
-
-cdo_fldmean_fnc(inputfile_name = "~/Review/jra_review_timmean.nc", outputfile_name = "~/Review/jra_review_timmean_fldmean.nc")
-
-cdo_info_fnc("~/Review/jra_review_timmean_fldmean.nc")
-
-cdo_ymonmean_fnc(inputfile_name = "~/Review/jra_review_sel.nc", outputfile_name = "~/Review/jra_review_ymonmean.nc")
-
-cdo_yearmean_fnc(inputfile_name = "~/Review/jra_review_ymonmean.nc", outputfile_name = "~/Review/jra_review_ymonmean_yearmean.nc")
-
-cdo_fldmean_fnc(inputfile_name = "~/Review/jra_review_ymonmean_yearmean.nc", outputfile_name = "~/Review/jra_review_ymonmean_yearmean_fldmean.nc")
-
-cdo_info_fnc("~/Review/jra_review_ymonmean_yearmean_fldmean.nc")
-
+plot(fld_means$year, fld_means$value, type = "b", ylim = c(450, 700))

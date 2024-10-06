@@ -7,11 +7,10 @@ source('source/geo_functions.R')
 
 library(stringr)
 
-load("~/shared/data_projects/ithaca/misc/06_b_prec_fnames_2000_2019_full_record.Rdata") # Created by database/06_b_dataset_fnames.R
+load("~/shared/data_projects/ithaca/misc/prec_fnames_2000_2019_full_record_prec_change.Rdata") # Created by database/06b_dataset_fnames_prec_change.R
 
 ## Data
 PREC_FNAMES_2000_2019_FULL_RECORD
-PREC_FNAMES_2000_2019_FULL_RECORD <- PREC_FNAMES_2000_2019_FULL_RECORD[-3] # removing the JRA55 from list since it has all NA's in year (have to recheck)
 
 prec_2000_2019 <- lapply(PREC_FNAMES_2000_2019_FULL_RECORD, brick)
 cleaned_names <- str_extract(PREC_FNAMES_2000_2019_FULL_RECORD, "(?<=//)[^_]+") #extract the corresponding dataset names

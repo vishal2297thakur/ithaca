@@ -13,8 +13,7 @@ library(sf)
 library(stars)
 
 ## stats
-library("Kendall")
-library("RobustLinearReg")
+library("openair")
 
 ## Load data ----
 fnames_nc <- list.files(path = PATH_EVAP_SIM, pattern = ".nc$", 
@@ -71,6 +70,10 @@ data@z$Date
 cdo_sinfo_fnc(fname)
 
 ## 7. Compare values to at least one other publication ----
+cdo_timmean_fnc(inputfile_name = fname, outputfile_name = "~/Review/gleam_review_time_mean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/gleam_review_time_mean.nc")
+
+
 period_start <- as.Date("1982-01-01") 
 period_end <- as.Date("2020-01-01") 
 
@@ -86,7 +89,76 @@ cdo_info_fnc(inputfile_name = "~/Review/gleam_review_sel_fldmean_trend_b.nc")
 
 fld_means <- cdo_info_to_text_fnc(inputfile_name = "~/Review/gleam_review_sel_fldmean.nc", outputfile_name = "~/Review/gleam_1982_2020.txt")
 fld_means[, year := as.numeric(format(date, "%Y"))]
-slope <- theil_sen_regression(value ~ year, data = fld_means)$coefficients[2]
+fld_means[, date := paste0(year, "-01-01 00:00:00")]
+fld_means[, date := as.POSIXct(date)]
+slope <- TheilSen(fld_means, pollutant = "value", autocor = FALSE, plot = F, silent = T)
+slope
 lm(value ~ year, data = fld_means)
 mean_fld <- mean(fld_means$value, na.rm = T)
 plot(fld_means$date, fld_means$value-mean_fld, type = "b", ylim = c(-30, 30))
+
+
+# Comparison to Liu et al. 2023, JoH, 617 (2023) 128887
+period_start <- as.Date("2003-01-01") 
+period_end <- as.Date("2013-01-01") 
+
+start_time <- which(data@z$Date == period_start)
+end_time <- which(data@z$Date == period_end)
+
+cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/gleam_review_sel.nc", start_time = start_time, end_time = end_time)
+cdo_fldmean_fnc(inputfile_name = "~/Review/gleam_review_sel.nc", outputfile_name = "~/Review/gleam_review_sel_fldmean.nc")
+cdo_timmean_fnc(inputfile_name = "~/Review/gleam_review_sel_fldmean.nc", outputfile_name = "~/Review/gleam_review_sel_fldmean_timmean.nc")
+cdo_info_fnc("~/Review/gleam_review_sel_fldmean_timmean.nc")
+
+# Comparison to Pan et al. 1. magnitude
+period_start <- as.Date("2001-01-01") 
+period_end <- as.Date("2011-01-01") 
+
+start_time <- which(data@z$Date == period_start)
+end_time <- which(data@z$Date == period_end)
+
+cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/gleam_review_sel.nc", start_time = start_time, end_time = end_time)
+cdo_fldmean_fnc(inputfile_name = "~/Review/gleam_review_sel.nc", outputfile_name = "~/Review/gleam_review_sel_fldmean.nc")
+cdo_timmean_fnc(inputfile_name = "~/Review/gleam_review_sel_fldmean.nc", outputfile_name = "~/Review/gleam_review_sel_fldmean_timmean.nc")
+cdo_info_fnc("~/Review/gleam_review_sel_fldmean_timmean.nc")
+
+# trend
+period_start <- as.Date("1982-01-01") 
+period_end <- as.Date("2011-01-01") 
+
+start_time <- which(data@z$Date == period_start)
+end_time <- which(data@z$Date == period_end)
+
+cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/gleam_review_sel.nc", start_time = start_time, end_time = end_time)
+
+cdo_fldmean_fnc(inputfile_name = "~/Review/gleam_review_sel.nc", outputfile_name = "~/Review/gleam_review_sel_fldmean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/gleam_review_sel_fldmean.nc")
+fld_means <- cdo_info_to_text_fnc(inputfile_name = "~/Review/gleam_review_sel_fldmean.nc", outputfile_name = "~/Review/gleam_1982_2019.txt")
+fld_means[, year := as.numeric(format(date, "%Y"))]
+fld_means[, date := paste0(year, "-01-01 00:00:00")]
+fld_means[, date := as.POSIXct(date)]
+slope <- TheilSen(fld_means, pollutant = "value", autocor = FALSE, plot = F, silent = T)
+slope
+lm(value ~ year, data = fld_means)
+
+
+# trend Ma et al. 2003 to 2019
+period_start <- as.Date("2003-01-01") 
+period_end <- as.Date("2019-01-01") 
+
+start_time <- which(data@z$Date == period_start)
+end_time <- which(data@z$Date == period_end)
+
+cdo_seltimestep_fnc(inputfile_name = fname, outputfile_name = "~/Review/gleam_review_sel.nc", start_time = start_time, end_time = end_time)
+
+cdo_fldmean_fnc(inputfile_name = "~/Review/gleam_review_sel.nc", outputfile_name = "~/Review/gleam_review_sel_fldmean.nc")
+cdo_info_fnc(inputfile_name = "~/Review/gleam_review_sel_fldmean.nc")
+fld_means <- cdo_info_to_text_fnc(inputfile_name = "~/Review/gleam_review_sel_fldmean.nc", outputfile_name = "~/Review/gleam_1982_2019.txt")
+fld_means[, year := as.numeric(format(date, "%Y"))]
+fld_means[, date := paste0(year, "-01-01 00:00:00")]
+fld_means[, date := as.POSIXct(date)]
+slope <- TheilSen(fld_means, pollutant = "value", autocor = FALSE, plot = F, silent = T)
+slope
+summary(lm(value ~ year, data = fld_means))
+
+plot(fld_means$value, type = "b", ylim = c(450, 700))
