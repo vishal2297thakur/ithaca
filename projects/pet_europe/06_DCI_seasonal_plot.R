@@ -61,7 +61,6 @@ p1 <- ggplot() +
   scale_fill_manual(
     values = c("blue",   "darkgreen", "#7D0A0A")
   ) +
-  #facet_wrap(.~factor(variable, levels = c("PET", 'AET',"Q","TWS", "TWSC", "PRE")), ncol = 2) +
   theme_bw() + 
   theme(axis.text.y = element_text(size = 14, color = "black"),  
         axis.text.x = element_text(size = 14, color = "black"), 

@@ -55,7 +55,7 @@ p1 <- ggplot(data = seasonal_slope_dt[variable == "PET" & outlier == "FALSE" & s
   geom_boxplot(aes( fill = pet_method, y = sen_slope), na.rm = TRUE, outlier.shape = NA, width = 0.1) +
   labs(y = NULL, x = NULL) +
   geom_hline(yintercept = 0) +
-  scale_fill_manual(name='Method:',values = c(TH= "#E31A1C", BR = "dodgerblue2" , BC = "green4", OD = "#6A3D9A", 
+  scale_fill_manual(name='Method:',values = c(TH = "#E31A1C", BR = "dodgerblue2" , BC = "green4", OD = "#6A3D9A", 
                                               MB ="#FDBF6F", HM= "gold1", HS = "deeppink1", JH = "darkturquoise", 
                                               EOP ="green1", PT = "brown", PM = "blue1", CO2 = "yellow3"  )
   ) +
@@ -177,12 +177,3 @@ p6 <- annotate_figure(p5, left = text_grob("Slope (mm/seas-year)", color = "blac
 p6
 ggsave(file = paste0(SAVE_PATH, "boxplot_autumn.png"), p6 , width = 13, height = 14, units = "in", dpi = 300)
 
-
-
-
-
-p3 <- ggarrange(p1, p2, ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom")
-p4 <- annotate_figure(p3, left = text_grob("Slope (mm/seas-year)", color = "black", rot = 90, size = 18))
-
-#Saving plot  
-ggsave(file = paste0(SAVE_PATH, "boxplot_autumn_season.png"), p4 , width = 13, height = 7, units = "in", dpi = 300)
