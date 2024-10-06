@@ -88,3 +88,4 @@ p1 <- ggplot() +
 # Saving plot
 ggsave(file = paste0(SAVE_PATH,"DCI_annual.png"), plot = p1 , width = 30, 
        height = 40, units = "cm", dpi = 300)
+

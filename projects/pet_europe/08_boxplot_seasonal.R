@@ -50,8 +50,41 @@ levels(seasonal_slope_dt$variable) <- c(twsc = "TWSC", pet = "PET", aet = "AET",
 
 ##############################################
 # Boxplots for AET and Q for summer season
-#############################################
-p1 <- ggplot(data = seasonal_slope_dt[variable == "AET" & outlier == "FALSE" & season == "MAM"]) +
+##############################################
+p1 <- ggplot(data = seasonal_slope_dt[variable == "PET" & outlier == "FALSE" & season == "SON"]) +
+  geom_boxplot(aes( fill = pet_method, y = sen_slope), na.rm = TRUE, outlier.shape = NA, width = 0.1) +
+  labs(y = NULL, x = NULL) +
+  geom_hline(yintercept = 0) +
+  scale_fill_manual(name='Method:',values = c(TH= "#E31A1C", BR = "dodgerblue2" , BC = "green4", OD = "#6A3D9A", 
+                                              MB ="#FDBF6F", HM= "gold1", HS = "deeppink1", JH = "darkturquoise", 
+                                              EOP ="green1", PT = "brown", PM = "blue1", CO2 = "yellow3"  )
+  ) +
+  facet_nested(rows = vars(season, basin_type),cols = vars(variable), scales = "free_y", independent = "none", 
+               labeller = labeller(basin_type = c(energy_limited = "Energy-Limited", mixed = "Mixed", water_limited = "Water-Limited")))+ 
+  theme_bw()+
+  theme(
+    axis.text.y = element_text(size = 18, color = "black"),  
+    axis.text.x = element_blank(), 
+    axis.ticks.x = element_blank(),
+    strip.text = element_text( size = 18, color = "black"),
+    axis.text = element_text(size = 18, color = "black"),
+    legend.title =  element_text( size = 18, color = "black"),
+    legend.direction = "horizontal",
+    legend.position = "bottom",
+    legend.text = element_text(size = 18, color = "black"),
+    legend.spacing.y = unit(0.1, 'cm'),
+    panel.grid = element_blank(), 
+    panel.border = element_rect(color = "black", linewidth = 1),
+    panel.spacing.x = unit(0.2, "cm"),
+    panel.spacing.y = unit(0.2, "cm")
+  ) +
+  guides(fill = guide_legend(title.position = "left", nrow = 1, label.position = "top", keywidth = unit(2, "cm")),)
+
+
+
+
+
+p2 <- ggplot(data = seasonal_slope_dt[variable == "AET" & outlier == "FALSE" & season == "SON"]) +
     geom_boxplot(aes( fill = pet_method, y = sen_slope), na.rm = TRUE, outlier.shape = NA, width = 0.1) +
     labs(y = NULL, x = NULL) +
     geom_hline(yintercept = 0) +
@@ -59,7 +92,7 @@ p1 <- ggplot(data = seasonal_slope_dt[variable == "AET" & outlier == "FALSE" & s
                                                 MB ="#FDBF6F", HM= "gold1", HS = "deeppink1", JH = "darkturquoise", 
                                                 EOP ="green1", PT = "brown", PM = "blue1", CO2 = "yellow3"  )
     ) +
-  facet_nested(rows = vars(season, basin_type),cols = vars(variable), scales = "free_y", independent = "none", 
+  facet_nested(rows = vars(season, basin_type),cols = vars(variable), scales = "fixed", independent = "none", 
                labeller = labeller(basin_type = c(energy_limited = "Energy-Limited", mixed = "Mixed", water_limited = "Water-Limited")))+ 
   theme_bw()+
     theme(
@@ -80,7 +113,7 @@ p1 <- ggplot(data = seasonal_slope_dt[variable == "AET" & outlier == "FALSE" & s
     ) +
     guides(fill = guide_legend(title.position = "left", nrow = 1, label.position = "top", keywidth = unit(2, "cm")),)
 
-p2 <- ggplot(data = seasonal_slope_dt[variable == "Q" & outlier == "FALSE" & season == "MAM"]) +
+p3 <- ggplot(data = seasonal_slope_dt[variable == "Q" & outlier == "FALSE" & season == "SON"]) +
   geom_boxplot(aes( fill = pet_method, y = sen_slope), na.rm = TRUE, outlier.shape = NA, width = 0.1) +
   labs(y = NULL, x = NULL) +
   geom_hline(yintercept = 0) +
@@ -109,10 +142,47 @@ p2 <- ggplot(data = seasonal_slope_dt[variable == "Q" & outlier == "FALSE" & sea
   ) +
   guides(fill = guide_legend(title.position = "left", nrow = 1, label.position = "top", keywidth = unit(2, "cm")))
 
+p4 <- ggplot(data = seasonal_slope_dt[variable == "TWS" & outlier == "FALSE" & season == "SON"]) +
+  geom_boxplot(aes( fill = pet_method, y = sen_slope), na.rm = TRUE, outlier.shape = NA, width = 0.1) +
+  labs(y = NULL, x = NULL) +
+  geom_hline(yintercept = 0) +
+  scale_fill_manual(name='Method:',values = c(TH= "#E31A1C", BR = "dodgerblue2" , BC = "green4", OD = "#6A3D9A", 
+                                              MB ="#FDBF6F", HM= "gold1", HS = "deeppink1", JH = "darkturquoise", 
+                                              EOP ="green1", PT = "brown", PM = "blue1", CO2 = "yellow3"  )
+  ) +
+  facet_nested(rows = vars(season, basin_type),cols = vars(variable), scales = "free_y", independent = "none", 
+               labeller = labeller(basin_type = c(energy_limited = "Energy-Limited", mixed = "Mixed", water_limited = "Water-Limited")))+ 
+  theme_bw()+
+  theme(
+    axis.text.y = element_text(size = 18, color = "black"),  
+    axis.text.x = element_blank(), 
+    axis.ticks.x = element_blank(),
+    strip.text = element_text( size = 18, color = "black"),
+    axis.text = element_text(size = 18, color = "black"),
+    legend.title =  element_text( size = 18, color = "black"),
+    legend.direction = "horizontal",
+    legend.position = "bottom",
+    legend.text = element_text(size = 18, color = "black"),
+    legend.spacing.y = unit(0.1, 'cm'),
+    panel.grid = element_blank(), 
+    panel.border = element_rect(color = "black", linewidth = 1),
+    panel.spacing.x = unit(0.2, "cm"),
+    panel.spacing.y = unit(0.2, "cm")
+  ) +
+  guides(fill = guide_legend(title.position = "left", nrow = 1, label.position = "top", keywidth = unit(2, "cm")))
 
 #Arranging boxplot 
+p5 <- ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2, common.legend = TRUE, legend = "bottom")
+p6 <- annotate_figure(p5, left = text_grob("Slope (mm/seas-year)", color = "black", rot = 90, size = 18))
+p6
+ggsave(file = paste0(SAVE_PATH, "boxplot_autumn.png"), p6 , width = 13, height = 14, units = "in", dpi = 300)
+
+
+
+
+
 p3 <- ggarrange(p1, p2, ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom")
-p4 <- annotate_figure(p3, left = text_grob("Slope (mm/year)", color = "black", rot = 90, size = 18))
+p4 <- annotate_figure(p3, left = text_grob("Slope (mm/seas-year)", color = "black", rot = 90, size = 18))
 
 #Saving plot  
-ggsave(file = paste0(SAVE_PATH, "boxplot_seasonal.png"), p4 , width = 13, height = 7, units = "in", dpi = 300)
+ggsave(file = paste0(SAVE_PATH, "boxplot_autumn_season.png"), p4 , width = 13, height = 7, units = "in", dpi = 300)

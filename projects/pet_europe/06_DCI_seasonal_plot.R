@@ -48,12 +48,12 @@ seasonal_dci$legend_range <- cut(seasonal_dci$dci, breaks = c(-1.0001, -0.5, 0.4
                         labels = c("<= -0.5, ", "-0.5 — 0.5" , ">= 0.5"))
 levels(seasonal_dci$variable) <- c(twsc = "TWSC",pet = "PET", aet = "AET", q = "Q", 
                           tws = "TWS", pre = "PRE")
-
+seasonal_dci_test <- unique(seasonal_dci)
 p1 <- ggplot() +
   geom_sf(data = europe, aes()) +
   scale_x_continuous(limits = c(-9, 32.5),  breaks = c(-8, 0, 10, 20, 30)) +
   scale_y_continuous(limits = c(38, 69)) +
-  geom_sf(data = seasonal_dci[variable != "TWSC" & variable != "PRE"], aes(geometry = geometry, fill = legend_range), alpha = 0.8) +
+  geom_sf(data = seasonal_dci[variable != "TWSC" & variable != "PRE"], aes(geometry = geometry, fill = legend_range)) +
   coord_sf(crs = st_crs(4326)) +
   scale_color_manual(guide = guide_legend(title = "seasonal_dci: ", title.hjust = 0.5, 
                                           title.position = "top", label.position = "right", 
@@ -61,7 +61,7 @@ p1 <- ggplot() +
   scale_fill_manual(
     values = c("blue",   "darkgreen", "#7D0A0A")
   ) +
-  facet_wrap(.~factor(variable, levels = c("PET", 'AET',"Q","TWS", "TWSC", "PRE")), ncol = 2) +
+  #facet_wrap(.~factor(variable, levels = c("PET", 'AET',"Q","TWS", "TWSC", "PRE")), ncol = 2) +
   theme_bw() + 
   theme(axis.text.y = element_text(size = 14, color = "black"),  
         axis.text.x = element_text(size = 14, color = "black"), 
@@ -83,9 +83,10 @@ p1 <- ggplot() +
   facet_nested(factor(season, levels = c("DJF", "MAM", 'JJA', "SON")) ~
                  factor(variable, levels = c("PET", 'AET', "Q", "TWS",
                                              "TWSC", "PRE")) )
+p1
 
 #Saving plot 
-ggsave(file = paste0(SAVE_PATH,"seasonal_dci.png"), plot = p1, width = 15,
+ggsave(file = paste0(SAVE_PATH,"seasonal_dci_trial.png"), plot = p1, width = 15,
        height = 15, units = "in", dpi = 300)
 
 
