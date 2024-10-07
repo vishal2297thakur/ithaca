@@ -5,6 +5,38 @@ source('source/graphics.R')
 
 library(rnaturalearth)
 
+
+## Data ----
+evap_annual_vol <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "global_annual_means.rds"))
+evap_annual_vol[dataset %in% EVAP_DATASETS_REANAL, dataset_type := "Reanalysis"]
+evap_annual_vol[dataset %in% EVAP_DATASETS_REMOTE, dataset_type := "Remote"]
+evap_annual_vol[dataset %in% EVAP_DATASETS_HYDROL, dataset_type := "Hydr./LSM model"]
+evap_annual_vol[dataset %in% EVAP_DATASETS_ENSEMB, dataset_type := "Ensemble"]
+
+evap_annual_vol <- evap_annual_vol[!(dataset == "etmonitor" & year == 2000), ]
+
+## Figure ----
+
+
+gg_volume <- ggplot(evap_annual_vol, aes(x = 0, y = evap_volume)) +
+  geom_boxplot(fill = NA, aes(x = dataset_type, col = dataset), lwd = 0.7, position = "identity") +
+  geom_violin(fill = NA, lwd = 0.7) +
+  geom_boxplot(fill = NA, lwd = 0.7, col = "gray80") +
+  scale_x_discrete(name = "") +
+  labs(y = expression(paste('Global annual volume [km'^3,']')))+
+  scale_color_manual(values = cols_data) + 
+  guides(col = guide_legend(title = "Dataset"), lty = guide_legend(title = "Dataset")) +
+  theme_bw() +
+  theme(axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        axis.title = element_text(size = 16), 
+        legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 16),
+        axis.text = element_text(size = 12),
+        legend.position = "right",
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+
+
 ## Data
 evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))
 levels(evap_mask$rel_dataset_agreement) <- c("High", "Above average", "Average",
@@ -23,12 +55,13 @@ quant_thr_0_3 <- quantile(distribution$index, c(0.3))
 quant_thr_0_7 <- quantile(distribution$index, c(0.7))
 quant_thr_0_9 <- quantile(distribution$index, c(0.9))
 
+distribution[index > quant_thr_0_9, agreement_fac := ordered(1, labels = "High")]
+distribution[index > quant_thr_0_7 & index <= quant_thr_0_9, agreement_fac := ordered(2, labels = "Above average")]
+distribution[index > quant_thr_0_3 & index <= quant_thr_0_7, agreement_fac := ordered(3, labels = "Average")]
+distribution[index > quant_thr_0_1 & index <= quant_thr_0_3, agreement_fac := ordered(4, labels = "Below average")]
+distribution[index <= quant_thr_0_1, agreement_fac := ordered(5, labels = "Low")] 
 
-distribution[index <= quant_thr_0_1, agreement_fac := ordered(1, labels = "low")] 
-distribution[index > quant_thr_0_1 & index <= quant_thr_0_3, agreement_fac := ordered(3, labels = "below average")]
-distribution[index > quant_thr_0_3 & index <= quant_thr_0_7, agreement_fac := ordered(4, labels = "average")]
-distribution[index > quant_thr_0_7 & index <= quant_thr_0_9, agreement_fac := ordered(5, labels = "above average")]
-distribution[index > quant_thr_0_9, agreement_fac := ordered(7, labels = "high")]
+
 
 ## World and Land borders
 earth_box <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP_SPATIAL,
@@ -64,10 +97,10 @@ fig_distribution_index <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = as.factor(value), fill = as.factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
-  scale_fill_manual(values = colset_RdBu_5, labels = levels(distribution$agreement_fac)) +
-  scale_color_manual(values = colset_RdBu_5,
+  scale_fill_manual(values = rev(colset_RdBu_5), labels = levels(distribution$agreement_fac)) +
+  scale_color_manual(values = rev(colset_RdBu_5),
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Distribution\nAgreement") +
+  labs(x = NULL, y = NULL, fill = "Distribution\nagreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
@@ -87,7 +120,16 @@ fig_distribution_index <- ggplot(to_plot_sf) +
 
 evap_mask[, Qdiff := ens_mean_q75-ens_mean_q25]
 
-evap_mask[, Qdiff_brk := cut(Qdiff, breaks = c(0,50,100, 150, 200, 1145))]
+quant_iqr_0_1 <- quantile(evap_mask$Qdiff, c(0.1))
+quant_iqr_0_3 <- quantile(evap_mask$Qdiff, c(0.3))
+quant_iqr_0_7 <- quantile(evap_mask$Qdiff, c(0.7))
+quant_iqr_0_9 <- quantile(evap_mask$Qdiff, c(0.9))
+
+evap_mask[Qdiff > quant_iqr_0_9, Qdiff_brk := ordered(1, labels = "High")]
+evap_mask[Qdiff > quant_iqr_0_7 & Qdiff <= quant_iqr_0_9, Qdiff_brk := ordered(2, labels = "Above average")]
+evap_mask[Qdiff > quant_iqr_0_3 & Qdiff <= quant_iqr_0_7, Qdiff_brk := ordered(3, labels = "Average")]
+evap_mask[Qdiff> quant_iqr_0_1 & Qdiff <= quant_iqr_0_3, Qdiff_brk := ordered(4, labels = "Below average")]
+evap_mask[Qdiff <= quant_iqr_0_1, Qdiff_brk := ordered(5, labels = "Low")] 
 
 to_plot_sf <- evap_mask[, .(lon, lat, Qdiff_brk)
 ][, value := as.numeric(Qdiff_brk)]
@@ -100,10 +142,10 @@ fig_quantile_range <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
   geom_sf(aes(color = as.factor(value), fill = as.factor(value))) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
-  scale_fill_manual(values = colset_prec_quant[c(1,3,5,7,9)], labels = levels(evap_mask$Qdiff_brk)) +
-  scale_color_manual(values = colset_prec_quant[c(1,3,5,7,9)],
+  scale_fill_manual(values = rev(colset_RdBu_5), labels = levels(evap_mask$Qdiff_brk)) +
+  scale_color_manual(values = rev(colset_RdBu_5),
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Quartile\nRange [mm/year]") +
+  labs(x = NULL, y = NULL, fill = "Quartile\nrange") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
@@ -135,39 +177,7 @@ fig_rel_dataset_agreement <- ggplot(to_plot_sf) +
   scale_color_manual(values = rev(colset_RdBu_5),
                      labels = levels(evap_mask$rel_dataset_agreement),
                      guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Quartile\nAgreement") +
-  coord_sf(expand = FALSE, crs = "+proj=robin") +
-  scale_y_continuous(breaks = seq(-60, 60, 30)) +
-  geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
-  geom_sf_text(data = labs_x, aes(label = label), color = "gray40", size = 4) +
-  theme_bw() +
-  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
-        panel.border = element_blank(),
-        axis.ticks.length = unit(0, "cm"),
-        panel.grid.major = element_line(colour = "gray60"),
-        axis.text = element_blank(), 
-        axis.title = element_text(size = 16), 
-        legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 16))
-
-### Relative dataset agreement conditioned by evaporation rate
-to_plot_sf <- evap_mask[, .(lon, lat, evap_quant_dataset_agreement)
-][, value := as.numeric(evap_quant_dataset_agreement )]
-to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
-  rasterFromXYZ(res = c(0.25, 0.25),
-                crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
-  st_as_stars() %>% st_as_sf()
-
-fig_evap_quant_dataset_agreement <- ggplot(to_plot_sf) +
-  geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(color = factor(value), fill = factor(value))) +
-  geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
-  scale_fill_manual(values = rev(colset_RdBu_5), 
-                    labels = levels(evap_mask$evap_quant_dataset_agreement)) +
-  scale_color_manual(values = rev(colset_RdBu_5),
-                     labels = levels(evap_mask$evap_quant_dataset_agreement),
-                     guide = "none") +
-  labs(x = NULL, y = NULL, fill = "Quartile\nAgreement\nper Evap. Quantile") +
+  labs(x = NULL, y = NULL, fill = "Quartile\nagreement") +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
   scale_y_continuous(breaks = seq(-60, 60, 30)) +
   geom_sf_text(data = labs_y, aes(label = label), color = "gray40", size = 4) +
@@ -183,14 +193,13 @@ fig_evap_quant_dataset_agreement <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 16))
 
 
-
-gg_agreement_v2 <- ggarrange(fig_quantile_range, fig_rel_dataset_agreement, 
-                             fig_evap_quant_dataset_agreement, fig_distribution_index, 
+gg_agreement_v2 <- ggarrange(gg_volume, fig_quantile_range, 
+                             fig_distribution_index, fig_rel_dataset_agreement,
                              labels = c('a', 'b', 'c', 'd'), common.legend = FALSE,
-                             legend = 'right', align = 'hv',
+                             legend = 'right',
                              nrow = 2, ncol = 2)
 
-jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "main/fig2_main_dataset_range_agreement_maps.png"), 
-     width = 24, height = 12, res = 300, units = 'in')
+jpeg(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "main/fig1_main_dataset_range_agreement_maps.png"), 
+     width = 20, height = 11, res = 300, units = 'in')
 gg_agreement_v2
 dev.off()

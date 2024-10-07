@@ -31,24 +31,6 @@ elevation[dataset %in% EVAP_DATASETS_HYDROL, dataset_type := "Hydr. model"]
 elevation[dataset %in% EVAP_DATASETS_ENSEMB, dataset_type := "Ensemble"]
 
 ## Figure ----
-cols_data <- c("bess" = "darkgreen",
-               "camele" = "red",
-               "era5-land" = "gold1",
-               "etmonitor" = "chartreuse4",
-               "etsynthesis" = "hotpink",
-               "fldas" = "darkslategray1",
-               "gldas-clsm" = "deepskyblue1",
-               "gldas-noah" = "deepskyblue3",
-               "gldas-vic" = "deepskyblue4",
-               "gleam" = "seagreen3",
-               "jra55" = "orange1",
-               "merra2" = "orange3",
-               "mod16a" = "green",
-               "terraclimate" = "darkblue"
-)
-
-
-
 
 ggplot(land_cover[land_cover_short_class != "Other" & land_cover_short_class != "Global"], aes(x = 0, y = evap_mean)) +
   geom_boxplot(fill = NA, aes(x = dataset_type, col = dataset), lwd = 0.7, position = "identity") +

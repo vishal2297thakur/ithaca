@@ -1,6 +1,5 @@
 # Partition evaporation to different regional properties and quantify their uncertainty
 source('source/partition_evap.R')
-source('source/geo_functions.R')
 
 ## Data 
 evap_mask <- readRDS(paste0(PATH_SAVE_PARTITION_EVAP, "evap_masks.rds"))

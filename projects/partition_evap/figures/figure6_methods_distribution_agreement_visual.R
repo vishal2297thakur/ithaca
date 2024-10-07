@@ -14,11 +14,11 @@ ggplot(landcover[land_cover_short_class == "Barren"], aes(x = dataset.x, y = dat
   labs(fill = "", x = "", y = "")+
   theme_bw()+
   theme(text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1),
         plot.title = element_text(hjust = 0.5))+
   theme(strip.background = element_rect(fill = "white"))+
   theme(strip.text = element_text(colour = 'black'))
 
 
-ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "main/fig_7_method_distribution_agreement_example.png"), 
+ggsave(paste0(PATH_SAVE_PARTITION_EVAP_FIGURES, "main/fig6_method_distribution_agreement_example.png"), 
        width = 4, height = 2.5)

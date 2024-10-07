@@ -210,7 +210,7 @@ save_nc <- function(dummie_nc, nc_out, name_def = "tp", longname_def = "Total pr
 #' Parallelisation of bootstrapped trend across lon lat using the Theil-Sen slope and block-bootstrap from openair package
 #' 
 #' @import openair
-#' @param x input data.table with lon and lat columns, dt(lon, lat, pollutant)
+#' @param x input data.table with lon and lat columns, dt(lon, lat, date, pollutant)
 #' @param pollutant column name used for trend
 #' @param autocor if true slope estimate will be bootstrapped
 #' @return data.table with slope, lower and upper estimates and p-value
@@ -237,7 +237,7 @@ return(dummie)
 #' Parallelisation of bootstrapped trend across lon, lat for each dataset using the Theil-Sen slope and block-bootstrap from openair package
 #' 
 #' @import openair
-#' @param x input data.table with lon and lat columns, dt(lon, lat, dataset, pollutant)
+#' @param x input data.table with lon and lat columns, dt(lon, lat, date, dataset, pollutant)
 #' @param pollutant column name used for trend
 #' @param autocor if true slope estimate will be bootstrapped
 #' @return data.table with slope, lower and upper estimates and p-value
