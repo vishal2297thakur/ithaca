@@ -8,7 +8,6 @@ library(ggplot2)
 library(gridExtra)
 library(grid)
 
-
 FILE_PATH <- "~/shared/data_projects/ithaca/pet_europe/data/"
 SAVE_PATH <- "~/shared/data_projects/ithaca/pet_europe/figures/"
 
@@ -52,6 +51,7 @@ p1 <- ggplot() +
   coord_sf(crs = st_crs(4326))+
   theme_bw()+
   theme(
+    text = element_text(family = "Helvetica"),
     axis.text.y = element_text(size = 18, color = "black"),  
     axis.text.x = element_text(size = 18, color = "black"), 
     strip.text = element_text( size = 18, color = "black"),
@@ -73,29 +73,31 @@ p1 <- ggplot() +
 
 # Plotting representative catchment in budyko framework
 p2 <- ggplot(data = aridity_dt[(basin == "6731601" | basin == "6974360" | basin == "7002004")])  +
-  geom_point(aes(x= aridity_idx, y= evaporative_idx, group = basin), size = 2) +
-  geom_smooth(aes(x = aridity_idx, y = evaporative_idx, group = basin, color = basin_type), se = FALSE,  linetype = "solid", linewidth = 2)+
-  labs(x= "Aridity Index", y = "Evaporative Index")+ 
-  geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1)) +
-  geom_segment(aes(x = 1, xend = 1, y = 0, yend = 1), colour = "red") +
-  geom_segment(aes(x = 1, xend = 2.40, y = 1, yend = 1)) +
-  scale_x_continuous( expand = c(0, 0))+
-  scale_y_continuous( expand = expansion(add = c(0, 0.1)), breaks = c(0.25, 0.5, 0.75, 1) )+
-  guides(fill = guide_legend(byrow = TRUE))+
-  scale_color_discrete(labels = c("Energy-Limited", "Mixed", "Water-Limited"))+
-  theme_bw()+
+  geom_point(aes(x = aridity_idx, y = evaporative_idx, group = basin), size = 2) +
+  geom_smooth(aes(x = aridity_idx, y = evaporative_idx, group = basin, color = basin_type), 
+              se = FALSE, linetype = "solid", linewidth = 2) +
+  labs(x = "Aridity Index", y = "Evaporative Index") + 
+  annotate("segment", x = 0, xend = 1, y = 0, yend = 1) +
+  annotate("segment", x = 1, xend = 1, y = 0, yend = 1, colour = "red") +
+  annotate("segment", x = 1, xend = 2.40, y = 1, yend = 1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = expansion(add = c(0, 0.1)), breaks = c(0.25, 0.5, 0.75, 1)) +
+  guides(fill = guide_legend(byrow = TRUE)) +
+  scale_color_discrete(labels = c("Energy-Limited", "Mixed", "Water-Limited")) +
+  theme_bw() +
   theme(
+    text = element_text(family = "Helvetica"),
     axis.text.y = element_text(size = 18, color = "black"),  
     axis.text.x = element_text(size = 18, color = "black"), 
-    strip.text = element_text( size = 18, color = "black"),
+    strip.text = element_text(size = 18, color = "black"),
     axis.text = element_text(size = 18, color = "black"),
-    axis.title.x = element_text(size = 18 , color = "black"), 
+    axis.title.x = element_text(size = 18, color = "black"), 
     axis.title.y = element_text(size = 18, color = "black"),
     legend.title = element_blank(), 
     legend.direction = "vertical", 
-    legend.position = c(0.75,0.15),
-    legend.key.width = unit(1,"cm"),
-    legend.key.height = unit(0.1,"cm"),
+    legend.position = c(0.75, 0.15),
+    legend.key.width = unit(1, "cm"),
+    legend.key.height = unit(0.1, "cm"),
     legend.text = element_text(size = 18),
     legend.spacing.y = unit(0.1, 'cm'),
     panel.grid = element_blank(), 
@@ -122,7 +124,7 @@ yearly_dt$pet_method <- factor(yearly_dt$pet_method, levels = pet_method_order)
 #Changing name of pet methods and hydrological components 
 levels(yearly_dt$pet_method) <- c(pet_th = "TH", pet_br = "BR" , pet_bc = "BC",
                                   pet_od = "OD", pet_mb ="MB", pet_hm= "HM",
-                                  pet_hs = "HS", pet_jh = "JH", pet_eop ="EOP",
+                                  pet_hs = "HS", pet_jh = "JH", pet_eop ="MD",
                                   pet_pt = "PT", pet_pm = "PM", pet_co2 = "CO2")
 
 
@@ -135,12 +137,13 @@ p3 <- ggplot(yearly_dt[(basin == "6731601" | basin == "6974360" | basin == "7002
                         )
              ) +
   scale_color_manual(
-  values = c(TH= "#E31A1C", BR = "dodgerblue2" , BC = "green4", OD = "#6A3D9A", 
+  values = c(TH = "#E31A1C", BR = "dodgerblue2" , BC = "green4", OD = "#6A3D9A", 
                MB ="#FDBF6F", HM= "gold1", HS = "deeppink1", JH = "darkturquoise", 
-               EOP ="green1", PT = "brown", PM = "blue1", CO2 = "yellow3"  ))+
+               MD ="green1", PT = "brown", PM = "blue1", CO2 = "yellow3"  ))+
   labs(x= NULL, y = NULL, colour = "Method:")+
   theme_bw()+
-  theme(legend.position = "bottom", 
+  theme(text = element_text(family = "Helvetica"),
+        legend.position = "bottom", 
         legend.title = element_text(size = 18, color = "black"),
         axis.text.y = element_text(size = 15, color = "black"),  
         axis.text.x = element_text(size = 15, color = "black"), 
