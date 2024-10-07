@@ -17,16 +17,17 @@ Q75_global/Q25_global
 
 evap_trend_stats <- readRDS(paste0(PATH_SAVE_EVAP_TREND_TABLES, "data_fig_1_b_c_grid_quartile_stats.rds"))
 
+evap_trend_stats[fold_brk == "(3.2,Inf]" & sign == "different sign", problem := "Direction and Magnitude"] 
 
-evap_trend_stats[fold_brk == "(3.2,Inf]" & sign == "different sign", problem := "High variety & different sign"] 
+evap_trend_stats[fold_brk == "(1,3.2]" & sign == "different sign", problem := "Direction"] 
 
-evap_trend_stats[fold_brk == "(3.2,Inf]" & sign == "same sign", problem := "High variety & same sign"] 
+evap_trend_stats[fold_brk == "(3.2,Inf]" & sign == "same sign" & (abs(Q25) >= 1 | abs(Q75) >= 1), problem := "Magnitude"] 
 
-evap_trend_stats[fold_brk == "(1,3.2]" & sign == "different sign" & abs(Q25) > 0.5 & abs(Q75) > 0.5, problem := "Low variety & different sign & large trend"] 
+evap_trend_stats[fold_brk == "(1,3.2]" & sign == "same sign", problem := "None"] 
 
-evap_trend_stats[fold_brk == "(1,3.2]" & sign == "same sign", problem := "Low variety & same sign"] 
+evap_trend_stats[sign == "different sign" & (abs(Q25) < 1 & abs(Q75) < 1), problem := "Small trend - Direction"] 
 
-evap_trend_stats[fold_brk == "(1,3.2]" & sign == "different sign" & (abs(Q25) < 0.5 | abs(Q75) < 0.5), problem := "Low variety & different sign & small trend"] 
+evap_trend_stats[fold_brk == "(3.2,Inf]" & sign == "same sign" & (abs(Q25) < 1 & abs(Q75) < 1), problem := "Small trend - Magnitude"] 
 
 evap_trend_stats[, problem:= as.factor(problem)]
 
@@ -57,9 +58,11 @@ evap_trend_stats[, sum(area)/total_area, .(min_max_sign)]
 
 ### problem areas
 
-evap_trend_stats[, sum(area)/total_area, .(problem, Q25_sign)]
-evap_trend_stats[, sum(area)/total_area, .(problem)]
+problem_dir <- evap_trend_stats[,  sum(area)/total_area, .(problem, Q25_sign)]
+problem <- evap_trend_stats[, sum(area)/total_area, .(problem)]
 
+problem_dir <- merge(problem_dir, problem, by = "problem", all = T)
+problem_dir[, fraction := V1.x/V1.y]
 # Figure 2  ----
 ## Opposing trends ----
 evap_index <- readRDS(paste0(PATH_SAVE_EVAP_TREND_TABLES, "data_fig_2_a_c_d_grid_trend_stats.rds"))

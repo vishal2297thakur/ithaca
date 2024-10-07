@@ -14,7 +14,7 @@ ggplot(landcover[land_cover_short_class == "Barren"], aes(x = dataset.x, y = dat
   labs(fill = "", x = "", y = "")+
   theme_bw()+
   theme(text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1),
         plot.title = element_text(hjust = 0.5))+
   theme(strip.background = element_rect(fill = "white"))+
   theme(strip.text = element_text(colour = 'black'))

@@ -28,37 +28,47 @@ labs_x$label <- paste0(abs(labs_x$lon), labs_x$label)
 labs_x <- st_as_sf(labs_x, coords = c("lon", "lat"),
                    crs = "+proj=longlat +datum=WGS84 +no_defs")
 
-## Read data
+cols_problem <- c("Direction and Magnitude" = "#330000", "Direction" = "darkred","Magnitude" = "orange2", 
+                  "Small trend - Direction" ="royalblue2", 
+                  "Small trend - Magnitude" = "lightblue", "None" = "darkblue")
+
+### Input Data generated in projects/partition_evap/04
+
 evap_trend_stats <- readRDS(paste0(PATH_SAVE_EVAP_TREND_TABLES, "data_fig_1_b_c_grid_quartile_stats.rds"))
 
-evap_trend_stats[fold_brk == "(3.2,Inf]" & sign == "different sign", problem := "High variety & different sign"] 
+evap_trend_stats[fold_brk == "(3.2,Inf]" & sign == "different sign", problem := "Direction and Magnitude"] 
 
-evap_trend_stats[fold_brk == "(3.2,Inf]" & sign == "same sign", problem := "High variety & same sign"] 
+evap_trend_stats[fold_brk == "(1,3.2]" & sign == "different sign", problem := "Direction"] 
 
-evap_trend_stats[fold_brk == "(1,3.2]" & sign == "different sign" & abs(Q25) > 0.5 & abs(Q75) > 0.5, problem := "Low variety & different sign & large trend"] 
+evap_trend_stats[fold_brk == "(3.2,Inf]" & sign == "same sign" & (abs(Q25) >= 1 | abs(Q75) >= 1), problem := "Magnitude"] 
 
-evap_trend_stats[fold_brk == "(1,3.2]" & sign == "same sign", problem := "Low variety & same sign"] 
+evap_trend_stats[fold_brk == "(1,3.2]" & sign == "same sign", problem := "None"] 
 
-evap_trend_stats[fold_brk == "(1,3.2]" & sign == "different sign" & (abs(Q25) < 0.5 | abs(Q75) < 0.5), problem := "Low variety & different sign & small trend"] 
+evap_trend_stats[sign == "different sign" & (abs(Q25) < 1 & abs(Q75) < 1), problem := "Small trend - Direction"] 
+
+evap_trend_stats[fold_brk == "(3.2,Inf]" & sign == "same sign" & (abs(Q25) < 1 & abs(Q75) < 1), problem := "Small trend - Magnitude"] 
 
 evap_trend_stats[, problem:= as.factor(problem)]
 
 ### Map ----
 
-cols_problem <- c("#330000","orange", "darkred", "lightblue", "darkblue")
 
 to_plot_sf <- evap_trend_stats[, .(lon, lat, problem)
 ][, value := as.numeric(problem)]
+problem_to_val <- unique(to_plot_sf[,(.(problem = problem, value = value))])
+
 to_plot_sf <- to_plot_sf[, .(lon, lat, value)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
+to_plot_sf <- merge(to_plot_sf, problem_to_val, by = "value", all = T)
+
 fig_problem <- ggplot(to_plot_sf) +
   geom_sf(data = world_sf, fill = "light gray", color = "light gray") +
-  geom_sf(aes(color = as.factor(value), fill = as.factor(value))) +
+  geom_sf(aes(color = problem, fill = problem)) +
   geom_sf(data = earth_box, fill = NA, color = "black", lwd = 0.1) +
-  scale_fill_manual(values = cols_problem, labels = levels(evap_trend_stats$problem)) +
+  scale_fill_manual(values = cols_problem) +
   scale_color_manual(values = cols_problem,
                      guide = "none") +
   labs(x = NULL, y = NULL, fill = "") +
@@ -92,8 +102,6 @@ total_area <- evap_trend_stats[, sum(area)]
 problem_area_stats <- evap_trend_stats[, .(area_fraction = sum(area)/total_area), .(problem)]
 
 problem_area_stats <- problem_area_stats[,problem_area_stats[order(problem, decreasing = T)]]
-
-cols_problem <- c("#330000","orange", "darkred", "lightblue", "darkblue")
 
 
 ggplot(problem_area_stats , aes(x = "", y = area_fraction*100))+
